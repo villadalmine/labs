@@ -36,34 +36,131 @@ pstree -p
 
 El árbol permite seguir cómo `systemd` (PID 1) inicia servicios y otros procesos.
 
-### 1.2 Activar un timer de systemd
+### 1.2 Crear un monitor periódico con systemd
 
-Este ejemplo presupone que el script `/usr/local/bin/monitor_recursos.sh` y las unidades de servicio y timer ya existen en `/etc/systemd/system/`.
+En este ejemplo el script registra cada minuto los cinco procesos con mayor uso de CPU y memoria. Crearemos el script y las unidades directamente desde la terminal con `tee`, sin abrir un editor.
 
-Dar permiso de ejecución al script:
+#### Paso 1: crear el script
+
+```bash
+sudo tee /usr/local/bin/monitor_recursos.sh > /dev/null <<'EOF'
+#!/bin/bash
+# Script para registrar picos de consumo de CPU y RAM
+
+FECHA=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Log de CPU
+echo "=== TOP CPU: $FECHA ===" >> /tmp/cpu.log
+ps -eo pid,user,%cpu,cmd --sort=-%cpu | head -n 6 >> /tmp/cpu.log
+echo "" >> /tmp/cpu.log
+
+# Log de Memoria
+echo "=== TOP MEMORIA: $FECHA ===" >> /tmp/memoria.log
+ps -eo pid,user,%mem,cmd --sort=-%mem | head -n 6 >> /tmp/memoria.log
+echo "" >> /tmp/memoria.log
+EOF
+```
+
+Dar permiso de ejecución:
 
 ```bash
 sudo chmod +x /usr/local/bin/monitor_recursos.sh
 ```
 
-Pedir a systemd que vuelva a leer las unidades:
+#### Paso 2: probar el script manualmente
+
+Ejecutalo una vez antes de automatizarlo:
+
+```bash
+sudo /usr/local/bin/monitor_recursos.sh
+```
+
+Comprobá que se hayan creado los logs y que tengan encabezado y procesos:
+
+```bash
+sudo cat /tmp/cpu.log
+sudo cat /tmp/memoria.log
+```
+
+Cada ejecución agrega información al final de los archivos; no los vacía.
+
+#### Paso 3: crear la unidad de servicio
+
+El servicio es `oneshot`: ejecuta el script una vez y termina. El timer será quien lo vuelva a iniciar cada minuto.
+
+```bash
+sudo tee /etc/systemd/system/monitor.service > /dev/null <<'EOF'
+[Unit]
+Description=Monitoreo de CPU y RAM a archivos log
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/monitor_recursos.sh
+EOF
+```
+
+#### Paso 4: crear el timer
+
+```bash
+sudo tee /etc/systemd/system/monitor.timer > /dev/null <<'EOF'
+[Unit]
+Description=Ejecuta el monitor de recursos cada minuto
+
+[Timer]
+OnCalendar=*:0/1
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+```
+
+`Persistent=true` permite que systemd dispare una ejecución al volver a arrancar si se perdió una ejecución programada mientras el equipo estaba apagado.
+
+#### Paso 5: cargar las unidades y activar el timer
 
 ```bash
 sudo systemctl daemon-reload
-```
-
-Habilitar el timer para que arranque automáticamente y ponerlo en marcha ahora:
-
-```bash
 sudo systemctl enable --now monitor.timer
 ```
 
-Después de que se ejecute, consultar los archivos de salida:
+Verificar que el timer quedó activo y cuándo será su próxima ejecución:
 
 ```bash
-cat /tmp/cpu.log
-cat /tmp/memoria.log
+systemctl status monitor.timer
+systemctl list-timers --all monitor.timer
 ```
+
+#### Paso 6: comprobar la ejecución
+
+Esperá hasta la próxima ejecución y consultá el estado del servicio y los logs:
+
+```bash
+systemctl status monitor.service
+sudo journalctl -u monitor.service -n 20 --no-pager
+sudo tail -n 20 /tmp/cpu.log
+sudo tail -n 20 /tmp/memoria.log
+```
+
+El Journal muestra cuándo systemd inició y terminó el servicio. Las listas de procesos se escriben en `/tmp/cpu.log` y `/tmp/memoria.log`.
+
+#### Paso 7: detener o quitar el timer
+
+Para detener el timer y evitar que se active en el próximo arranque:
+
+```bash
+sudo systemctl disable --now monitor.timer
+```
+
+Si también querés retirar las unidades, primero desactivalas y luego borrá los archivos:
+
+```bash
+sudo rm /etc/systemd/system/monitor.timer /etc/systemd/system/monitor.service
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
+```
+
+Los logs de `/tmp` quedan disponibles para revisarlos hasta que los borres manualmente.
 
 ## 2. Discos y almacenamiento
 

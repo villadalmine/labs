@@ -116,28 +116,35 @@ Al cerrar una terminal, el comportamiento de los trabajos normales depende de la
 
 ## 6. Iniciar una sesión independiente con `setsid`
 
-`setsid` ejecuta el comando en una sesión nueva, sin la terminal de control original. En este ejemplo, el proceso escribe su propio PID a un archivo antes de reemplazar la shell por `sleep`:
+`setsid` ejecuta el comando en una sesión nueva, sin la terminal de control original. Usamos `--fork` para que cree el proceso separado de forma explícita. El hijo escribe su PID antes de reemplazar la shell por `sleep`:
 
 ```bash
-setsid sh -c 'echo $$ > "$HOME/setsid-demo.pid"; exec sleep 300' \
-    </dev/null > "$HOME/setsid-demo.log" 2>&1 &
+rm -f "$HOME/setsid-demo.pid" "$HOME/setsid-demo.log"
+setsid --fork sh -c 'echo $$ > "$HOME/setsid-demo.pid"; exec sleep 300' </dev/null > "$HOME/setsid-demo.log" 2>&1 &
+PID_LANZADOR=$!
+printf 'PID del lanzador setsid: %s\n' "$PID_LANZADOR"
 ```
 
-Leé el PID y comprobá sus datos:
+Esperá a que el hijo escriba su PID. En un shell interactivo, es normal que aparezca `[1]+ Done`: ese es el lanzador `setsid`, que terminó después de crear el hijo; no significa que `sleep` haya terminado.
 
 ```bash
+for intento in {1..20}; do
+    [ -s "$HOME/setsid-demo.pid" ] && break
+    sleep 0.1
+done
 PID_SETSID=$(cat "$HOME/setsid-demo.pid")
-ps -o pid,ppid,pgid,sid,tty,stat,cmd -p "$PID_SETSID"
+printf 'PID del worker separado: %s\n' "$PID_SETSID"
+ps -p "$PID_SETSID" -o pid,ppid,pgid,sid,tty,stat,cmd
 ```
 
-La sesión nueva normalmente tiene `SID` igual al PID del proceso líder y `TTY` aparece como `?`, porque ya no tiene terminal de control. Si el PID todavía no aparece, esperá a que el archivo se cree y volvé a consultarlo.
+El worker debe seguir apareciendo como `sleep 300`; su `SID` y `PGID` normalmente coinciden con su PID y `TTY` aparece como `?`. `exec sleep` conserva el PID que escribió la shell. El `$!` guardado antes es el PID del lanzador y puede ser distinto. Para comprobar que sigue vivo, consultá el PID del worker guardado; `grep` del PID del lanzador no sirve porque ese número no aparece necesariamente en la línea de comandos.
 
 `setsid` separa la sesión de la terminal original, pero no guarda una terminal interactiva a la que puedas volver a conectarte. También conviene redirigir entrada y salida, como en el ejemplo.
 
 Detené y limpiá la prueba:
 
 ```bash
-kill "$PID_SETSID"
+kill -TERM "$PID_SETSID"
 rm -f "$HOME/setsid-demo.pid" "$HOME/setsid-demo.log"
 ```
 

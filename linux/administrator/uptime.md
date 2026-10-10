@@ -137,6 +137,38 @@ Con dos workers constantemente ejecutables, el load average tiende a aumentar ap
 
 El comando termina solo al cabo de 90 segundos. Para detenerlo antes, volvé a su terminal y presioná `Ctrl+C`. Evitá comandos globales de terminación que puedan cerrar shells ajenos a la prueba.
 
+### Cómo comprobar que la prueba está funcionando
+
+Mientras `stress-ng` corre, usá otra terminal para localizar sus procesos y mirar su estado y consumo:
+
+```bash
+pgrep -af stress-ng
+ps -eo pid,ppid,stat,pcpu,comm,args | grep '[s]tress-ng'
+```
+
+Deberías ver los workers de CPU activos. En `ps`, `STAT` suele empezar con `R` cuando están ejecutándose o listos para ejecutar, y `%CPU` debería mostrar consumo. En `top`, buscá los procesos `stress-ng`; cada worker puede acercarse a una CPU lógica ocupada.
+
+Compará las tres vistas durante la prueba:
+
+```bash
+uptime
+cat /proc/loadavg
+top
+```
+
+Los tres primeros campos de `/proc/loadavg` deben coincidir con los promedios que muestra `uptime` (1, 5 y 15 minutos). El cuarto campo (`ejecutables/total`) es una fotografía instantánea de tareas, no otro promedio. La carga de 1 minuto puede tardar en reaccionar; el `%CPU` de `top` ayuda a confirmar que la carga está ocurriendo ahora.
+
+Cuando pasen los 90 segundos, verificá que `stress-ng` haya terminado:
+
+```bash
+pgrep -af stress-ng || echo 'No quedan procesos de stress-ng'
+date
+uptime
+cat /proc/loadavg
+```
+
+La frase `No quedan procesos de stress-ng` confirma el fin de la prueba. El load average no vuelve a la línea base de inmediato: compará las lecturas siguientes y observá cómo descienden gradualmente, primero la media de 1 minuto y más lentamente las de 5 y 15 minutos.
+
 ## 6. Comparar una y cuatro tareas de CPU
 
 Primero anotá el número de CPU disponibles:
