@@ -40,7 +40,7 @@ El socket escucha solo en `127.0.0.1`, así que este ejemplo de prueba no expone
 
 ### 2) Crear el servicio asociado
 
-Creá `/etc/systemd/system/mi_api@.service`:
+Creá `/etc/systemd/system/mi_api@.service` (el `@` es obligatorio; no lo llames `mi_api.service`):
 
 ```bash
 sudo nano /etc/systemd/system/mi_api@.service
@@ -89,14 +89,16 @@ La respuesta esperada es:
 Hola desde systemd activado por socket!
 ```
 
-Revisá el estado y los logs del servicio:
+Revisá el estado y los logs del socket:
 
 ```bash
-journalctl -u 'mi_api@*.service'
 systemctl status mi_api.socket
+journalctl -b -u mi_api.socket --no-pager
 ```
 
 El servicio por conexión puede aparecer como inactivo después de responder; es normal porque el proceso termina al cerrar la conexión.
+
+Si el socket informa `Failed to load connection service unit`, verificá que exista `/etc/systemd/system/mi_api@.service`, que el nombre coincida con `Service=mi_api@.service` y luego ejecutá `sudo systemctl daemon-reload`.
 
 ### 5) Detener el socket
 
