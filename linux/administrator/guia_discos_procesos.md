@@ -1,149 +1,229 @@
-# Guía de Clase: Procesos, Systemd y Gestión de Almacenamiento
+# Guía de procesos, systemd y almacenamiento en Linux
 
-Esta guía está diseñada para ser leída paso a paso durante la clase. Contiene laboratorios prácticos y explicaciones teóricas listas para los alumnos.
+Material de consulta sobre procesos, automatización con systemd, discos, sistemas de archivos, RAID y LVM.
 
----
+## 1. Gestión de procesos
 
-## PARTE 1: Gestión de Procesos en Linux
+`ps` (*Process Status*) muestra información sobre los procesos que se están ejecutando.
 
-### 1.1 Ejemplos Prácticos con `ps` (Para mostrar en clase)
+### 1.1 Consultar procesos
 
-El comando `ps` (Process Status) es la radiografía del sistema. Aquí tienes los ejemplos más visuales para ejecutar en vivo:
+Mostrar procesos de todos los usuarios, incluidos los que no están asociados a una terminal:
 
-**A. El clásico absoluto (Todos los procesos del sistema)**
-`ps aux`
-*Explicación para la clase:* `a` (todos los usuarios), `u` (formato detallado con usuario y % de uso), `x` (procesos que no están atados a una terminal, como demonios).
+```bash
+ps aux
+```
 
-**B. Los "Top 5" que más CPU consumen**
-`ps -eo pid,user,%cpu,cmd --sort=-%cpu | head -n 6`
-*Explicación:* `-e` (todos), `-o` (elegimos las columnas exactas). `--sort=-%cpu` ordena de mayor a menor. Ideal para cazar programas bloqueados.
+Mostrar los cinco procesos con mayor uso de CPU:
 
-**C. Los "Top 5" que más Memoria RAM devoran**
-`ps -eo pid,user,%mem,cmd --sort=-%mem | head -n 6`
+```bash
+ps -eo pid,user,%cpu,cmd --sort=-%cpu | head -n 6
+```
 
-**D. Ver la relación Padre-Hijo (Árbol de procesos)**
-`pstree -p`
-*Explicación:* Permite ver cómo `systemd` (PID 1) genera todos los demás procesos en formato de árbol.
+Mostrar los cinco procesos con mayor uso de memoria:
 
----
+```bash
+ps -eo pid,user,%mem,cmd --sort=-%mem | head -n 6
+```
 
-### 1.2 Laboratorio: Activar la automatización con Systemd
+En las opciones `-eo`, `-e` incluye los procesos y `-o` selecciona las columnas. La opción `--sort=-%cpu` ordena por CPU de mayor a menor.
 
-Asumiendo que ya creamos el script en `/usr/local/bin/monitor_recursos.sh` y las unidades en `/etc/systemd/system/`, ejecutamos lo siguiente para darle vida a la automatización:
+Ver la relación padre-hijo en forma de árbol:
 
-1. Dar permisos de ejecución al script:
-`sudo chmod +x /usr/local/bin/monitor_recursos.sh`
+```bash
+pstree -p
+```
 
-2. Recargar systemd para que detecte los nuevos archivos:
-`sudo systemctl daemon-reload`
+El árbol permite seguir cómo `systemd` (PID 1) inicia servicios y otros procesos.
 
-3. Activar y arrancar el timer:
-`sudo systemctl enable --now monitor.timer`
+### 1.2 Activar un timer de systemd
 
-4. Esperar un minuto y leer los resultados generados:
-`cat /tmp/cpu.log`
-`cat /tmp/memoria.log`
+Este ejemplo presupone que el script `/usr/local/bin/monitor_recursos.sh` y las unidades de servicio y timer ya existen en `/etc/systemd/system/`.
 
----
----
+Dar permiso de ejecución al script:
 
-## PARTE 2: Gestión de Discos y Almacenamiento
+```bash
+sudo chmod +x /usr/local/bin/monitor_recursos.sh
+```
 
-### 2.1 Herramientas Necesarias
+Pedir a systemd que vuelva a leer las unidades:
 
-¿Qué instalar? En un servidor nuevo siempre conviene asegurar estas herramientas:
+```bash
+sudo systemctl daemon-reload
+```
 
-`sudo apt update && sudo apt install lvm2 parted smartmontools ncdu xfsprogs btrfs-progs`
+Habilitar el timer para que arranque automáticamente y ponerlo en marcha ahora:
 
-*   **Clásicas preinstaladas:** `fdisk` (particionar), `lsblk` (listar), `df` / `du` (uso de espacio).
-*   **Extras:** `parted` (para discos > 2TB GPT), `smartmontools` (salud del disco físico), `ncdu` (explorador visual interactivo en terminal).
+```bash
+sudo systemctl enable --now monitor.timer
+```
 
-### 2.2 Explorar y Manejar Discos
+Después de que se ejecute, consultar los archivos de salida:
 
-**Para ver qué discos físicos están conectados:**
-`lsblk`
-*Explicación:* Muestra los discos crudos (`sda`, `sdb`) y sus particiones (`sda1`, `sda2`).
+```bash
+cat /tmp/cpu.log
+cat /tmp/memoria.log
+```
 
-**Para ver cuánto espacio libre queda (Legible por humanos):**
-`df -h`
+## 2. Discos y almacenamiento
 
-**Particionar un disco nuevo (ejemplo /dev/sdb):**
-`sudo fdisk /dev/sdb`
-*(Presionar 'n' para nueva, 'p' primaria, 'w' para guardar).*
+### 2.1 Herramientas
 
-### 2.3 Tipos de File Systems (Sistemas de Archivos)
+En Debian o Ubuntu se pueden instalar estas utilidades con:
 
-1.  **EXT4:** El estándar de Linux. Confiable, maduro. Permite achicar y agrandar particiones.
-2.  **XFS:** Por defecto en RedHat/CentOS. Excelente para archivos gigantes y LVM. **Ojo:** *Se puede agrandar, pero NO se puede achicar.*
-3.  **BTRFS / ZFS:** Los modernos. Soportan "Snapshots" (copias instantáneas), RAID por software nativo y auto-reparación de archivos corruptos.
+```bash
+sudo apt update
+sudo apt install lvm2 parted smartmontools ncdu xfsprogs btrfs-progs
+```
 
----
+Herramientas habituales:
 
-### 2.4 Tipos de RAID (Explicación rápida)
+- `fdisk`: administrar tablas de particiones.
+- `lsblk`: listar dispositivos de bloques, particiones y puntos de montaje.
+- `df` y `du`: consultar el espacio de los filesystems montados y el espacio usado por archivos y directorios.
+- `parted`: crear y modificar tablas de particiones, incluidas tablas GPT.
+- `smartmontools`: consultar información SMART de discos compatibles.
+- `ncdu`: explorar interactivamente el uso de espacio desde la terminal.
+- `xfsprogs` y `btrfs-progs`: utilidades para administrar filesystems XFS y Btrfs.
 
-*   **RAID 0 (Stripe):** Suma la velocidad y capacidad de 2 discos. Si 1 disco muere, pierdes TODO. (Puro rendimiento).
-*   **RAID 1 (Mirror):** Espejo. 2 discos tienen la misma data. Si 1 muere, el sistema sigue. (Pura seguridad).
-*   **RAID 5 (Paridad):** Mínimo 3 discos. Tolera que muera 1 disco. Mezcla seguridad y espacio.
-*   **RAID 10:** Mezcla del 1 y el 0. Mínimo 4 discos. Máxima velocidad y máxima seguridad (El más costoso).
+### 2.2 Inspeccionar discos y espacio
 
----
+Listar los dispositivos de bloques:
 
-### 2.5 LVM (Logical Volume Manager): Conceptos Core
+```bash
+lsblk
+```
 
-LVM es como "plastilina" para discos.
-1.  **PV (Physical Volume):** Convertimos el disco crudo (`/dev/sdb`) en un bloque de plastilina.
-2.  **VG (Volume Group):** Juntamos varios bloques de plastilina en una sola masa gigante (ej. `vg_datos`).
-3.  **LV (Logical Volume):** Cortamos pedazos de esa masa gigante del tamaño que queramos (ej. `lv_home` de 50GB) y le damos formato.
+La salida puede incluir discos, particiones, volúmenes lógicos y sus puntos de montaje.
 
----
+Consultar el espacio de los filesystems montados en formato legible:
 
-### 2.6 LVM Práctico: Operaciones Paso a Paso
+```bash
+df -h
+```
 
-#### A. Crear un LVM desde Cero (con /dev/sdb)
+### 2.3 Crear una partición con fdisk
 
-1. Crear el Volumen Físico (PV):
-`sudo pvcreate /dev/sdb`
+El siguiente ejemplo abre el dispositivo `/dev/sdb` en la herramienta interactiva:
 
-2. Crear el Grupo de Volúmenes (VG) llamado "vg_servidor":
-`sudo vgcreate vg_servidor /dev/sdb`
+```bash
+sudo fdisk /dev/sdb
+```
 
-3. Crear el Volumen Lógico (LV) de 20GB llamado "lv_datos":
-`sudo lvcreate -L 20G -n lv_datos vg_servidor`
+Dentro de `fdisk`, `n` inicia la creación de una partición y `w` escribe los cambios. Las opciones disponibles dependen del tipo de tabla de particiones; revisá la selección antes de confirmar.
 
-4. Formatear y montar:
-`sudo mkfs.ext4 /dev/vg_servidor/lv_datos`
-`sudo mkdir /mnt/datos`
-`sudo mount /dev/vg_servidor/lv_datos /mnt/datos`
+> **Advertencia:** crear o modificar particiones puede destruir datos. `/dev/sdb` es solo un ejemplo: identificá el dispositivo correcto con `lsblk` y trabajá únicamente sobre un disco destinado a la práctica.
 
+### 2.4 Sistemas de archivos
 
-#### B. Agrandar (Extender) una partición en caliente
+- **ext4:** filesystem de uso general, maduro y ampliamente utilizado. Puede crecer y también reducirse, pero la reducción requiere desmontarlo y seguir un procedimiento cuidadoso.
+- **XFS:** filesystem de alto rendimiento, común en sistemas empresariales. Puede crecer, pero no reducirse.
+- **Btrfs y ZFS:** filesystems con funciones avanzadas, como snapshots y administración de volúmenes. Sus características y requisitos dependen de la configuración.
 
-*Situación: El servidor se quedó sin espacio. Conectaste un disco nuevo al servidor, o tienes espacio libre en el VG.*
+### 2.5 Niveles RAID
 
-1. Extender el Volumen Lógico (ejemplo: sumar 10GB al Home):
-`sudo lvextend -L +10G /dev/vg_servidor/lv_home`
-*(Para usar todo el espacio libre: `sudo lvextend -l +100%FREE /dev/vg_servidor/lv_home`)*
+- **RAID 0 (striping):** distribuye los datos entre discos para sumar capacidad y rendimiento. No ofrece redundancia: la falla de un disco puede causar la pérdida del conjunto.
+- **RAID 1 (mirroring):** mantiene copias idénticas en dos o más discos. Tolera la falla de un disco en una configuración de dos unidades, pero no sustituye a un backup.
+- **RAID 5 (paridad):** requiere al menos tres discos y puede tolerar la falla de uno.
+- **RAID 10:** combina espejado y distribución de datos. Requiere al menos cuatro discos y puede ofrecer rendimiento y redundancia, a costa de capacidad utilizable.
 
-2. Avisarle al Sistema de Archivos que el disco creció (EN CALIENTE, sin apagar):
-`sudo resize2fs /dev/vg_servidor/lv_home` *(Si es EXT4)*
-`sudo xfs_growfs /home` *(Si es XFS)*
+### 2.6 Conceptos de LVM
 
+LVM (*Logical Volume Manager*) permite administrar el almacenamiento en capas:
 
-#### C. Achicar (Reducir) una partición EXT4
+1. **PV (Physical Volume):** dispositivo o partición inicializado para que LVM lo administre.
+2. **VG (Volume Group):** grupo que reúne uno o más PV y ofrece espacio para asignar.
+3. **LV (Logical Volume):** volumen creado dentro de un VG; sobre él se puede crear un filesystem.
 
-*Nota: XFS no se puede reducir. EXT4 requiere desmontar el volumen primero.*
+La cadena habitual es: dispositivo o partición → PV → VG → LV → filesystem → punto de montaje.
 
-1. Desmontar la partición obligatoriamente:
-`sudo umount /home`
+## 3. Operaciones con LVM
 
-2. Revisar errores (Requisito obligatorio antes de achicar):
-`sudo e2fsck -f /dev/vg_servidor/lv_home`
+> **Advertencia:** los siguientes comandos modifican metadatos de almacenamiento; `mkfs.ext4` crea un filesystem nuevo y puede sobrescribir datos. Practicá en una VM descartable o con discos virtuales vacíos. No copies `/dev/sdb` sin verificar antes a qué dispositivo corresponde.
 
-3. Achicar el FileSystem PRIMERO (ej: a 30GB):
-`sudo resize2fs /dev/vg_servidor/lv_home 30G`
+### 3.1 Crear un volumen lógico
 
-4. Achicar el Volumen Lógico DESPUÉS (pedirá confirmación):
-`sudo lvreduce -L 30G /dev/vg_servidor/lv_home`
+En este ejemplo se usa `/dev/sdb` como dispositivo de prueba. Primero se inicializa como PV y luego se crea un VG llamado `vg_servidor`:
 
-5. Volver a montar:
-`sudo mount /dev/vg_servidor/lv_home /home`
+```bash
+sudo pvcreate /dev/sdb
+sudo vgcreate vg_servidor /dev/sdb
+```
+
+Crear un LV de 20 GiB llamado `lv_datos`:
+
+```bash
+sudo lvcreate -L 20G -n lv_datos vg_servidor
+```
+
+Crear un filesystem ext4 y montarlo en `/mnt/datos`:
+
+```bash
+sudo mkfs.ext4 /dev/vg_servidor/lv_datos
+sudo mkdir -p /mnt/datos
+sudo mount /dev/vg_servidor/lv_datos /mnt/datos
+```
+
+### 3.2 Ampliar un volumen lógico
+
+Si el VG tiene espacio libre, se puede ampliar el LV. Por ejemplo, sumar 10 GiB:
+
+```bash
+sudo lvextend -L +10G /dev/vg_servidor/lv_home
+```
+
+Para asignar al LV todo el espacio libre del VG:
+
+```bash
+sudo lvextend -l +100%FREE /dev/vg_servidor/lv_home
+```
+
+Luego hay que ampliar el filesystem para que use el nuevo espacio. Para ext4:
+
+```bash
+sudo resize2fs /dev/vg_servidor/lv_home
+```
+
+Para XFS, se indica el punto de montaje:
+
+```bash
+sudo xfs_growfs /home
+```
+
+Confirmá el tipo de filesystem y el punto de montaje antes de ejecutar el comando correspondiente. XFS debe estar montado para crecer.
+
+### 3.3 Reducir un volumen lógico ext4
+
+XFS no puede reducirse. Reducir un LV con ext4 requiere desmontar el filesystem, verificarlo y reducir primero el filesystem; solo después se reduce el LV. Un error de orden o de tamaño puede destruir datos. Hacé un backup y practicá fuera del sistema raíz.
+
+Este ejemplo muestra el orden para un filesystem montado en `/home`. Los tamaños son ilustrativos: el tamaño final de ext4 debe quedar por debajo del tamaño final del LV, con margen suficiente.
+
+Desmontar el filesystem:
+
+```bash
+sudo umount /home
+```
+
+Verificarlo antes de reducirlo:
+
+```bash
+sudo e2fsck -f /dev/vg_servidor/lv_home
+```
+
+Reducir ext4 a un tamaño menor que el tamaño final del LV; en este ejemplo, 28 GiB:
+
+```bash
+sudo resize2fs /dev/vg_servidor/lv_home 28G
+```
+
+Reducir el LV a 30 GiB:
+
+```bash
+sudo lvreduce -L 30G /dev/vg_servidor/lv_home
+```
+
+Volver a montar el filesystem:
+
+```bash
+sudo mount /dev/vg_servidor/lv_home /home
+```
