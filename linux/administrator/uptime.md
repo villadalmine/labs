@@ -1,0 +1,181 @@
+# `uptime`, load average y `/proc`
+
+Esta guía permite leer la salida de `uptime`, encontrar de dónde salen sus valores en `/proc` y observar cómo cambia la carga con una prueba controlada de CPU.
+
+## 1. Leer la salida de `uptime`
+
+Ejecutá:
+
+```bash
+uptime
+```
+
+Una salida de ejemplo:
+
+```text
+14:30:01 up 10 days, 4:13, 2 users, load average: 0.50, 0.25, 0.10
+```
+
+- `14:30:01`: hora actual del sistema.
+- `up 10 days, 4:13`: tiempo transcurrido desde el último arranque.
+- `2 users`: sesiones de usuario conectadas.
+- `load average: 0.50, 0.25, 0.10`: promedios de carga de los últimos 1, 5 y 15 minutos, respectivamente.
+
+Las medias no son promedios aritméticos exactos de cada minuto: Linux las suaviza en el tiempo. Por eso responden gradualmente cuando empieza o termina una carga.
+
+## 2. Qué mide load average
+
+En Linux, load average refleja la cantidad promedio de tareas que están ejecutándose o listas para ejecutarse (`R`), más las que esperan de forma ininterrumpible, normalmente por I/O (`D`). No es un porcentaje de CPU y no cuenta simplemente todos los procesos existentes.
+
+Consultá cuántas CPU lógicas tiene disponibles esta sesión:
+
+```bash
+nproc
+```
+
+Usá ese número para poner la carga en contexto:
+
+- En una máquina con 1 CPU lógica, una carga sostenida cercana a `1` puede significar que esa CPU está ocupada casi todo el tiempo.
+- En una máquina con 4 CPU lógicas, una carga cercana a `4` puede corresponder a cuatro tareas ejecutables usando los cuatro núcleos.
+- Una carga mayor que la cantidad de CPU puede indicar tareas esperando CPU, aunque también puede aumentar por tareas en estado `D` esperando I/O.
+- Una carga menor que la cantidad de CPU no se traduce exactamente en un porcentaje de utilización: importan los estados de las tareas y el intervalo de promedio.
+
+Para observar el porcentaje de CPU y los procesos, usá `top` en paralelo. No deduzcas el porcentaje directamente de load average.
+
+## 3. Leer los valores directamente desde `/proc`
+
+`/proc` es un filesystem virtual que expone información del kernel; estos archivos no son registros de texto guardados en disco.
+
+### `/proc/loadavg`
+
+```bash
+cat /proc/loadavg
+```
+
+Ejemplo de formato:
+
+```text
+0.50 0.25 0.10 2/350 12345
+```
+
+Los primeros tres campos son las medias de 1, 5 y 15 minutos. El cuarto indica tareas ejecutables en este instante sobre el total de tareas; el quinto es el PID creado más recientemente. `uptime` presenta las tres medias con etiquetas legibles.
+
+Separar los campos para verlos con nombre:
+
+```bash
+awk '{printf "1 min=%s  5 min=%s  15 min=%s  runnable/total=%s  último PID=%s\n", $1, $2, $3, $4, $5}' /proc/loadavg
+```
+
+### `/proc/uptime`
+
+```bash
+cat /proc/uptime
+```
+
+El primer número es el tiempo desde el arranque, en segundos. El segundo es tiempo acumulado de CPU en estado idle, también en segundos. En equipos multinúcleo, el segundo puede ser mayor que el primero porque suma el idle de varias CPU.
+
+Mostrar el primer valor como segundos y minutos:
+
+```bash
+awk '{printf "Encendido: %.0f segundos (%.1f minutos)\n", $1, $1/60}' /proc/uptime
+```
+
+### `/proc/stat`
+
+```bash
+grep '^cpu ' /proc/stat
+```
+
+La línea `cpu` contiene contadores acumulados de tiempo de CPU desde el arranque, separados por estado. `top` y otras herramientas comparan muestras de estos contadores para estimar utilización durante un intervalo. No es de aquí de donde se lee directamente el load average; la interfaz correspondiente para esas medias es `/proc/loadavg`.
+
+## 4. Tomar una línea base
+
+Antes de generar carga, guardá una lectura del estado actual:
+
+```bash
+date
+nproc
+uptime
+cat /proc/loadavg
+cat /proc/uptime
+```
+
+Para ver carga y actividad de CPU actualizándose cada dos segundos, abrí otra terminal y ejecutá:
+
+```bash
+watch -n 2 'uptime; echo; cat /proc/loadavg'
+```
+
+Salí de `watch` con `Ctrl+C`.
+
+## 5. Generar carga de CPU controlada
+
+En Debian o Ubuntu, instalá `stress-ng` si todavía no está disponible:
+
+```bash
+sudo apt update
+sudo apt install stress-ng
+```
+
+En una terminal, iniciá dos workers de CPU durante 90 segundos:
+
+```bash
+stress-ng --cpu 2 --timeout 90s --metrics-brief
+```
+
+Mientras corre, observá en la otra terminal:
+
+```bash
+uptime
+cat /proc/loadavg
+top
+```
+
+En `top`, presioná `q` para salir. Observá que la carga de 1 minuto no salta inmediatamente al nuevo nivel: necesita tiempo para incorporar las muestras. Las medias de 5 y 15 minutos reaccionan aún más despacio.
+
+Con dos workers constantemente ejecutables, el load average tiende a aumentar aproximadamente en dos unidades sobre el valor de fondo. En una máquina con cuatro CPU lógicas eso no implica que el total esté saturado: puede representar dos de cuatro CPU ocupadas. La carga previa y los procesos en espera también cuentan.
+
+El comando termina solo al cabo de 90 segundos. Para detenerlo antes, volvé a su terminal y presioná `Ctrl+C`. Evitá comandos globales de terminación que puedan cerrar shells ajenos a la prueba.
+
+## 6. Comparar una y cuatro tareas de CPU
+
+Primero anotá el número de CPU disponibles:
+
+```bash
+nproc
+```
+
+Si el sistema tiene cuatro CPU lógicas, podés iniciar cuatro workers durante 90 segundos:
+
+```bash
+stress-ng --cpu 4 --timeout 90s --metrics-brief
+```
+
+Volvé a observar `uptime`, `/proc/loadavg` y `top`. Si la máquina estaba tranquila, la media de 1 minuto tenderá gradualmente a subir hacia cuatro unidades adicionales; no esperes que llegue exactamente a `4.00`, porque el promedio incluye el estado anterior y la actividad del resto del sistema.
+
+Para adaptar la cantidad de workers a las CPU disponibles:
+
+```bash
+stress-ng --cpu "$(nproc)" --timeout 90s --metrics-brief
+```
+
+Limitá la prueba a una VM o equipo de laboratorio. `stress-ng` genera carga real y puede hacer más lentas las aplicaciones mientras corre.
+
+## 7. Observar cómo baja la carga
+
+Cuando `stress-ng` termina, las tareas dejan de consumir CPU, pero load average no vuelve a cero inmediatamente. Seguí observando:
+
+```bash
+watch -n 5 'uptime; cat /proc/loadavg'
+```
+
+Las medias de 1, 5 y 15 minutos disminuyen gradualmente. La de 1 minuto suele reflejar antes que terminó la prueba; la de 15 minutos tarda más porque conserva más efecto de la actividad pasada. Presioná `Ctrl+C` para salir de `watch`.
+
+## Resumen
+
+- `uptime` muestra el tiempo desde el arranque, las sesiones conectadas y tres medias de carga.
+- `/proc/loadavg` expone las medias y datos instantáneos de tareas y PID.
+- `/proc/uptime` expone el tiempo desde el arranque y el tiempo idle acumulado.
+- `/proc/stat` expone contadores de CPU; las herramientas calculan porcentajes comparando muestras.
+- Load average no es porcentaje de CPU: comparalo con la cantidad de CPU lógicas y con `top`.
+- `stress-ng --timeout` genera una carga limitada en el tiempo.
