@@ -1,0 +1,6 @@
+[Unit]
+Description=Monitoreo de CPU y RAM a archivos log
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/monitor_recursos.sh
