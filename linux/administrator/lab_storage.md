@@ -2,7 +2,7 @@
 
 En este laboratorio vas a crear discos virtuales con `loop devices`, agruparlos con LVM, crear un volumen lógico con ext4 y ampliarlo mientras sigue montado. Al final hay una práctica opcional con gocryptfs.
 
-Este laboratorio automatizado se basa en el script [lab_storage.sh](lab_storage.sh). Si querés entender y ejecutar cada comando a mano, empezá por el [laboratorio paso a paso de loop devices y LVM](lab_storage_paso_a_paso.md). Para una primera práctica más corta, usá el [laboratorio simple de un disco virtual](lab_storage_simple.md).
+El laboratorio se basa en el script [lab_storage.sh](lab_storage.sh).
 
 ## Objetivos
 
