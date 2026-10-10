@@ -11,7 +11,7 @@ Esta guía muestra ambos patrones:
 
 ## Parte A: activar un servicio bajo demanda con `.socket`
 
-En este ejemplo, `systemd` escucha en el puerto local `9999`. Cuando llega una conexión, inicia `mi_api.service` y le entrega la conexión. Así, el servicio no queda ejecutándose mientras nadie lo usa.
+En este ejemplo, `systemd` escucha en el puerto local `9999`. Cuando llega una conexión, inicia una instancia de `mi_api@.service` y le entrega la conexión. Así, el servicio no queda ejecutándose mientras nadie lo usa.
 
 ### 1) Crear la unidad socket
 
@@ -29,6 +29,8 @@ Description=Socket local para mi API
 
 [Socket]
 ListenStream=127.0.0.1:9999
+Accept=yes
+Service=mi_api@.service
 
 [Install]
 WantedBy=sockets.target
@@ -38,10 +40,10 @@ El socket escucha solo en `127.0.0.1`, así que este ejemplo de prueba no expone
 
 ### 2) Crear el servicio asociado
 
-Creá `/etc/systemd/system/mi_api.service`:
+Creá `/etc/systemd/system/mi_api@.service`:
 
 ```bash
-sudo nano /etc/systemd/system/mi_api.service
+sudo nano /etc/systemd/system/mi_api@.service
 ```
 
 Pegá esta configuración:
@@ -52,10 +54,11 @@ Description=Servicio iniciado por el socket mi_api
 
 [Service]
 StandardInput=socket
+StandardOutput=socket
 ExecStart=/bin/bash -c "echo 'Hola desde systemd activado por socket!'"
 ```
 
-No hace falta una sección `[Install]` en el servicio: el socket lo inicia cuando recibe una conexión.
+El `@` hace que sea una unidad plantilla. Con `Accept=yes`, systemd crea una instancia por cada conexión y conecta el socket aceptado a la entrada y salida estándar del servicio. No hace falta una sección `[Install]` en el servicio: el socket lo inicia cuando recibe una conexión.
 
 ### 3) Recargar systemd e iniciar el socket
 
@@ -89,9 +92,11 @@ Hola desde systemd activado por socket!
 Revisá el estado y los logs del servicio:
 
 ```bash
-systemctl status mi_api.socket mi_api.service
-journalctl -u mi_api.service
+journalctl -u 'mi_api@*.service'
+systemctl status mi_api.socket
 ```
+
+El servicio por conexión puede aparecer como inactivo después de responder; es normal porque el proceso termina al cerrar la conexión.
 
 ### 5) Detener el socket
 
@@ -172,8 +177,8 @@ Los archivos guardados en este `tmpfs` son temporales: desaparecen al desmontarl
 
 ## Resumen completo
 
-- Una unidad `.socket` escucha por el servicio y lo inicia cuando llega una conexión.
-- Para que un servicio funcione con activación por socket, este ejemplo usa `StandardInput=socket`.
+- Una unidad `.socket` escucha y, con `Accept=yes`, inicia una instancia del servicio plantilla por cada conexión.
+- `StandardInput=socket` y `StandardOutput=socket` conectan el proceso con el cliente.
 - Una unidad `.mount` declara un punto de montaje; su nombre se forma a partir de la ruta donde se monta.
 - `daemon-reload` hace que systemd vuelva a leer las unidades nuevas o modificadas.
 - `start` y `stop` inician o detienen una unidad ahora; `enable` configura su inicio automático.
@@ -185,7 +190,8 @@ Comandos principales de prueba:
 sudo systemctl daemon-reload
 sudo systemctl start mi_api.socket
 nc 127.0.0.1 9999
-sudo systemctl status mi_api.socket mi_api.service
+journalctl -u 'mi_api@*.service'
+sudo systemctl status mi_api.socket
 sudo systemctl stop mi_api.socket
 
 sudo systemctl start var-mi_ramdisk.mount
