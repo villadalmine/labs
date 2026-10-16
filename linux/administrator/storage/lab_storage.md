@@ -185,14 +185,43 @@ findmnt /mnt/lab_lvm
 4. ¿Qué diferencia observaste entre `datos_visibles` y `datos_cifrados`?
 5. ¿Por qué es importante comprobar los loop devices antes de ejecutar `clean`?
 
-## Resumen completo
+## Paso Extra: Redimensionamiento en Caliente del Root Filesystem (`/` Rootfs)
 
-1. Preparar una VM descartable e instalar LVM, ext4 y herramientas de loop.
-2. Revisar loop devices, PV, VG, LV y las rutas fijas para asegurarse de que no contengan recursos ajenos al laboratorio.
-3. Ejecutar `lab_storage.sh run` para crear imágenes, asociarlas como loop devices, preparar LVM y montar ext4.
-4. Comparar el tamaño del LV y del filesystem antes y después de la ampliación en caliente.
-5. Probar gocryptfs opcionalmente con carpetas del usuario normal y desmontarlo al terminar.
-6. Ejecutar `lab_storage.sh clean` solo después de confirmar que las rutas y dispositivos que elimina pertenecen a esta práctica.
+En servidores en producción (tanto en la nube como AWS/Azure o en hipervisores locales como Proxmox/VMware), un caso crítico frecuente es que el disco raíz del sistema operativo (`/`) se queda sin espacio.
+
+**¿Cómo ampliar la partición raíz montada sin reiniciar el servidor ni desmontar el sistema?**
+
+### 1. Diagnosticar con `lsblk` y `df -h`
+```bash
+lsblk
+df -h /
+```
+Si el disco físico (ej: `nvme0n1` o `sda`) fue ampliado en el hipervisor o consola cloud de 10 GB a 20 GB, verás que el disco padre reporta 20G, pero la partición `nvme0n1p1` sigue en 9.9G.
+
+### 2. Extender la tabla de particiones en caliente con `growpart`
+El comando `growpart` (incluido en el paquete `cloud-guest-utils`) reescribe la tabla de particiones MBR/GPT en memoria y notifica al kernel en vivo:
+```bash
+sudo apt-get install -y cloud-guest-utils
+
+# Sintaxis: growpart <dispositivo_padre> <numero_particion>
+sudo growpart /dev/nvme0n1 1
+# O en discos SCSI: sudo growpart /dev/sda 1
+```
+
+### 3. Expandir el sistema de archivos ext4 en caliente
+Una vez agrandada la partición, se expande el sistema de archivos ext4 mientras está montado y en uso:
+```bash
+sudo resize2fs /dev/nvme0n1p1
+```
+*(Nota: Si el sistema de archivos fuera XFS, se usaría `sudo xfs_growfs /`)*
+
+### 4. Verificar el resultado
+```bash
+df -h /
+```
+¡El espacio libre se incrementa de forma instantánea sin interrumpir ningún proceso en ejecución!
+
+---
 
 ## Opción: Demostración interactiva paso a paso para dar clase (`demo_lab_storage.sh`)
 

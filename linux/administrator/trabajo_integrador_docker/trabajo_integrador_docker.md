@@ -587,7 +587,50 @@ docker exec -i lab-mysql mysql -u root -prootpassword123 wordpress_db < ./dump_r
 
 ---
 
-## 🧹 Fase 10: Limpieza y Destrucción de Recursos
+## 📈 Fase 10: Redimensionamiento en Caliente (Online Resize) de Sistemas de Archivos Montados
+
+Uno de los problemas más comunes en producción es la saturación de espacio en disco. En la nube, **nunca se debe reiniciar un servidor** para ampliar el almacenamiento. A continuación, demostraremos cómo redimensionar sistemas de archivos ext4 en caliente mientras el sistema y los contenedores están en plena ejecución.
+
+### Caso A: Ampliar el Almacenamiento de Docker (`/var/lib/docker`) en LVM
+Si Docker se queda sin espacio para imágenes y capas, LVM permite extender el Logical Volume y el sistema de archivos subyacente sin detener el servicio:
+
+```bash
+# 1. Comprobar espacio actual
+df -h /var/lib/docker
+
+# 2. Extender el volumen lógico y el sistema de archivos en una sola operación atómica (-r)
+# El flag -r (--resizefs) ejecuta internamente resize2fs en caliente
+sudo lvextend -L +100M /dev/vg_docker/lv_docker -r 2>/dev/null || sudo lvextend -l +100%FREE /dev/vg_docker/lv_docker -r
+
+# 3. Comprobar que el espacio disponible creció instantáneamente
+df -h /var/lib/docker
+```
+
+### Caso B: Ampliar la Partición Raíz (`/`) de la Instancia EC2 sin Reiniciar
+Cuando en la consola de AWS o mediante Terraform se amplía el disco EBS raíz (por ejemplo de 10 GB a 15 GB):
+1. El disco físico (`/dev/nvme0n1`) refleja el nuevo tamaño en `lsblk`.
+2. Sin embargo, la partición 1 (`nvme0n1p1`) y el sistema de archivos ext4 montado en `/` siguen con el tamaño antiguo.
+
+Para extender la raíz en caliente sin reiniciar:
+
+```bash
+# 1. Verificar el paquete de utilidades de particionado en caliente
+sudo apt-get install -y cloud-guest-utils
+
+# 2. Extender la partición 1 dentro de la tabla de particiones GPT en caliente
+# Sintaxis: growpart <dispositivo_padre> <numero_particion>
+sudo growpart /dev/nvme0n1 1
+
+# 3. Expandir el sistema de archivos ext4 montado en '/' en tiempo real
+sudo resize2fs /dev/nvme0n1p1
+
+# 4. Verificar que el sistema de archivos raíz creció con cero downtime
+df -h /
+```
+
+---
+
+## 🧹 Fase 11: Limpieza y Destrucción de Recursos
 
 Para no generar costos en AWS, al finalizar la clase:
 
