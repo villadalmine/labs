@@ -8,42 +8,51 @@ Repositorio de prácticas de laboratorio, guías paso a paso y scripts interacti
 
 ```text
 linux/administrator/
-├── nice/                     # Prioridad y consumo de CPU con nice, renice y CFS
-│   ├── nice.md               # Guía conceptual con pesos CFS y afinidad taskset
-│   ├── demo_nice.sh          # Script interactivo paso a paso para la clase
-│   └── cpu_worker.c          # Proceso en C para pruebas de carga y señales
+├── nice/                          # Prioridad y consumo de CPU con nice, renice y CFS
+│   ├── nice.md                    # Guía conceptual con pesos CFS y afinidad taskset
+│   ├── demo_nice.sh               # Script interactivo paso a paso para la clase
+│   └── cpu_worker.c               # Proceso en C para pruebas de carga y señales
 │
-├── storage/                  # Gestión de almacenamiento con LVM2 y Loop Devices
-│   ├── lab_storage.md        # Guía de laboratorio de LVM y extensión en caliente
-│   ├── demo_lab_storage.sh   # Script interactivo de LVM y resize2fs online
-│   ├── lab_storage.sh        # Script automatizado tradicional
+├── storage/                       # Gestión de almacenamiento con LVM2 y Loop Devices
+│   ├── lab_storage.md             # Guía de laboratorio de LVM y extensión en caliente
+│   ├── demo_lab_storage.sh        # Script interactivo de LVM y resize2fs online
+│   ├── lab_storage.sh             # Script automatizado tradicional
 │   ├── lab_storage_paso_a_paso.md
 │   └── lab_storage_simple.md
 │
-├── luks/                     # Cifrado de dispositivos de bloques (dm-crypt)
-│   ├── luks.md               # Guía de LUKS con loop device y partición real
-│   └── demo_luks.sh          # Script interactivo con demostración forense
+├── luks/                          # Cifrado de dispositivos de bloques (dm-crypt)
+│   ├── luks.md                    # Guía de LUKS con loop device y partición real
+│   └── demo_luks.sh               # Script interactivo con demostración forense
 │
-├── gocryptfs/                # Cifrado FUSE a nivel de directorios
-│   └── gocryptfs.md          # Guía práctica de gocryptfs
+├── gocryptfs/                     # Cifrado FUSE a nivel de directorios
+│   └── gocryptfs.md               # Guía práctica de gocryptfs
 │
-├── borg/                     # Copias de seguridad, deduplicación y retención
-│   ├── borg.md               # Guía básica de BorgBackup y montaje FUSE
+├── borg/                          # Copias de seguridad, deduplicación y retención
+│   ├── borg.md                    # Guía básica de BorgBackup y montaje FUSE
 │   ├── borg-con-systemd-timers.md # Automatización segura con systemd timers
-│   └── demo_borg.sh          # Script interactivo con deduplicación y desastre
+│   └── demo_borg.sh               # Script interactivo con deduplicación y desastre
 │
-├── procesos/                 # Gestión de procesos, jobs y señales
+├── procesos/                      # Gestión de procesos, jobs y señales
 │   ├── jobs-fg-bg-nohup-setsid.md # Control de trabajos y terminales
-│   └── proceso_zombie.md     # Diagnóstico y ciclo de vida de procesos zombies
+│   └── proceso_zombie.md          # Diagnóstico y ciclo de vida de procesos zombies
 │
-├── systemd/                  # Automatización moderna y control de recursos
-│   ├── systemd-cgroups.md    # Límites de CPU y memoria con cgroups v2
-│   ├── systemd-memlogger.md  # Monitores periódicos con oneshot y timers
-│   └── systemd-scoket.md     # Activación por socket bajo demanda
+├── systemd/                       # Automatización moderna y control de recursos
+│   ├── systemd-cgroups.md         # Límites de CPU y memoria con cgroups v2
+│   ├── systemd-memlogger.md       # Monitores periódicos con oneshot y timers
+│   └── systemd-scoket.md          # Activación por socket bajo demanda
 │
-└── trabajo_integrador/       # PROYECTO FINAL INTEGRADOR (AWS Free Tier)
-    ├── trabajo_integrador.md # Guía completa paso a paso para dar en clase
-    └── terraform/            # Código IaC para levantar 2 EC2 Ubuntu + 3 discos EBS
+├── trabajo_integrador/            # PROYECTO FINAL 1: Web + LVM/mdadm + LUKS + Borg
+│   ├── trabajo_integrador.md      # Guía completa paso a paso para dar en clase
+│   └── terraform/                 # IaC: 2 EC2 Ubuntu + 3 discos EBS en AWS Free Tier
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── providers.tf
+│       ├── outputs.tf
+│       └── README.md
+│
+└── trabajo_integrador_docker/     # PROYECTO FINAL 2: Docker LVM + MySQL RAID 1 + S3
+    ├── trabajo_integrador_docker.md # Guía paso a paso: Hot-Mirror, WordPress y S3
+    └── terraform/                 # IaC: 1 EC2 Ubuntu + 4 discos EBS + S3 + IAM
         ├── main.tf
         ├── variables.tf
         ├── providers.tf
@@ -55,8 +64,27 @@ linux/administrator/
 
 ## Cómo usar los scripts interactivos en clase
 
-Cada módulo cuenta con un script interactivo (`demo_*.sh`) diseñado específicamente para proyectar en el aula o compartir pantalla:
+Cada módulo temático cuenta con un script interactivo (`demo_*.sh`) diseñado específicamente para proyectar en el aula o compartir pantalla:
 1. **Pausa manual con `[ENTER]`:** Permite al docente dar la explicación teórica a su ritmo antes de ejecutar cada comando.
-2. **Soporte para `tmux`:** Activa automáticamente el scroll con la rueda del ratón.
+2. **Soporte para `tmux`:** Activa automáticamente el scroll con la rueda del ratón (`mouse on`).
 3. **Modo automático (`--auto <segundos>`):** Avanza de forma autónoma con pausas temporizadas si se prefiere.
 4. **Limpieza garantizada (`trap`):** Al finalizar o presionar `Ctrl+C`, desmonta y limpia todos los recursos temporales.
+
+---
+
+## Trabajos Integradores en la Nube (AWS)
+
+1. **[Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS, gocryptfs y Borg Remote Backup](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador/trabajo_integrador.md)**
+   - Despliegue con Terraform de dos instancias EC2 Ubuntu en VPC propia con 3 discos EBS de 1 GB.
+   - Demostración de degradación y reconstrucción de arreglos de almacenamiento.
+   - Cifrado híbrido en capas (bloque y filesystem).
+   - Respaldo remoto automatizado por SSH hacia una segunda máquina con BorgBackup y timers de systemd.
+
+2. **[Trabajo Integrador 2: Docker Engine en LVM Espejado en Caliente + MySQL en LVM RAID 1 + WordPress + Backup Cifrado en AWS S3](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/trabajo_integrador_docker.md)**
+   - Despliegue con Terraform de una instancia EC2 Ubuntu con 4 discos EBS de 1 GB, bucket S3 cifrado y rol IAM.
+   - Montaje de `/var/lib/docker` en un volumen LVM antes de instalar Docker.
+   - Conversión en caliente (*hot-mirror*) del volumen de Docker a RAID 1 sin reiniciar el demonio.
+   - Partición dedicada en LVM RAID 1 para base de datos MySQL 8.0 montada en `/srv/mysql_data`.
+   - Despliegue de WordPress con Docker Compose persistiendo en el arreglo RAID 1.
+   - Falla inducida de disco con cero tiempo de inactividad (*zero downtime*).
+   - Backup de base de datos cifrado con OpenSSL (AES-256) subido a AWS S3 y prueba de *Disaster Recovery*.
