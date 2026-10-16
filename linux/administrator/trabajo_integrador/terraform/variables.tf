@@ -13,7 +13,7 @@ variable "aws_profile" {
 variable "instance_type" {
   type        = string
   description = "Tipo de instancia EC2 (Free Tier en eu-west-1)"
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "data_disk_size_gb" {

@@ -167,6 +167,17 @@ echo -e "En producción, Docker NUNCA debe escribir en el disco raíz '/'."
 echo -e "Si la raíz se llena por culpa de imágenes o logs de contenedores, todo el SO se congela."
 echo -e "Montamos un volumen LVM dedicado en /var/lib/docker ANTES de operar con Docker."
 
+# Optimización para instancias cloud con 1 GB de RAM (como t3.micro):
+# Asegurar 1 GB de swap si la RAM es baja para evitar OOM-kills con MySQL y WordPress
+TOTAL_MEM_MB=$(free -m | awk '/^Mem:/{print $2}')
+if [ "$TOTAL_MEM_MB" -lt 1500 ] && [ "$(swapon --show | wc -l)" -le 0 ]; then
+    echo -e "${YELLOW}[OPTIMIZACIÓN MEMORIA] Configurando 1 GB de swap para soportar MySQL 8.0 sin OOM...${RESET}"
+    fallocate -l 1G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=1024 status=none
+    chmod 600 /swapfile
+    mkswap /swapfile >/dev/null
+    swapon /swapfile
+fi
+
 subheader "1.1 Inicializar PV y VG en Disco Docker A"
 echo "$ sudo pvcreate $DISCO_DOCKER_A"
 pvcreate -y "$DISCO_DOCKER_A"
@@ -177,8 +188,10 @@ vgs vg_docker
 pause_step "Crear el volumen lógico lineal..."
 
 subheader "1.2 Crear y formatear lv_docker con ext4"
-echo "$ sudo lvcreate -l 100%FREE -n lv_docker vg_docker"
-lvcreate -y -l 100%FREE -n lv_docker vg_docker
+echo -e "${CYAN}NOTA TÉCNICA:${RESET} Creamos el LV con 900M (dejando margen libre en el PV) para que"
+echo -e "la futura conversión a RAID 1 pueda ubicar los subvolúmenes de metadata (rmeta)."
+echo "$ sudo lvcreate -L 900M -n lv_docker vg_docker"
+lvcreate -y -L 900M -n lv_docker vg_docker
 echo "$ sudo mkfs.ext4 -L DOCKER_ROOT /dev/vg_docker/lv_docker"
 mkfs.ext4 -F -L DOCKER_ROOT /dev/vg_docker/lv_docker
 
@@ -271,9 +284,11 @@ services:
   db:
     image: mysql:8.0
     container_name: demo-mysql
+    command: --performance-schema=OFF --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: wordpress_db
       MYSQL_USER: wpuser
       MYSQL_PASSWORD: wppassword123
@@ -299,14 +314,14 @@ echo -e "Levantando contenedores en segundo plano..."
 (cd "$APP_DIR" && docker compose up -d)
 
 echo -e "\nEsperando que MySQL inicialice el almacenamiento en /srv/mysql_data..."
-until docker exec demo-mysql mysqladmin ping -h localhost -u root -prootpassword123 --silent 2>/dev/null; do
+until docker exec demo-mysql mysqladmin ping -h 127.0.0.1 -u root -prootpassword123 --silent 2>/dev/null; do
     echo -n "."
     sleep 2
 done
 echo -e "\n${GREEN}[OK] MySQL 8.0 listo y operativo sobre LVM RAID 1.${RESET}"
 
 subheader "5.1 Inyectar datos de prueba para simular transacciones"
-docker exec -i demo-mysql mysql -u root -prootpassword123 wordpress_db <<'SQL'
+docker exec -i demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 wordpress_db <<'SQL'
 CREATE TABLE IF NOT EXISTS demo_posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
@@ -319,7 +334,7 @@ INSERT INTO demo_posts (titulo, contenido) VALUES
 SQL
 
 echo -e "\nRegistros insertados en la base de datos:"
-docker exec -i demo-mysql mysql -u root -prootpassword123 -e "SELECT * FROM wordpress_db.demo_posts;"
+docker exec -i demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "SELECT * FROM wordpress_db.demo_posts;"
 
 pause_step "Simular fallo de disco físico en el arreglo MySQL..."
 
@@ -336,8 +351,8 @@ dmsetup load "$DM_PATA0" --table "0 $(blockdev --getsz /dev/mapper/"$DM_PATA0") 
 dmsetup resume "$DM_PATA0" 2>/dev/null || true
 
 echo -e "\n${YELLOW}[ESTADO DEGRADADO] Probando lectura y nueva transacción en MySQL durante el fallo:${RESET}"
-docker exec -i demo-mysql mysql -u root -prootpassword123 -e "INSERT INTO wordpress_db.demo_posts (titulo, contenido) VALUES ('Post Durante Falla', 'Escrito con la Pata 0 completamente caída');"
-docker exec -i demo-mysql mysql -u root -prootpassword123 -e "SELECT * FROM wordpress_db.demo_posts;"
+docker exec -i demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "INSERT INTO wordpress_db.demo_posts (titulo, contenido) VALUES ('Post Durante Falla', 'Escrito con la Pata 0 completamente caída');"
+docker exec -i demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "SELECT * FROM wordpress_db.demo_posts;"
 
 echo -e "\n${GREEN}[EXITO] Cero caídas, cero transacciones perdidas gracias a LVM RAID 1.${RESET}"
 
@@ -354,7 +369,7 @@ BACKUP_DIR="$LAB_DIR/backups"
 mkdir -p "$BACKUP_DIR"
 
 echo -e "1. Generando volcado lógico con mysqldump..."
-docker exec demo-mysql mysqldump -u root -prootpassword123 --single-transaction wordpress_db > "$BACKUP_DIR/dump_wordpress.sql"
+docker exec demo-mysql mysqldump -h 127.0.0.1 -u root -prootpassword123 --single-transaction wordpress_db > "$BACKUP_DIR/dump_wordpress.sql"
 ls -lh "$BACKUP_DIR/dump_wordpress.sql"
 
 echo -e "\n2. Cifrando con OpenSSL AES-256-CBC + PBKDF2 (Zero-Trust)..."
@@ -391,10 +406,10 @@ pause_step "Simular catástrofe y restaurar..."
 header "FASE 8: Simulación de Desastre y Restauración de Base de Datos"
 
 echo -e "${RED}[DESASTRE] Destruyendo la base de datos completa con DROP DATABASE...${RESET}"
-docker exec demo-mysql mysql -u root -prootpassword123 -e "DROP DATABASE wordpress_db;"
+docker exec demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "DROP DATABASE wordpress_db;"
 
 echo -e "Verificando destrucción (la tabla ya no existe):"
-docker exec demo-mysql mysql -u root -prootpassword123 -e "SHOW DATABASES;" | grep "wordpress_db" || echo -e "${RED}[CONFIRMADO] wordpress_db no existe.${RESET}"
+docker exec demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "SHOW DATABASES;" | grep "wordpress_db" || echo -e "${RED}[CONFIRMADO] wordpress_db no existe.${RESET}"
 
 pause_step "Iniciar proceso de recuperación ante desastres (DR)..."
 
@@ -405,8 +420,8 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
     -pass pass:ClaveSuperSegura2026!
 
 subheader "8.2 Recrear esquema e inyectar datos"
-docker exec demo-mysql mysql -u root -prootpassword123 -e "CREATE DATABASE wordpress_db;"
-docker exec -i demo-mysql mysql -u root -prootpassword123 wordpress_db < "$BACKUP_DIR/dump_restaurado.sql"
+docker exec demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 -e "CREATE DATABASE wordpress_db;"
+docker exec -i demo-mysql mysql -h 127.0.0.1 -u root -prootpassword123 wordpress_db < "$BACKUP_DIR/dump_restaurado.sql"
 
 pause_step "Avanzar a la demostración de redimensionamiento en caliente..."
 
