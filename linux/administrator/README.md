@@ -50,9 +50,30 @@ linux/administrator/
 │       ├── outputs.tf
 │       └── README.md
 │
-└── trabajo_integrador_docker/     # PROYECTO FINAL 2: Docker LVM + MySQL RAID 1 + S3
-    ├── trabajo_integrador_docker.md # Guía paso a paso: Hot-Mirror, WordPress y S3
-    └── terraform/                 # IaC: 1 EC2 Ubuntu + 4 discos EBS + S3 + IAM
+├── trabajo_integrador_docker/     # PROYECTO FINAL 2: Docker LVM + MySQL RAID 1 + S3
+│   ├── trabajo_integrador_docker.md # Guía paso a paso: Hot-Mirror, WordPress y S3
+│   ├── demo_integrador_docker.sh  # Script interactivo completo y comprobado en AWS
+│   └── terraform/                 # IaC: 1 EC2 Ubuntu + 4 discos EBS + S3 + IAM
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── providers.tf
+│       ├── outputs.tf
+│       └── README.md
+│
+├── trabajo_integrador_zfs/        # PROYECTO FINAL 3: ZFS HA Activo-Pasivo + AWS ALB
+│   ├── trabajo_integrador_zfs.md  # Guía paso a paso: Pools, Hot Mirror, Failover y Scrub
+│   ├── demo_integrador_zfs.sh     # Script interactivo completo de ZFS
+│   └── terraform/                 # IaC: 2 EC2 Ubuntu + 3 discos EBS + ALB + Sonda
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── providers.tf
+│       ├── outputs.tf
+│       └── README.md
+│
+└── trabajo_integrador_btrfs/      # PROYECTO FINAL 4: Btrfs Avanzado (Reflinks, RAID1 y Replace)
+    ├── trabajo_integrador_btrfs.md # Guía: Subvolúmenes, Reflinks, Balance RAID1 y Scrub
+    ├── demo_integrador_btrfs.sh   # Script interactivo completo de Btrfs
+    └── terraform/                 # IaC: 2 EC2 Ubuntu + 4 discos EBS (Hot Replace)
         ├── main.tf
         ├── variables.tf
         ├── providers.tf
@@ -88,3 +109,23 @@ Cada módulo temático cuenta con un script interactivo (`demo_*.sh`) diseñado 
    - Despliegue de WordPress con Docker Compose persistiendo en el arreglo RAID 1.
    - Falla inducida de disco con cero tiempo de inactividad (*zero downtime*).
    - Backup de base de datos cifrado con OpenSSL (AES-256) subido a AWS S3 y prueba de *Disaster Recovery*.
+   - Redimensionamiento en caliente (*online resize*) de `/var/lib/docker` y del rootfs (`/`) con `growpart` + `resize2fs`.
+
+3. **[Trabajo Integrador 3: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/trabajo_integrador_zfs.md)**
+   - Despliegue con Terraform de 2 instancias EC2 Ubuntu en zonas de disponibilidad separadas + 3 discos EBS + AWS ALB.
+   - Creación de zpools nativos y datasets con compresión LZ4 transparente.
+   - Conversión a espejo (Mirror) en caliente con `zpool attach` en vivo sin desmontar.
+   - Replicación remota de snapshots incrementales por SSH con `zfs send | ssh zfs receive`.
+   - Balanceo de carga HTTP gobernado por sonda de salud en `/health` (200 OK en activo, 503 en standby).
+   - Simulación de colapso del nodo activo y conmutación automática (*failover*) con promoción de dataset.
+   - Inyección de corrupción de bloques con `dd`, diagnóstico con `zpool scrub` y auto-curación (*self-healing*).
+
+4. **[Trabajo Integrador 4: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, Conversión en Vivo a RAID 1, Scrub y Reemplazo de Discos)](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/trabajo_integrador_btrfs.md)**
+   - Despliegue con Terraform de 2 instancias EC2 Ubuntu + 4 discos EBS dedicados.
+   - Creación de subvolúmenes jerárquicos independientes (`@app`, `@data`, `@snapshots`) sobre espacio dinámico compartido.
+   - Montaje avanzado con compresión transparente ZSTD nivel 3.
+   - Demostración de Reflinks (`cp --reflink=always`) logrando clonación instantánea de archivos en $O(1)$ con 0 bytes de sobrecarga física.
+   - Conversión en caliente de disco simple a RAID 1 en vivo mediante `btrfs device add` y `btrfs balance`.
+   - Replicación remota de subvolúmenes con `btrfs send | ssh btrfs receive`.
+   - Simulación de corrupción con `dd`, detección con `btrfs scrub` y auto-reparación.
+   - Reemplazo en caliente de un disco físico dañado mediante `btrfs replace` sin degradar el servicio.
