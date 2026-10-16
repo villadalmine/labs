@@ -12,7 +12,7 @@ MOUNT_LVM="/mnt/lab_lvm"
 MOUNT_CIFRADO="$HOME/datos_cifrados"
 MOUNT_VISIBLE="$HOME/datos_visibles"
 
-color_green="\030[0;32m"
+color_green="\033[0;32m"
 color_cyan="\033[0;36m"
 color_yellow="\033[1;33m"
 color_reset="\033[0m"

@@ -214,3 +214,16 @@ En un servidor remoto, pedir una contraseña durante el arranque puede dejar el 
 **Para probar sin disco físico:** archivo + `losetup` + LUKS. Usá la Parte A.
 
 **Para cifrar almacenamiento real:** partición dedicada + LUKS. Usá la Parte B y revisá dos veces el dispositivo antes de ejecutar `luksFormat`.
+
+## Opción: Demostración interactiva paso a paso para dar clase (`demo_luks.sh`)
+
+Si vas a dar una clase sobre LUKS y cifrado de bloques, podés utilizar el script interactivo [`demo_luks.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_luks.sh).
+
+El script crea un disco virtual seguro, inicializa LUKS2 con AES-XTS, abre el mapeo `/dev/mapper/`, formatea con ext4, escribe un archivo confidencial, cierra el contenedor y **hace una inspección forense en vivo** demostrando que el disco crudo contiene solo ruido cifrado (`strings` devuelve 0 coincidencias), para finalmente reabrirlo con la contraseña y recuperar los datos intactos.
+
+### Ejecución:
+
+```bash
+sudo ./demo_luks.sh          # Modo interactivo (pausa con [ENTER])
+sudo ./demo_luks.sh --auto 5 # Modo automático (espera 5s por paso)
+```

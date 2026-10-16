@@ -148,16 +148,71 @@ kill -TERM "$PID_SETSID"
 rm -f "$HOME/setsid-demo.pid" "$HOME/setsid-demo.log"
 ```
 
-## 7. Resumen: qué resuelve cada comando
+## 7. Retomar una terminal con `tmux`, `screen` o `zellij`
+
+`tmux`, `screen` y `zellij` mantienen una sesión de terminal dentro del servidor. La conexión SSH es solamente la vista que se conecta a esa sesión. Si la red falla, cerrás la laptop o perdés la terminal, la sesión sigue ejecutando sus procesos en el servidor.
+
+### Con `tmux`
+
+Creá una sesión con un nombre:
+
+```bash
+tmux new -s trabajo
+```
+
+Ejecutá comandos normalmente. Para desconectarte sin detenerlos, presioná `Ctrl+B` y después `D`. La combinación `Ctrl+B` es el prefijo de `tmux`; `D` significa *detach*.
+
+Cuando vuelvas a conectarte al servidor:
+
+```bash
+tmux ls
+tmux attach -t trabajo
+```
+
+También podés crear o retomar la sesión directamente:
+
+```bash
+tmux new -As trabajo
+```
+
+### Con `screen`
+
+```bash
+screen -S trabajo
+```
+
+Desconectate con `Ctrl+A` y después `D`. Para volver:
+
+```bash
+screen -ls
+screen -r trabajo
+```
+
+### Con `zellij`
+
+```bash
+zellij attach --create trabajo
+```
+
+Usá `Ctrl+O` y después `D` para desconectarte. Para listar y retomar sesiones:
+
+```bash
+zellij list-sessions
+zellij attach trabajo
+```
+
+Si cerrás deliberadamente una sesión con `exit`, o reiniciás el servidor, los procesos de esa sesión terminan. Estas herramientas protegen contra la pérdida de la conexión, no contra un apagado o reinicio del servidor. Para procesos que deben sobrevivir a reinicios, usá un servicio de `systemd` o un supervisor.
+
+## 8. Resumen: qué resuelve cada comando
 
 | Forma de ejecución | Ignora `SIGHUP` | Nueva sesión sin terminal de control | Reconectable |
 | --- | --- | --- | --- |
 | `comando &` | No | No | No |
 | `nohup comando ... &` | Sí | No | No |
 | `setsid comando ... &` | No necesariamente por `setsid` en sí | Sí | No |
-| `tmux` o `screen` | Mantiene una sesión administrada aparte | Sí, según configuración | Sí |
+| `tmux`, `screen` o `zellij` | Mantiene una sesión administrada aparte | Sí, según configuración | Sí |
 
-`setsid` evita que la sesión nueva tenga la terminal de control original; no equivale a ignorar todas las señales ni protege contra cualquier forma de cierre. `nohup` ignora `SIGHUP`, pero no separa por sí solo la sesión. Para recuperar después una terminal interactiva, usá `tmux` o `screen`.
+`setsid` evita que la sesión nueva tenga la terminal de control original; no equivale a ignorar todas las señales ni protege contra cualquier forma de cierre. `nohup` ignora `SIGHUP`, pero no separa por sí solo la sesión. Para recuperar después una terminal interactiva, usá `tmux`, `screen` o `zellij`.
 
 ## Comandos principales
 
@@ -167,4 +222,7 @@ fg %1
 bg %1
 nohup comando > salida.log 2>&1 < /dev/null &
 setsid comando </dev/null > salida.log 2>&1 &
+tmux new -As trabajo
+screen -r trabajo
+zellij attach --create trabajo
 ```

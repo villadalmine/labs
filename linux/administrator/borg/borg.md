@@ -66,3 +66,16 @@ borg umount /tmp/restauracion
 ```
 
 La contraseña protege la clave del repositorio: guardala de forma segura. Borg deduplica los datos, por lo que las ejecuciones siguientes pueden reutilizar bloques ya almacenados. Para restaurar, montá el repositorio y copiá los archivos necesarios desde `/tmp/restauracion` antes de desmontarlo.
+
+## Opción: Demostración interactiva paso a paso para dar clase (`demo_borg.sh`)
+
+Si vas a dar una clase sobre BorgBackup y deduplicación, podés utilizar el script interactivo [`demo_borg.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_borg.sh).
+
+El script genera datos simulados de un servidor web (`/var/www` y `/etc/nginx`), inicializa el repositorio cifrado, crea el primer snapshot, realiza un segundo snapshot tras modificar una sola línea para **demostrar la deduplicación en vivo** (0 segundos, solo bytes adicionales para 10 MB de datos), simula un borrado accidental y **monta el repositorio como carpeta con FUSE** (`borg mount`) para recuperar el archivo borrado, finalizando con la política de retención (`borg prune`).
+
+### Ejecución:
+
+```bash
+./demo_borg.sh          # Modo interactivo (pausa con [ENTER])
+./demo_borg.sh --auto 5 # Modo automático (espera 5s por paso)
+```

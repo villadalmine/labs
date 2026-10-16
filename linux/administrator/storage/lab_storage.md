@@ -193,3 +193,16 @@ findmnt /mnt/lab_lvm
 4. Comparar el tamaño del LV y del filesystem antes y después de la ampliación en caliente.
 5. Probar gocryptfs opcionalmente con carpetas del usuario normal y desmontarlo al terminar.
 6. Ejecutar `lab_storage.sh clean` solo después de confirmar que las rutas y dispositivos que elimina pertenecen a esta práctica.
+
+## Opción: Demostración interactiva paso a paso para dar clase (`demo_lab_storage.sh`)
+
+Si vas a dar la clase o demostración en vivo, podés usar el script interactivo [`demo_lab_storage.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_lab_storage.sh).
+
+El script pausa en cada etapa (`[ENTER]`) para dar tiempo a la explicación teórica, muestra explicaciones y comandos resaltados con colores, detecta sesiones de `tmux` activando el scroll con ratón automáticamente, y al finalizar (o con `Ctrl+C`) ejecuta un `trap` para limpiar todos los loop devices, montajes y volúmenes LVM.
+
+### Ejecución:
+
+```bash
+sudo ./demo_lab_storage.sh          # Modo interactivo (pausa con [ENTER])
+sudo ./demo_lab_storage.sh --auto 5 # Modo automático (espera 5s por paso)
+```

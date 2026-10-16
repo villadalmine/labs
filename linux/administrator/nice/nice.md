@@ -40,6 +40,11 @@ Para demostrar el efecto de nice, fijá los procesos a la misma CPU. Para demost
 
 ## 1. Revisar las CPU disponibles
 
+> **Requisitos para la práctica:**
+> - Compilador `gcc` (`sudo apt install build-essential` en Debian/Ubuntu).
+> - Permisos de `sudo` para las pruebas con `renice` que aumentan prioridad o usan nice negativo.
+> - Al menos 2 CPUs lógicas para la Sección 7 (si tu máquina o VM solo tiene 1 CPU, esa sección no se podrá ejecutar).
+
 ```bash
 nproc
 taskset -pc $$
@@ -141,9 +146,7 @@ Observá el valor nice, la CPU lógica más reciente y el porcentaje de CPU. La 
 ps -o pid,psr,ni,%cpu,comm --sort=-%cpu -p "$PID_NICE_A,$PID_NICE_B"
 ```
 
-En `ps`, `%CPU` es un promedio desde que arrancó cada proceso. Para comparar cómo cambia el consumo durante la prueba, usá `top`:
-
-Para seguirlos en vivo:
+En `ps`, `%CPU` es un promedio desde que arrancó cada proceso. Para seguir el consumo instantáneo en vivo durante la prueba, usá `top`:
 
 ```bash
 top -p "$PID_NICE_A,$PID_NICE_B"
@@ -188,20 +191,61 @@ También podés ver ambos procesos en vivo:
 top -p "$PID_NICE5,$PID_NICE19"
 ```
 
-Normalmente el proceso con nice `5` recibe más tiempo de CPU que el proceso con nice `19`. Cuanto más alto y positivo es el nice, menor es la prioridad relativa. Para dos workers solos en la misma CPU, los pesos de Linux predicen alrededor de `96%` para nice `5` y `4%` para nice `19`; la medición real puede variar por otros procesos y por el intervalo observado.
+Presioná `q` para salir de `top`. Normalmente el proceso con nice `5` recibe mucho más tiempo de CPU que el proceso con nice `19`. Para dos workers solos en la misma CPU, los pesos de Linux predicen alrededor de `96%` para nice `5` y `4%` para nice `19` (la medición real puede variar por otros procesos del sistema y por la ventana de muestreo).
 
-## 5. Comparar nice `-5` con nice `5`
+Consultá los contadores para ver la diferencia de velocidad a la que avanza cada uno:
 
-Primero iniciá ambos workers con nice `5` y fijalos a la misma CPU:
+```bash
+kill -USR1 "$PID_NICE5" "$PID_NICE19"
+```
+
+Notarás que el contador del worker con nice `5` avanza aproximadamente 20 a 24 veces más rápido que el de nice `19`.
+
+> **Importante**: No detengas estos procesos todavía; en la siguiente sección los modificaremos en caliente.
+
+## 5. Cambiar la prioridad en caliente con `renice`
+
+El worker `PID_NICE19` ya está funcionando con nice `19`. Subí su prioridad cambiando su valor nice a `5` para igualarlo con `PID_NICE5`:
+
+```bash
+sudo renice -n 5 -p "$PID_NICE19"
+```
+
+Comprobá el nuevo valor y observá cómo se equilibra el consumo en vivo:
+
+```bash
+ps -o pid,psr,ni,%cpu,comm --sort=-%cpu -p "$PID_NICE5,$PID_NICE19"
+top -p "$PID_NICE5,$PID_NICE19"
+```
+
+Presioná `q` para salir de `top`. Ahora ambos tienen nice `5`, por lo que deberían acercarse a un reparto parejo (~50/50) al competir por la misma CPU.
+
+> **Regla de permisos**: Un usuario común normalmente puede subir el valor nice de sus procesos (disminuir su prioridad); pero bajar el valor nice para aumentar la prioridad requiere privilegios de `root` o `CAP_SYS_NICE`.
+
+Detené los dos procesos antes de continuar:
+
+```bash
+kill -TERM "$PID_NICE5" "$PID_NICE19"
+wait "$PID_NICE5" "$PID_NICE19"
+```
+
+Al terminar, ambos informarán su contador final acumulado.
+
+## 6. Comparar nice negativo (`-5`) con nice positivo (`5`)
+
+Los valores negativos representan prioridades más altas que la normal (de `-1` a `-20`). Asignar nice negativo requiere privilegios de `root` o `CAP_SYS_NICE`.
+
+Iniciá ambos workers con nice `5` en la misma CPU:
 
 ```bash
 taskset -c "$CPU_A" nice -n 5 ./cpu_worker &
 PID_NICE_MINUS5=$!
 taskset -c "$CPU_A" nice -n 5 ./cpu_worker &
 PID_NICE_PLUS5=$!
+printf 'Worker A: PID=%s\nWorker B: PID=%s\n' "$PID_NICE_MINUS5" "$PID_NICE_PLUS5"
 ```
 
-Para subir la prioridad del primero a nice `-5`, necesitás privilegios de `root` o `CAP_SYS_NICE`:
+Subí la prioridad del primero a nice `-5` usando `sudo`:
 
 ```bash
 sudo renice -n -5 -p "$PID_NICE_MINUS5"
@@ -214,37 +258,19 @@ ps -o pid,psr,ni,%cpu,comm --sort=-%cpu -p "$PID_NICE_MINUS5,$PID_NICE_PLUS5"
 top -p "$PID_NICE_MINUS5,$PID_NICE_PLUS5"
 ```
 
-Presioná `q` para salir de `top`. Si solo compiten estos dos workers en esa CPU, el nice `-5` debería usar cerca de `90%` y el nice `5` cerca de `10%`. En este ejemplo `%CPU` de `ps` es un promedio desde que arrancó cada proceso; `top` permite seguir el cambio en vivo.
+Presioná `q` para salir de `top`. Si solo compiten estos dos workers en esa CPU, el nice `-5` (peso 3121) debería usar cerca del `90.3%` y el nice `5` (peso 335) cerca del `9.7%`.
+
+Comprobá el avance de los contadores:
+
+```bash
+kill -USR1 "$PID_NICE_MINUS5" "$PID_NICE_PLUS5"
+```
 
 Detené ambos antes de continuar:
 
 ```bash
 kill -TERM "$PID_NICE_MINUS5" "$PID_NICE_PLUS5"
 wait "$PID_NICE_MINUS5" "$PID_NICE_PLUS5"
-```
-
-## 6. Cambiar la prioridad con `renice`
-
-El worker `PID_NICE19` ya está funcionando. Cambiá su valor nice a `5`:
-
-```bash
-sudo renice -n 5 -p "$PID_NICE19"
-```
-
-Comprobá el nuevo valor y compará el consumo otra vez:
-
-```bash
-ps -o pid,psr,ni,%cpu,comm --sort=-%cpu -p "$PID_NICE5,$PID_NICE19"
-top -p "$PID_NICE5,$PID_NICE19"
-```
-
-Ahora ambos tienen nice `5`, por lo que deberían acercarse a un reparto parejo si siguen compitiendo por la misma CPU. Un usuario normalmente puede subir el valor nice de sus procesos; bajar el valor para aumentar la prioridad suele requerir `root` o `CAP_SYS_NICE`.
-
-Detené los dos procesos antes de continuar:
-
-```bash
-kill -TERM "$PID_NICE5" "$PID_NICE19"
-wait "$PID_NICE5" "$PID_NICE19"
 ```
 
 ## 7. Observar el uso de una CPU lógica u otra
@@ -294,3 +320,88 @@ wait "$PID_CPU_A" "$PID_CPU_B" "$PID_MIGRANTE"
 - `taskset -pc PID`: CPUs lógicas permitidas para el proceso.
 
 `nice` modifica la prioridad; `taskset` restringe la afinidad. Se pueden usar juntos, pero cumplen funciones distintas.
+
+## Opción: Demostración interactiva paso a paso para dar clase (`demo_nice.sh`)
+
+Si preferís dar la clase o presentación en vivo sin tener que copiar y pegar cada comando manualmente mientras explicás, podés utilizar el script interactivo [`demo_nice.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_nice.sh).
+
+El script compila automáticamente `cpu_worker.c`, prepara las variables de CPU, ejecuta cada escenario, muestra tablas de monitoreo en tiempo real con colores y se detiene en cada etapa para darte tiempo de explicar antes de continuar.
+
+### Modo interactivo (control manual con [ENTER]):
+
+```bash
+chmod +x demo_nice.sh
+./demo_nice.sh
+```
+
+En cada etapa el script muestra el comando a ejecutar, su fundamento teórico y espera a que presiones `[ENTER]` para dispararlo, consultar los contadores de avance (`SIGUSR1`) o aplicar `renice`.
+
+### Modo automático con temporizador:
+
+Si preferís que avance de forma autónoma con pausas fijas (por ejemplo, 5 segundos por paso):
+
+```bash
+./demo_nice.sh --auto 5
+```
+
+> **Nota de seguridad**: El script cuenta con un manejador de señales (`trap`). Si lo cancelás en cualquier momento con `Ctrl+C`, detendrá automáticamente todos los workers en segundo plano para no dejar ningún núcleo saturado.
+
+---
+
+## Apéndice: Origen teórico de los pesos en el planificador CFS
+
+Para responder dudas o profundizar en clase sobre **de dónde salen los números de los pesos** (ej. `1024`, `335`, `15`) y los porcentajes calculados:
+
+### 1. La tabla `sched_prio_to_weight` del Kernel de Linux
+
+En el código fuente del kernel de Linux ([`kernel/sched/core.c`](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/sched/core.c)), existe una tabla fija de 40 valores correspondiente a los niveles de nice desde `-20` hasta `+19`:
+
+```c
+const int sched_prio_to_weight[40] = {
+ /* -20 */     88761,     71755,     56483,     46273,     36291,
+ /* -15 */     29154,     23254,     18705,     14949,     11916,
+ /* -10 */      9548,      7620,      6100,      4904,      3906,
+ /*  -5 */      3121,      2501,      1991,      1586,      1277,
+ /*   0 */      1024,       820,       655,       526,       423,
+ /*   5 */       335,       272,       215,       172,       137,
+ /*  10 */       110,        87,        70,        56,        45,
+ /*  15 */        36,        29,        23,        18,        15,
+};
+```
+
+* **Nice 0** tiene el peso base de referencia **`1024`** (una potencia de dos, computacionalmente eficiente para operaciones de bits en el CPU).
+* **Nice 5** tiene peso **`335`**.
+* **Nice 19** tiene peso **`15`**.
+
+### 2. La regla del ~10% (Escala geométrica)
+
+El autor de CFS (Ingo Molnar) diseñó la tabla de forma exponencial/geométrica en lugar de lineal para cumplir la siguiente propiedad de diseño:
+
+> *Cada diferencia de 1 nivel de nice debe representar aproximadamente un 10% de diferencia en el tiempo de CPU relativo entre dos tareas que compiten.*
+
+Matemáticamente, cada paso equivale a multiplicar o dividir por un factor constante de aproximadamente **`1.25`**:
+- $1024 / 1.25 \approx 820$ (nice 1)
+- $820 / 1.25 \approx 655$ (nice 2)
+- $1024 \times 1.25 \approx 1277$ (nice -1)
+
+Esto asegura que la diferencia relativa entre `nice 0` y `nice 1` sea proporcionalmente la misma que entre `nice 10` y `nice 11`.
+
+### 3. Cálculo de los porcentajes teóricos
+
+Cuando dos tareas compiten al 100% en la misma CPU lógica:
+
+$$\text{\% de CPU} = \frac{\text{Peso de la tarea}}{\sum \text{Pesos de tareas en competencia}} \times 100$$
+
+Para **Nice 5** vs **Nice 19**:
+- Suma de pesos: $335 + 15 = 350$
+- Tarea con Nice 5: $\frac{335}{350} \times 100 \approx \mathbf{95.7\%}$
+- Tarea con Nice 19: $\frac{15}{350} \times 100 \approx \mathbf{4.3\%}$
+
+### 4. Implementación interna con `vruntime`
+
+Para no recalcular porcentajes constantemente, el kernel lleva un reloj virtual (**`vruntime`**) para cada tarea:
+
+$$\Delta vruntime = \text{tiempo\_real\_ejecutado} \times \left( \frac{1024}{\text{peso}} \right)$$
+
+* Una tarea con **nice 19** (peso 15) divide por 15 y multiplica por 1024, haciendo que su `vruntime` aumente muy rápido (~68 veces más rápido). El planificador la desaloja enseguida porque "virtualmente consumió mucho tiempo".
+* Una tarea con **nice 5** (o nice negativo) acumula `vruntime` mucho más lento, por lo que el planificador le permite permanecer en el procesador mucho más tiempo real.
