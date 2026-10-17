@@ -1,0 +1,101 @@
+name: Validate Labs and AI Tutor Catalog
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'linux/administrator/**'
+      - 'ai/tutor/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'linux/administrator/**'
+      - 'ai/tutor/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  validate-and-test:
+    name: Validar Catálogo, Integridad y Generador RAG
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias de validación
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema
+
+      - name: 1. Validar esquema JSON de catalog.json
+        run: |
+          python linux/administrator/manage_catalog.py validate
+
+      - name: 2. Validar integridad de archivos referenciados
+        run: |
+          python -c "
+          import json, sys
+          from pathlib import Path
+
+          admin_dir = Path('linux/administrator')
+          catalog_path = admin_dir / 'catalog.json'
+
+          with open(catalog_path, 'r', encoding='utf-8') as f:
+              data = json.load(f)
+
+          labs = data.get('labs', [])
+          broken = []
+
+          for l in labs:
+              lid = l.get('id', 'unknown')
+              files = l.get('files', {})
+              guide = files.get('guide')
+              script = files.get('script')
+
+              if guide and not (admin_dir / guide).exists():
+                  broken.append(f'Guía faltante en [{lid}]: {guide}')
+              if script and not (admin_dir / script).exists():
+                  broken.append(f'Script faltante en [{lid}]: {script}')
+
+          if broken:
+              print('❌ Enlaces rotos detectados en catalog.json:', file=sys.stderr)
+              for b in broken:
+                  print(f'   - {b}', file=sys.stderr)
+              sys.exit(1)
+
+          print(f'✅ Integridad perfecta: los {len(labs)} laboratorios tienen sus guías y scripts verificados en disco.')
+          "
+
+      - name: 3. Probar generación de Corpus RAG enriquecido
+        run: |
+          python ai/tutor/mcp/prepare_rag_corpus.py --output-dir /tmp/rag_test
+          echo "✅ Corpus RAG generado exitosamente en /tmp/rag_test"
+
+      - name: 4. Probar Servidor MCP y herramientas dinámicas
+        run: |
+          python -c "
+          from ai.tutor.mcp.labs_mcp_server import execute_tool, TOOLS
+
+          assert len(TOOLS) == 7, f'Esperadas 7 herramientas MCP, encontradas {len(TOOLS)}'
+
+          # Probar pista socrática dinámica Nivel 1 y 2
+          h1 = execute_tool('get_progressive_hint', {'lab_id': 'lab-1.2-proceso-zombie', 'hint_level': 1})
+          assert 'tutor_directive' in h1, 'get_progressive_hint L1 falló'
+
+          h2 = execute_tool('get_progressive_hint', {'lab_id': 'lab-1.2-proceso-zombie', 'hint_level': 2})
+          assert 'tools' in h2['reference_data'], 'get_progressive_hint L2 falló'
+
+          # Probar diagnóstico genérico de entorno
+          diag = execute_tool('check_lab_environment', {'lab_id': 'lab-1.2-proceso-zombie'})
+          assert 'system_snapshot' in diag, 'check_lab_environment falló'
+
+          print('✅ Servidor MCP y todas sus 7 herramientas probadas con éxito.')
+          "

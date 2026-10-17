@@ -43,6 +43,43 @@ flowchart TD
 
 ---
 
+## 🎓 Filosofía Pedagógica: Las 3 Capas de Adopción de tu Tutor
+
+Para sacar el máximo provecho de este entorno, es fundamental entender que tu Tutor de IA **no es un buscador comercial ni un chatbot que te regala la respuesta**: está diseñado bajo los principios de **soberanía tecnológica y aprendizaje profundo**.
+
+```mermaid
+flowchart LR
+    Capa1["Capa 1: Tutor Socrático\n(Método: preguntas y pistas graduales)"] --> Capa2["Capa 2: Dónde Vive\n(Terminal, Web o VS Code)"]
+    Capa2 --> Capa3["Capa 3: Alumno como Autor\n(Tú documentas y el Tutor aprende)"]
+```
+
+### Capa 1: El Tutor Socrático vs. El Chatbot "Solucionador"
+Un chatbot comercial común te entrega el comando completo para copiar y pegar. En la administración de sistemas Linux, **copiar y pegar sin entender destruye el aprendizaje**: no aprendés qué pasa en el kernel ni cómo diagnosticar cuando un servicio se cae en producción.
+
+Tu Tutor (configurado con `system_prompt_tutor.md` y la herramienta MCP `get_progressive_hint`) opera bajo el **método socrático**:
+1. **No regala el comando final:** Te guía mediante pistas graduadas:
+   * **Nivel 1 (Concepto):** Te explica el mecanismo del kernel involucrado (ej: *"¿Quién es el responsable de leer el código de salida de un proceso hijo?"*).
+   * **Nivel 2 (Búsqueda):** Te señala qué comando, llamada al sistema o ruta en `/proc` o `/sys` tenés que inspeccionar.
+   * **Nivel 3 (Sintaxis análoga):** Te muestra un ejemplo de referencia análogo para que vos deduzcas tu solución.
+2. **Inspección en vivo:** Mediante la herramienta MCP `check_lab_environment`, el tutor puede tomar una radiografía de solo lectura de tu máquina Linux (discos, loop devices, memoria, inodos, zombies) y decirte exactamente dónde estás parado sin que tengas que pegar 50 líneas de consola.
+
+### Capa 2: Dónde Vive tu Tutor (Elige tu Interfaz según tu Tarea)
+El mismo motor de tutoría (`labs_mcp_server.py` + `catalog.json` + RAG) se adapta al lugar donde estés trabajando:
+
+| Interfaz | Cuándo Usarla | Cliente Configurado |
+| :--- | :--- | :--- |
+| **Terminal / Shell** | Cuando estás ejecutando scripts (`demo_*.sh`), rompiendo discos o compilando código C. | **Goose CLI** (`goose_config.yaml`) |
+| **Web Interactiva** | Para estudiar teoría profunda, hacer preguntas conceptuales cruzadas o consultar certificaciones. | **Open WebUI / AnythingLLM** (`openwebui_tools.py`) |
+| **Editor de Código** | Para programar scripts en Bash/C, crear manifiestos de Terraform o documentar tus propios labs. | **VS Code + Continue / Cline** (`cline_mcp_settings.json`) |
+
+### Capa 3: El Alumno como Autor (Soberanía Técnica y RAG Incremental)
+El mayor salto de aprendizaje ocurre cuando vos mismo documentás lo aprendido:
+1. Al terminar un laboratorio o resolver un problema en tu servidor, creás un archivo Markdown en `linux/administrator/` (ej: `mi_experiencia_btrfs.md`).
+2. Ejecutás `python linux/administrator/manage_catalog.py sync` y `python ai/tutor/mcp/prepare_rag_corpus.py`.
+3. Al instante, **tu propio Tutor incorpora tus notas y código a su base de conocimiento**, permitiéndote preguntarle sobre tus propios laboratorios.
+
+---
+
 ## ⚙️ Paso 1: Configurar el Proveedor de Modelos (Ollama Local vs OpenRouter)
 
 Puedes elegir entre correr los modelos 100% en tu máquina o conectarte a la API unificada de OpenRouter:

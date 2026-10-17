@@ -11,6 +11,9 @@ pedagógicas, lea guías y verifique la preparación del alumno mediante llamada
 import sys
 import os
 import json
+import subprocess
+import platform
+import shutil
 from pathlib import Path
 
 # Configurar UTF-8 en stdin/stdout
@@ -22,9 +25,9 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[3]
 ADMIN_DIR = REPO_ROOT / "linux" / "administrator"
-TUTOR_DIR = Path(__file__).resolve().parent.parent
+TUTOR_DIR = REPO_ROOT / "ai" / "tutor"
 CATALOG_PATH = ADMIN_DIR / "catalog.json"
 
 sys.path.insert(0, str(TUTOR_DIR))
@@ -119,6 +122,44 @@ TOOLS = [
                 "lab_id": {"type": "string", "description": "ID del laboratorio a consultar"}
             }
         }
+    },
+    {
+        "name": "get_progressive_hint",
+        "description": "Proporciona una pista graduada (Nivel 1: Concepto teórico socrático; Nivel 2: Comandos/flags a investigar; Nivel 3: Sintaxis de referencia del script) extrayendo dinámicamente la información del laboratorio sin revelar la solución directa.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["lab_id", "hint_level"],
+            "properties": {
+                "lab_id": {
+                    "type": "string",
+                    "description": "ID del laboratorio en curso (ej: lab-1.2-proceso-zombie, lab-3.3-cifrado-luks)"
+                },
+                "hint_level": {
+                    "type": "integer",
+                    "description": "Nivel de pista: 1 (solo concepto teórico sin comandos), 2 (comandos/flags a buscar), 3 (ejemplo de referencia análogo)",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "default": 1
+                },
+                "step": {
+                    "type": "integer",
+                    "description": "Número de paso o sección donde está trabado el alumno (opcional)"
+                }
+            }
+        }
+    },
+    {
+        "name": "check_lab_environment",
+        "description": "Ejecuta una radiografía rápida y no destructiva de solo lectura del entorno Linux (kernel, loop devices, discos, inodos, unidades systemd con fallas, procesos zombies y memoria) para que el tutor evalúe el estado del alumno.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "lab_id": {
+                    "type": "string",
+                    "description": "ID del laboratorio para cruzar requisitos técnicos (opcional)"
+                }
+            }
+        }
     }
 ]
 
@@ -205,6 +246,116 @@ def execute_tool(name: str, arguments: dict):
             "guide_path": str(guide_rel),
             "content": guide_path.read_text(encoding="utf-8")
         }
+
+    elif name == "get_progressive_hint":
+        lab_id = arguments.get("lab_id")
+        hint_level = int(arguments.get("hint_level", 1))
+        step = arguments.get("step")
+
+        lab = next((l for l in labs if l.get("id") == lab_id), None)
+        if not lab:
+            return {"error": f"Laboratorio '{lab_id}' no encontrado en el catálogo."}
+
+        guide_rel = lab.get("files", {}).get("guide")
+        guide_text = ""
+        if guide_rel:
+            gp = ADMIN_DIR / guide_rel
+            if gp.exists():
+                guide_text = gp.read_text(encoding="utf-8")
+
+        script_rel = lab.get("files", {}).get("script")
+        script_text = ""
+        if script_rel:
+            sp = ADMIN_DIR / script_rel
+            if sp.exists():
+                script_text = sp.read_text(encoding="utf-8")
+
+        if hint_level == 1:
+            directive = (
+                "DIRECTIVA SOCRÁTICA NIVEL 1 (Concepto Teórico): Explica el principio del sistema operativo, "
+                "mecanismo del kernel o arquitectura involucrada para orientar al alumno. PROHIBIDO dar comandos "
+                "exactos, nombres de flags ni soluciones terminadas."
+            )
+            reference = {
+                "rag_summary": lab.get("rag_summary"),
+                "tags": lab.get("tags"),
+                "category": lab.get("category"),
+                "prerequisites": lab.get("prerequisites"),
+            }
+        elif hint_level == 2:
+            directive = (
+                "DIRECTIVA SOCRÁTICA NIVEL 2 (Comandos y Búsqueda): Indica qué comandos, binarios o archivos "
+                "del sistema (/proc, /sys, man) y flags generales debe investigar el alumno. No le des los "
+                "argumentos específicos del ejercicio."
+            )
+            reference = {
+                "tools": lab.get("tools"),
+                "guide_excerpt": guide_text[:2000] if guide_text else "Sin guía.",
+            }
+        else:
+            directive = (
+                "DIRECTIVA SOCRÁTICA NIVEL 3 (Sintaxis de Referencia): Muestra un ejemplo de sintaxis formal "
+                "o análogo basado en el script de prueba, recordando al alumno que es un modelo y no la respuesta directa."
+            )
+            reference = {
+                "script_name": script_rel,
+                "script_snippet": script_text[:2000] if script_text else "Sin script asociado.",
+            }
+
+        return {
+            "lab_id": lab_id,
+            "title": lab.get("title"),
+            "hint_level": hint_level,
+            "step": step,
+            "tutor_directive": directive,
+            "reference_data": reference,
+        }
+
+    elif name == "check_lab_environment":
+        lab_id = arguments.get("lab_id")
+        lab = next((l for l in labs if l.get("id") == lab_id), None) if lab_id else None
+
+        def run_diag(cmd: list[str]) -> str:
+            try:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=3)
+                out = (r.stdout or r.stderr or "").strip()
+                return out if out else "(sin salida)"
+            except Exception as e:
+                return f"No disponible ({e})"
+
+        diag = {
+            "platform": platform.platform(),
+            "kernel": run_diag(["uname", "-srm"]),
+            "block_devices": run_diag(["lsblk", "-f"]),
+            "loop_devices": run_diag(["losetup", "-a"]),
+            "disk_usage": run_diag(["df", "-hT", "/", "/tmp"]),
+            "inodes": run_diag(["df", "-i", "/", "/tmp"]),
+            "failed_services": run_diag(["systemctl", "--failed", "--no-legend", "--no-pager"]),
+            "zombie_processes": run_diag(["sh", "-c", "ps -eo pid,ppid,stat,comm | awk '$3 ~ /Z/'"]),
+            "memory": run_diag(["free", "-h"]),
+        }
+
+        response = {
+            "system_snapshot": diag,
+        }
+
+        if lab:
+            reqs = lab.get("requirements", {})
+            root_needed = reqs.get("root_required", False)
+            is_root = (os.geteuid() == 0) if hasattr(os, "geteuid") else False
+            missing_tools = [t for t in lab.get("tools", []) if not shutil.which(t)]
+
+            response["lab_compliance"] = {
+                "lab_id": lab.get("id"),
+                "title": lab.get("title"),
+                "root_required": root_needed,
+                "is_current_user_root": is_root,
+                "root_status": "OK" if (not root_needed or is_root) else "FAIL (requiere sudo / root)",
+                "missing_tools": missing_tools,
+                "tools_status": "OK" if not missing_tools else f"Faltan instalar: {', '.join(missing_tools)}",
+            }
+
+        return response
 
     return {"error": f"Herramienta desconocida: {name}"}
 

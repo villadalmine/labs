@@ -123,3 +123,33 @@ class Tools:
                 "guide": l.get("files", {}).get("guide")
             })
         return json.dumps({"total": len(results), "labs": results}, indent=2, ensure_ascii=False)
+
+    def get_progressive_hint(self, lab_id: str, hint_level: int = 1) -> str:
+        """
+        Proporciona pistas pedagógicas progresivas para no dar la respuesta servida.
+        :param lab_id: ID canónico del laboratorio.
+        :param hint_level: 1 (Concepto teórico), 2 (Comandos/flags a buscar), 3 (Sintaxis de referencia).
+        :return: Directiva socrática y material de referencia.
+        """
+        labs = self._load_labs()
+        lab = next((l for l in labs if l.get("id") == lab_id), None)
+        if not lab:
+            return json.dumps({"error": f"Laboratorio '{lab_id}' no encontrado."}, ensure_ascii=False)
+
+        if hint_level == 1:
+            directive = "Nivel 1 (Concepto): Explica el principio teórico del kernel/SO. PROHIBIDO dar comandos exactos."
+            ref = {"summary": lab.get("rag_summary"), "tags": lab.get("tags")}
+        elif hint_level == 2:
+            directive = "Nivel 2 (Búsqueda): Señala los comandos o archivos a investigar sin dar la solución completa."
+            ref = {"tools": lab.get("tools"), "guide": lab.get("files", {}).get("guide")}
+        else:
+            directive = "Nivel 3 (Referencia): Brinda un ejemplo análogo basado en el script de prueba."
+            ref = {"script": lab.get("files", {}).get("script")}
+
+        return json.dumps({
+            "lab_id": lab_id,
+            "title": lab.get("title"),
+            "hint_level": hint_level,
+            "directive": directive,
+            "reference": ref
+        }, indent=2, ensure_ascii=False)
