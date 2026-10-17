@@ -29,6 +29,7 @@ fi
 # Colores ANSI
 C_RESET="\033[0m"
 C_BOLD="\033[1m"
+C_DIM="\033[2m"
 C_GREEN="\033[0;32m"
 C_CYAN="\033[0;36m"
 C_YELLOW="\033[1;33m"
@@ -99,8 +100,8 @@ pie_clase() {
         if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
             sleep 1
         else
-            echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
-            read -r
+            echo -en "${C_DIM:-\033[2m}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
+            read -r </dev/tty 2>/dev/null || read -r
         fi
         echo -e "   ${C_BOLD}${C_CYAN}✔ Respuesta esperada:${C_RESET} ${respuesta}\n"
     fi
