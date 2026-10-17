@@ -203,6 +203,59 @@ zellij attach trabajo
 
 Si cerrás deliberadamente una sesión con `exit`, o reiniciás el servidor, los procesos de esa sesión terminan. Estas herramientas protegen contra la pérdida de la conexión, no contra un apagado o reinicio del servidor. Para procesos que deben sobrevivir a reinicios, usá un servicio de `systemd` o un supervisor.
 
+### Manejo de Paneles, Zoom y Tamaño de Fuentes (Especial para Apache Guacamole y Terminales Web)
+
+Cuando administras servidores mediante consolas web o escritorios remotos como **Apache Guacamole**, PuTTY o consolas Cloud (AWS EC2 Instance Connect, Cloud Shell), cambiar el tamaño de letra o ver bien los paneles divididos suele ser un desafío.
+
+#### 1. ¿Cómo cambiar el tamaño de la fuente (*Font Size*) en Guacamole / Terminal Web?
+> [!NOTE]
+> Los multiplexores (`tmux`, `screen`, `zellij`) **no controlan los píxeles de la fuente tipográfica**, sino la cantidad de filas y columnas de la cuadrícula de texto (manejando la señal `SIGWINCH` del kernel).
+> * **En Apache Guacamole:** Presiona `Ctrl + Alt + Shift` para abrir el panel lateral de Guacamole -> ajusta el zoom o resolución en la sección *Display*, o bien usa el zoom nativo de tu navegador web (`Ctrl + +` / `Ctrl + -`).
+> * **En terminales locales/SSH clásicas:** Ajusta el tamaño de fuente en las preferencias de tu emulador (Windows Terminal, iTerm2, Alacritty, GNOME Terminal) con `Ctrl + +` o `Ctrl + Rueda del ratón`.
+
+---
+
+#### 2. Nota importante sobre "Agrandar" Paneles (Espacio Visual y Zoom)
+
+Si lo que buscas no es el tamaño de la fuente, sino **agrandar el espacio visual de un panel dentro del multiplexor** (hacerlo pantalla completa temporalmente para leer logs o ajustar sus divisiones):
+
+##### 🔲 En `tmux`:
+* **Zoom a pantalla completa (Maximizar/Restaurar):**
+  Presiona `Ctrl + b` seguido de `z`.
+  *(El panel actual se expande ocupando toda la ventana. Vuelve a presionar `Ctrl + b` y luego `z` para restaurar la división original sin perder nada).*
+* **Redimensionar divisiones con el teclado:**
+  Presiona `Ctrl + b` y luego mantén presionado `Ctrl` mientras pulsas las **flechas de dirección** (`Arriba`, `Abajo`, `Izquierda`, `Derecha`) para empujar los bordes del panel.
+* **Redimensionar con el ratón (Ideal para novatos):**
+  Ejecuta dentro de tmux:
+  ```bash
+  tmux set -g mouse on
+  ```
+  Ahora puedes hacer clic y arrastrar los bordes divisorios con el cursor del ratón.
+
+##### 🔲 En `Zellij`:
+* **Modo Redimensionar (*Resize Mode*):**
+  Presiona `Alt + n` para entrar al modo de redimensionar paneles.
+  * Usa las teclas `h`, `j`, `k`, `l` o las **flechas del teclado** para encoger o agrandar el panel hacia cualquier dirección.
+  * Presiona `+` o `-` para agrandar o achicar el panel activo.
+  * Presiona `Esc` o `Enter` para salir del modo redimensionar.
+* **Atajos directos de redimensión:**
+  Presiona `Alt + h/j/k/l` directamente para mover las divisiones.
+* **Maximizar / Fullscreen (Toggle Fullscreen):**
+  Presiona `Alt + f` para alternar el panel activo a pantalla completa.
+
+##### 🔲 En `GNU Screen`:
+* **Hacer pantalla completa (Ocultar las demás regiones):**
+  Presiona `Ctrl + a` seguido de `Q` (deja únicamente la región actual en toda la pantalla).
+* **Dividir pantalla:**
+  * Horizontal: `Ctrl + a` seguido de `S` (mayúscula).
+  * Vertical: `Ctrl + a` seguido de `|` (barra vertical).
+* **Ajustar el tamaño de las divisiones:**
+  Presiona `Ctrl + a` seguido de `:` y escribe:
+  * `resize +5` (agranda la región actual en 5 líneas).
+  * `resize -5` (achica la región actual en 5 líneas).
+  * `resize =` (iguala el tamaño de todas las regiones).
+
+
 ## 8. Resumen: qué resuelve cada comando
 
 | Forma de ejecución | Ignora `SIGHUP` | Nueva sesión sin terminal de control | Reconectable |

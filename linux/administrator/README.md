@@ -1,77 +1,98 @@
 # Plan de Carrera: Administración de Servidores Linux
 
-Este repositorio contiene el plan de estudios progresivo, laboratorios prácticos, guías paso a paso y scripts interactivos para clases de **Administración de Sistemas Linux, Almacenamiento Empresarial y Alta Disponibilidad en la Nube**.
+Este es el **índice principal y plan de estudios progresivo** del repositorio. Contiene los laboratorios prácticos, guías paso a paso y scripts interactivos de **Administración de Sistemas Linux, Almacenamiento Empresarial, Observabilidad y Alta Disponibilidad en la Nube**.
 
-El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de menor a mayor complejidad)**, agrupando las temáticas relacionadas para que cada concepto sirva de base al siguiente.
+El contenido está estrictamente organizado de **menor a mayor complejidad pedagógica (Nivel 0 al Nivel 4)**: desde entender cómo se compila un binario y cómo el kernel gestiona los procesos, hasta levantar clusters de alta disponibilidad tolerantes a desastres en **AWS** con **Terraform**.
+
+Todos los recursos disponen de **enlaces locales directos** (para navegar en tu editor o repositorio clonado) y **enlaces directos a GitHub** (para lectura web).
 
 ---
 
-## 🗺️ Mapa Curricular (De Menor a Mayor Complejidad)
+## 🗺️ Mapa Curricular (Ordenado por Complejidad Ascendente)
 
 ```
-[NIVEL 1: PROCESOS & CPU]
-  1.1 Control de Trabajos y Señales (fg, bg, nohup, setsid)
-  1.2 Ciclo de Vida y Procesos Zombies
-  1.3 Prioridades de CPU (nice, renice, CFS, taskset)
+[NIVEL 0: FUNDAMENTOS & COMPILACIÓN DE SOFTWARE]
+  0.1 Del Código Fuente al Binario: gcc, Makefiles e Instalación en el Sistema
            │
            ▼
-[NIVEL 2: SYSTEMD & CGROUPS]
-  2.1 Automatización con Systemd Timers (memlogger)
-  2.2 Activación por Sockets bajo demanda (socket-activation)
-  2.3 Gobernanza de Recursos con Cgroups v2 (CPU/Memory Limits)
+[NIVEL 1: PROCESOS, SEÑALES, TERMINALES & DIAGNÓSTICO EN VIVO]
+  1.1 Control de Trabajos y Multiplexores (fg, bg, nohup, setsid, tmux, screen, zellij)
+  1.2 Ciclo de Vida y Procesos Zombies (fork, wait, SIGCHLD, init adoption)
+  1.3 Planificación de CPU, Prioridades y Afinidad (nice, renice, CFS, taskset)
+  1.4 Diagnóstico Forense de Rendimiento en Tiempo Real (uptime, vmstat, iostat, sar, dstat)
            │
            ▼
-[NIVEL 3: STORAGE, CIFRADO & BACKUP TRADICIONAL]
-  3.1 LVM2 y Redimensionamiento en Caliente (Online Resize)
-  3.2 Cifrado de Bloques con LUKS (dm-crypt)
-  3.3 Cifrado de Filesystem FUSE con gocryptfs
-  3.4 Respaldos Deduplicados con BorgBackup
+[NIVEL 2: SUPERVISIÓN & GOBERNANZA MODERNA (SYSTEMD)]
+  2.1 Tareas Periódicas con Systemd Timers (memlogger)
+  2.2 Activación de Servicios por Sockets bajo demanda (socket-activation)
+  2.3 Gobernanza de Recursos con Cgroups v2 (Límites duros de CPUQuota y MemoryMax)
            │
            ▼
-[NIVEL 4: PROYECTOS INTEGRADORES EN LA NUBE (AWS)]
-  4.1 Integrador 1: Web Nginx, RAID 1 (LVM vs mdadm), LUKS y Borg Remoto
-  4.2 Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3
-  4.3 Integrador 3: Btrfs Avanzado (Subvolúmenes, Reflinks Zero-Copy, RAID 1 en Vivo y Scrub)
-  4.4 Integrador 4: ZFS HA Activo-Pasivo, Replicación Remota, AWS ALB Failover y Self-Healing
+[NIVEL 3: STORAGE, FILESYSTEMS, CIFRADO, BACKUPS & MONITOREO]
+  3.1 Anatomía de Filesystems y Diagnóstico Forense (ext4, XFS, Btrfs, tmpfs, tune2fs, inodos agotados)
+  3.2 Almacenamiento Lógico LVM2 y Redimensionamiento en Caliente (PV, VG, LV, Online Resize)
+  3.3 Cifrado de Bloques con LUKS (dm-crypt, llaves de descifrado e inspección forense)
+  3.4 Cifrado FUSE a Nivel de Archivos con gocryptfs
+  3.5 Respaldos Deduplicados y Cifrados con BorgBackup y Timers
+  3.6 Monitoreo Continuo y Métricas en Producción (Node Exporter, Textfile, LVM Mirror, Tráfico y Backups)
+           │
+           ▼
+[NIVEL 4: PROYECTOS INTEGRADORES EN LA NUBE (AWS & TERRAFORM)]
+  4.1 Integrador 1: Servidor Web Nginx, RAID 1 (LVM vs mdadm), LUKS y Borg Remoto por SSH
+  4.2 Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3 Cifrado
+  4.3 Integrador 3: Almacenamiento Avanzado Btrfs (Subvolúmenes, Reflinks O(1), RAID 1 y Scrub)
+  4.4 Integrador 4: ZFS Enterprise HA Activo-Pasivo, Replicación Remota y AWS ALB Failover
 ```
 
 ---
 
-## 🟢 Nivel 1: Procesos, Señales y Planificación de CPU
-*Fundamentos del sistema operativo: cómo interactúan los programas con el kernel, las terminales y los núcleos de CPU.*
+## 🟢 Nivel 0: Fundamentos y Compilación de Software
+*Comprender qué ocurre antes de que un servicio exista en el sistema: código fuente, llamadas al sistema, compilación y enlaces de bibliotecas.*
 
-| Módulo | Guía Teórica | Script de Clase / Código | Conceptos Clave |
+| Módulo | Guía Teórica (Local / GitHub) | Recursos Prácticos | Conceptos Clave |
 | :--- | :--- | :--- | :--- |
-| **1. Control de Trabajos y Terminales** | [`procesos/jobs-fg-bg-nohup-setsid.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/procesos/jobs-fg-bg-nohup-setsid.md) | Terminal interactiva | `Ctrl+Z`, `bg`, `fg`, `jobs`, `nohup`, `setsid`, desvinculación de TTY, señales `SIGHUP` y `SIGKILL`. |
-| **2. Ciclo de Vida y Procesos Zombies** | [`procesos/proceso_zombie.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/procesos/proceso_zombie.md) | Demostración en bash | Llamadas `fork()`, `wait()`, estados `Z` (defunct), eliminación del padre e init adoption / reaping. |
-| **3. Planificación de CPU y Scheduler** | [`nice/nice.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/nice.md) | [`demo_nice.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/demo_nice.sh) <br> [`cpu_worker.c`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/cpu_worker.c) | Prioridad `nice` (-20 a 19), `renice`, planificador CFS (Completely Fair Scheduler), pesos de tiempo de CPU y afinidad con `taskset`. |
+| **0. Compilación e Instalación** | [`compilar.md`](compilar.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/compilar.md) | `holamundo.c` <br> `Makefile` | Ciclo de compilación con `gcc`, optimizaciones (`-O2`), Makefiles (`all`, `install`, `clean`, `uninstall`), variables de prefijo (`/usr/local/bin`) y permisos Unix. |
 
 ---
 
-## 🟡 Nivel 2: Automatización Moderna y Control de Recursos (Systemd)
-*El estándar moderno de inicio, supervisión y límites duros de recursos en Linux.*
+## 🟢 Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel
+*Fundamentos del sistema operativo: cómo interactúan los programas con el procesador, las terminales y los núcleos de CPU.*
 
-| Módulo | Guía Teórica | Unidad de Demostración | Conceptos Clave |
+| Módulo | Guía Teórica (Local / GitHub) | Script de Clase / Demostración | Conceptos Clave |
 | :--- | :--- | :--- | :--- |
-| **4. Servicios Periódicos y Timers** | [`systemd/systemd-memlogger.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-memlogger.md) | `memlogger.service` <br> `memlogger.timer` | Reemplazo moderno de `cron`, unidades `Type=oneshot`, directivas `OnCalendar` y precisión con `AccuracySec`. |
-| **5. Activación por Sockets** | [`systemd/systemd-scoket.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-scoket.md) | `echo.socket` <br> `echo@.service` | Socket activation bajo demanda, escucha pasiva del kernel, arranque instantáneo al recibir tráfico de red. |
-| **6. Límites con Cgroups v2** | [`systemd/systemd-cgroups.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-cgroups.md) | `systemd-run` | Control de contención: `CPUQuota`, `MemoryMax`, `MemoryHigh` y prevención de caídas generales de servidor. |
+| **1. Control de Trabajos y Multiplexores** | [`procesos/jobs-fg-bg-nohup-setsid.md`](procesos/jobs-fg-bg-nohup-setsid.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/procesos/jobs-fg-bg-nohup-setsid.md) | Terminal interactiva | `&`, `jobs`, `fg`, `bg`, `nohup`, `setsid`, señales `SIGHUP` y `SIGKILL`. Uso de multiplexores (`tmux`, `screen`, `zellij`), zoom de paneles (`Ctrl+b z`), división de cuadrículas y tamaño de fuentes en **Apache Guacamole**. |
+| **2. Ciclo de Vida y Procesos Zombies** | [`procesos/proceso_zombie.md`](procesos/proceso_zombie.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/procesos/proceso_zombie.md) | Demostración en bash | Llamadas `fork()`, `wait()`, estados `Z` (defunct), señal `SIGCHLD`, adopción por `init/systemd` y liberación de la tabla de procesos. |
+| **3. Planificación de CPU y Scheduler** | [`nice/nice.md`](nice/nice.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/nice/nice.md) | [`demo_nice.sh`](nice/demo_nice.sh) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/nice/demo_nice.sh)) <br> [`cpu_worker.c`](nice/cpu_worker.c) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/nice/cpu_worker.c)) | Prioridad `nice` (-20 a 19), `renice` en caliente, planificador CFS (Completely Fair Scheduler), pesos matemáticos en el kernel y afinidad con `taskset`. |
+| **4. Diagnóstico en Vivo y Estadísticas** | [`tools-stats.md`](tools-stats.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/tools-stats.md) <br> [`uptime.md`](uptime.md) · [GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/uptime.md) | Consola de diagnóstico | Métricas puntuales con `uptime` (carga 1, 5, 15 min), `vmstat` (espera de I/O `wa`, swap `si`/`so`), `iostat` (latencia y `await`), `sar`, `dstat`, `top` y `htop`. |
 
 ---
 
-## 🟠 Nivel 3: Almacenamiento Tradicional, Cifrado y Respaldos
-*Gestión de discos físicos y lógicos, protección de datos en reposo y políticas de copias de seguridad.*
+## 🟡 Nivel 2: Supervisión y Gobernanza Moderna (Systemd & Cgroups)
+*El estándar de la industria para inicio de servicios, tareas programadas y gobernanza dura de memoria y CPU.*
 
-| Módulo | Guía Teórica | Script de Clase | Conceptos Clave |
+| Módulo | Guía Teórica (Local / GitHub) | Unidad de Demostración | Conceptos Clave |
 | :--- | :--- | :--- | :--- |
-| **7. LVM2 y Online Resize** | [`storage/lab_storage.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/storage/lab_storage.md) | [`demo_lab_storage.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/storage/demo_lab_storage.sh) | Dispositivos loop, Physical Volumes (PV), Volume Groups (VG), Logical Volumes (LV), y redimensionamiento en caliente (`lvextend -r`, `resize2fs`, `growpart`). |
-| **8. Cifrado de Bloques (LUKS)** | [`luks/luks.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/luks/luks.md) | [`demo_luks.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/luks/demo_luks.sh) | `cryptsetup`, cifrado dm-crypt a nivel de sectores, mapeo en `/dev/mapper/`, inspección forense con `strings` y protección contra robo físico. |
-| **9. Cifrado FUSE (gocryptfs)** | [`gocryptfs/gocryptfs.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/gocryptfs/gocryptfs.md) | Guía práctica | Cifrado en espacio de usuario a nivel de archivos/directorios. Comparativa directa vs LUKS (ventajas en nubes y backup granular). |
-| **10. Respaldos y Deduplicación** | [`borg/borg.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/borg.md) <br> [`borg/borg-con-systemd-timers.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/borg-con-systemd-timers.md) | [`demo_borg.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/demo_borg.sh) | BorgBackup: inicialización cifrada (repokey), deduplicación por chunking, montaje FUSE (`borg mount`), retención (`prune`) y timers automáticos. |
+| **5. Servicios Periódicos y Timers** | [`systemd/systemd-memlogger.md`](systemd/systemd-memlogger.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-memlogger.md) | `memlogger.service` <br> `memlogger.timer` | Reemplazo moderno de `cron`, unidades `Type=oneshot`, directivas `OnCalendar` y precisión temporal con `AccuracySec`. |
+| **6. Activación por Sockets** | [`systemd/systemd-scoket.md`](systemd/systemd-scoket.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-scoket.md) | `echo.socket` <br> `echo@.service` | Socket activation bajo demanda, escucha pasiva del kernel, arranque instantáneo al recibir tráfico de red sin memoria ociosa. |
+| **7. Límites con Cgroups v2** | [`systemd/systemd-cgroups.md`](systemd/systemd-cgroups.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-cgroups.md) | `systemd-run` | Control de contención: `CPUQuota`, `MemoryMax`, `MemoryHigh` y prevención de caídas generales de servidor por saturación. |
 
 ---
 
-## 🔴 Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier)
+## 🟠 Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo
+*Gestión de discos físicos y lógicos, estructura matemática del almacenamiento, seguridad criptográfica y observabilidad continua.*
+
+| Módulo | Guía Teórica (Local / GitHub) | Script de Clase (Local / GitHub) | Conceptos Clave |
+| :--- | :--- | :--- | :--- |
+| **8. Anatomía de Filesystems y Diagnóstico Forense** | [`filesystems/anatomia_filesystems.md`](filesystems/anatomia_filesystems.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/filesystems/anatomia_filesystems.md) | [`demo_filesystems.sh`](filesystems/demo_filesystems.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/filesystems/demo_filesystems.sh) | Capa VFS, Superbloques y copias de respaldo, inodos vs bloques, `tune2fs`, `dumpe2fs`, `xfs_info`, `xfs_growfs`, crisis de **inodos agotados con 90% libre** (`df -i`), rescate de superbloque con `e2fsck -b`, Btrfs CoW y tmpfs en RAM. |
+| **9. LVM2 y Online Resize** | [`storage/lab_storage.md`](storage/lab_storage.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/storage/lab_storage.md) | [`demo_lab_storage.sh`](storage/demo_lab_storage.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/storage/demo_lab_storage.sh) | Dispositivos loop, Physical Volumes (PV), Volume Groups (VG), Logical Volumes (LV), y redimensionamiento en caliente (`lvextend -r`, `resize2fs`, `growpart`). |
+| **10. Cifrado de Bloques (LUKS)** | [`luks/luks.md`](luks/luks.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/luks/luks.md) | [`demo_luks.sh`](luks/demo_luks.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/luks/demo_luks.sh) | `cryptsetup`, cifrado dm-crypt a nivel de sectores, mapeo en `/dev/mapper/`, inspección forense con `strings` y protección contra robo físico. |
+| **11. Cifrado FUSE (gocryptfs)** | [`gocryptfs/gocryptfs.md`](gocryptfs/gocryptfs.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/gocryptfs/gocryptfs.md) | Guía práctica | Cifrado en espacio de usuario a nivel de archivos/directorios. Comparativa directa vs LUKS (ventajas en nubes y backup granular). |
+| **12. Respaldos y Deduplicación** | [`borg/borg.md`](borg/borg.md) · [GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/borg.md) <br> [`borg-con-systemd-timers.md`](borg/borg-con-systemd-timers.md) · [GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/borg-con-systemd-timers.md) | [`demo_borg.sh`](borg/demo_borg.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/demo_borg.sh) | BorgBackup: inicialización cifrada (repokey), deduplicación por chunking, montaje FUSE (`borg mount`), retención (`prune`) y timers automáticos. |
+| **13. Monitoreo Continuo y Métricas en Producción** | [`monitoreo/monitoreo_metricas.md`](monitoreo/monitoreo_metricas.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/monitoreo/monitoreo_metricas.md) | [`demo_monitoreo.sh`](monitoreo/demo_monitoreo.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/monitoreo/demo_monitoreo.sh) | Diagnóstico puntual vs Monitoreo continuo, modelo PULL vs PUSH, Node Exporter, Textfile Collector, salud de mirrors RAID 1, peticiones HTTP, sesiones SSH y métricas de backup. |
+
+---
+
+## 🔴 Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)
 *Aplicación de todos los conocimientos previos en escenarios productivos reales desplegados con Terraform.*
 
 ```
@@ -84,16 +105,18 @@ El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de
    [Integrador 4: Enterprise HA]     --> ZFS Replicación Remota + AWS ALB Failover
 ```
 
-### 1. [Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS y Borg Remoto](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador/trabajo_integrador.md)
+### 1. [Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS y Borg Remoto](trabajo_integrador/trabajo_integrador.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador/trabajo_integrador.md)
 * **Infraestructura:** 2 EC2 Ubuntu `t3.micro` en AWS + 3 discos EBS de 1 GB.
+* **Archivos:** [`trabajo_integrador.md`](trabajo_integrador/trabajo_integrador.md) | [Directorio Terraform](trabajo_integrador/terraform/)
 * **Qué enseña:**
   - Creación de RAID 1 con LVM y comparación directa con `mdadm`.
   - Servidor Nginx resiliente a la destrucción física de un disco del arreglo.
   - Cifrado en capas (LUKS en el bloque de datos + gocryptfs en carpetas críticas).
   - Respaldo automatizado por SSH hacia una segunda máquina de backup con BorgBackup y timers de systemd.
 
-### 2. [Trabajo Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/trabajo_integrador_docker.md)
+### 2. [Trabajo Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3](trabajo_integrador_docker/trabajo_integrador_docker.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_docker/trabajo_integrador_docker.md)
 * **Infraestructura:** 1 EC2 Ubuntu `t3.micro` + 4 discos EBS de 1 GB + Bucket S3 Cifrado + Rol IAM.
+* **Archivos:** [`trabajo_integrador_docker.md`](trabajo_integrador_docker/trabajo_integrador_docker.md) | [`demo_integrador_docker.sh`](trabajo_integrador_docker/demo_integrador_docker.sh) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_docker/demo_integrador_docker.sh)) | [Directorio Terraform](trabajo_integrador_docker/terraform/)
 * **Qué enseña:**
   - Montaje obligatorio de `/var/lib/docker` en un volumen LVM dedicado **antes** de instalar Docker para proteger la raíz `/`.
   - Conversión en caliente (*hot-mirror*) del almacenamiento de Docker a RAID 1 sin apagar el demonio.
@@ -101,10 +124,10 @@ El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de
   - Simulación de falla física de disco sin pérdida de transacciones (*zero downtime*).
   - Backup lógico consistente, cifrado simétrico con OpenSSL (AES-256) y subida a AWS S3 mediante IAM Instance Profile (sin claves estáticas).
   - Redimensionamiento en caliente (*online resize*) de `/var/lib/docker` y del rootfs (`/`) con `growpart` y `resize2fs`.
-* **Script de Demostración:** [`demo_integrador_docker.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/demo_integrador_docker.sh) (probado en AWS y con modo loop local).
 
-### 3. [Trabajo Integrador 3: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, RAID 1 en Vivo y Scrub)](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/trabajo_integrador_btrfs.md)
+### 3. [Trabajo Integrador 3: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, RAID 1 en Vivo y Scrub)](trabajo_integrador_btrfs/trabajo_integrador_btrfs.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_btrfs/trabajo_integrador_btrfs.md)
 * **Infraestructura:** 2 EC2 Ubuntu `t3.micro` + 4 discos EBS de 1 GB.
+* **Archivos:** [`trabajo_integrador_btrfs.md`](trabajo_integrador_btrfs/trabajo_integrador_btrfs.md) | [`demo_integrador_btrfs.sh`](trabajo_integrador_btrfs/demo_integrador_btrfs.sh) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_btrfs/demo_integrador_btrfs.sh)) | [Directorio Terraform](trabajo_integrador_btrfs/terraform/)
 * **Qué enseña:**
   - Superación de los límites de LVM + ext4 mediante sistemas Copy-on-Write (CoW).
   - Subvolúmenes jerárquicos independientes (`@app`, `@data`, `@snapshots`) compartiendo espacio dinámico común.
@@ -114,10 +137,10 @@ El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de
   - Replicación remota de subvolúmenes con `btrfs send | ssh btrfs receive`.
   - Inyección de sectores dañados con `dd`, diagnóstico y auto-curación con `btrfs scrub`.
   - Reemplazo en caliente de discos averiados con `btrfs replace`.
-* **Script de Demostración:** [`demo_integrador_btrfs.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/demo_integrador_btrfs.sh).
 
-### 4. [Trabajo Integrador 4: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/trabajo_integrador_zfs.md)
+### 4. [Trabajo Integrador 4: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer](trabajo_integrador_zfs/trabajo_integrador_zfs.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_zfs/trabajo_integrador_zfs.md)
 * **Infraestructura:** 2 EC2 Ubuntu `t3.micro` en AZs distintas + 3 discos EBS + AWS Application Load Balancer (ALB).
+* **Archivos:** [`trabajo_integrador_zfs.md`](trabajo_integrador_zfs/trabajo_integrador_zfs.md) | [`demo_integrador_zfs.sh`](trabajo_integrador_zfs/demo_integrador_zfs.sh) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador_zfs/demo_integrador_zfs.sh)) | [Directorio Terraform](trabajo_integrador_zfs/terraform/)
 * **Qué enseña:**
   - Arquitectura empresarial ZFS on Linux: zpools, VDEVs y datasets con compresión LZ4.
   - Conversión a espejo en caliente (`zpool attach`) sin reiniciar ni desmontar.
@@ -125,7 +148,6 @@ El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de
   - Balanceo de carga HTTP gobernado por sonda de salud en `/health` (200 OK en activo, 503 en standby).
   - Simulación de caída del nodo primario y procedimiento de conmutación por error (*Failover*) con promoción de dataset en segundos.
   - Inyección de corrupción de bloques con `dd`, verificación con `zpool scrub` y demostración de auto-curación (*self-healing*).
-* **Script de Demostración:** [`demo_integrador_zfs.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/demo_integrador_zfs.sh).
 
 ---
 
