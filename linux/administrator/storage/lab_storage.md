@@ -1,3 +1,69 @@
+---
+id: "lab-3.2-lvm2-online-resize"
+title: "Almacenamiento Lógico LVM2, Redimensionamiento en Caliente y Dispositivos Loop"
+difficulty_level: 3
+difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
+section: "3.2"
+sections:
+  - "3.2"
+  - "3"
+category: "storage"
+tags:
+  - "storage"
+  - "lvm"
+  - "lvm2"
+  - "pv"
+  - "vg"
+  - "lv"
+  - "loop-device"
+  - "online-resize"
+  - "ext4"
+  - "resize2fs"
+  - "lvextend"
+tools:
+  - "pvcreate"
+  - "vgcreate"
+  - "lvcreate"
+  - "lvextend"
+  - "resize2fs"
+  - "losetup"
+  - "pvs"
+  - "vgs"
+  - "lvs"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 1024
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Ejecución de demo_lab_storage.sh con loop devices loop20/loop21/loop22, creación de vg_lab, lv_datos y ampliación online con lvextend -r."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Arquitectura estándar de gestión LVM sobre volúmenes EBS."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio fundamental de almacenamiento empresarial con Logical Volume Manager (LVM2). Explica la jerarquía Physical Volumes (PV), Volume Groups (VG) y Logical Volumes (LV), y demuestra cómo ampliar la capacidad de un filesystem ext4 en caliente sin desmontarlo (online resize) mediante lvextend -r y resize2fs sobre loop devices controlados."
+files:
+  guide: "storage/lab_storage.md"
+  script: "storage/demo_lab_storage.sh"
+  terraform: null
+---
+
 # Laboratorio: LVM, ampliación en caliente y gocryptfs
 
 En este laboratorio vas a crear discos virtuales con `loop devices`, agruparlos con LVM, crear un volumen lógico con ext4 y ampliarlo mientras sigue montado. Al final hay una práctica opcional con gocryptfs.

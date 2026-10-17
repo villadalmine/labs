@@ -1,0 +1,1501 @@
+{
+  "$schema": "./metadata.schema.json",
+  "version": "1.0.0",
+  "total_labs": 21,
+  "updated_at": "2026-10-17T12:00:00Z",
+  "labs": [
+    {
+      "id": "lab-0.1-compilar",
+      "title": "Compilación de Programas en C, Makefiles y Resolución de Dependencias",
+      "difficulty_level": 0,
+      "difficulty_label": "Nivel 0: Fundamentos y Compilación de Software",
+      "section": "0.1",
+      "sections": [
+        "0.1",
+        "0"
+      ],
+      "category": "fundamentals",
+      "tags": [
+        "compilacion",
+        "c",
+        "gcc",
+        "make",
+        "makefile",
+        "dependencias",
+        "headers",
+        "ncurses"
+      ],
+      "tools": [
+        "gcc",
+        "make",
+        "apt",
+        "git"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Compilación de programa en C con resolución de cabeceras libncurses-dev y ejecución interactiva."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Compatible en cualquier distribución Debian/Ubuntu con build-essential."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio introductorio de compilación en Linux. Enseña a descargar código fuente en C, diagnosticar errores de cabeceras faltantes (fatal error curses.h), instalar paquetes de desarrollo (libncurses-dev), interpretar Makefiles y compilar binarios nativos con make y gcc.",
+      "files": {
+        "guide": "compilar.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "ref-guia-discos-procesos",
+      "title": "Guía Rápida de Referencia: Procesos, Systemd, Discos, RAID y LVM",
+      "difficulty_level": 1,
+      "difficulty_label": "Material de Referencia General",
+      "section": "1.0",
+      "sections": [
+        "1.0",
+        "1",
+        "2",
+        "3"
+      ],
+      "category": "reference",
+      "tags": [
+        "reference",
+        "cheatsheet",
+        "procesos",
+        "systemd",
+        "storage",
+        "raid",
+        "lvm"
+      ],
+      "tools": [
+        "ps",
+        "systemctl",
+        "lsblk",
+        "mdadm",
+        "pvs",
+        "vgs",
+        "lvs"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Comandos de consulta validados en terminal."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Comandos de diagnóstico estándar del sistema."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de referencia rápida y comandos operativos esenciales para la administración de servidores Linux. Incluye chuleta de sintaxis para gestión de procesos (ps, kill), unidades systemd (systemctl, journalctl), inspección de almacenamiento físico (lsblk, blkid), creación de arreglos RAID con mdadm y administración de volúmenes LVM.",
+      "files": {
+        "guide": "guia_discos_procesos.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-1.1-jobs-multiplexores",
+      "title": "Control de Trabajos, Señales Unix y Multiplexores de Terminal (tmux, screen, zellij)",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.1",
+      "sections": [
+        "1.1",
+        "1"
+      ],
+      "category": "processes",
+      "tags": [
+        "procesos",
+        "jobs",
+        "fg",
+        "bg",
+        "nohup",
+        "setsid",
+        "sighup",
+        "tmux",
+        "screen",
+        "zellij",
+        "guacamole",
+        "tty"
+      ],
+      "tools": [
+        "jobs",
+        "fg",
+        "bg",
+        "nohup",
+        "setsid",
+        "ps",
+        "kill",
+        "tmux",
+        "screen",
+        "zellij"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Comportamiento de SIGHUP, nohup, setsid y comandos de multiplexores verificados en consola."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Multiplexores y reconexión remota verificados vía SSH y Guacamole."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía completa de control de trabajos y persistencia de procesos en Linux. Cubre diferencias entre segundo plano (&), inmunidad a SIGHUP (nohup), creación de nuevas sesiones sin terminal controladora (setsid), y el uso de multiplexores de terminal (tmux, GNU screen, zellij) con atajos para redimensionar paneles y zoom en terminales remotas como Apache Guacamole.",
+      "files": {
+        "guide": "procesos/jobs-fg-bg-nohup-setsid.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-1.2-proceso-zombie",
+      "title": "Ciclo de Vida de Procesos, Estados Zombie (defunct), SIGCHLD y Adopción por Init",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.2",
+      "sections": [
+        "1.2",
+        "1"
+      ],
+      "category": "processes",
+      "tags": [
+        "procesos",
+        "zombies",
+        "defunct",
+        "fork",
+        "wait",
+        "waitpid",
+        "sigchld",
+        "subreaper",
+        "init",
+        "systemd"
+      ],
+      "tools": [
+        "gcc",
+        "ps",
+        "kill",
+        "strace"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Compilación de zombie_maker.c, observación de estado Z en ps y adopción por proceso 1 tras matar al padre."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Comportamiento del kernel POSIX idéntico en instancias EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico sobre el ciclo de vida de procesos en Linux y el estado zombie (defunct). Explica por qué un proceso zombie no consume memoria ni CPU pero ocupa una entrada en la tabla de procesos (PID exhaustion), demuestra las llamadas del sistema fork() y wait(), y muestra cómo eliminar un zombie terminando a su proceso padre para que sea adoptado y recolectado por init/systemd.",
+      "files": {
+        "guide": "procesos/proceso_zombie.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-1.3-planificacion-cpu-nice",
+      "title": "Planificación de CPU, Prioridades Nice/Renice, CFS y Afinidad de Núcleos con Taskset",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.3",
+      "sections": [
+        "1.3",
+        "1"
+      ],
+      "category": "processes",
+      "tags": [
+        "procesos",
+        "cpu",
+        "nice",
+        "renice",
+        "cfs",
+        "scheduler",
+        "taskset",
+        "afinidad",
+        "prioridades"
+      ],
+      "tools": [
+        "nice",
+        "renice",
+        "taskset",
+        "top",
+        "htop",
+        "pidstat"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución exitosa de demo_nice.sh compilando cpu_worker.c, fijando núcleos con taskset y comprobando reparto porcentual de CFS."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Validado en instancias EC2 multi-core y single-core."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre el planificador de CPU Completely Fair Scheduler (CFS) en el kernel Linux. Demuestra matemáticamente cómo los valores nice (-20 a 19) se transforman en pesos de CPU cuando los procesos compiten en el mismo núcleo, cómo modificar prioridades en caliente con renice y cómo aislar la ejecución a CPUs específicas con taskset.",
+      "files": {
+        "guide": "nice/nice.md",
+        "script": "nice/demo_nice.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-1.4-tools-stats",
+      "title": "Herramientas de Estadísticas y Diagnóstico en Vivo (vmstat, iostat, sar, dstat)",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.4",
+      "sections": [
+        "1.4",
+        "1"
+      ],
+      "category": "observability",
+      "tags": [
+        "diagnostico",
+        "metricas",
+        "estadisticas",
+        "vmstat",
+        "iostat",
+        "sar",
+        "dstat",
+        "sysstat",
+        "rendimiento"
+      ],
+      "tools": [
+        "vmstat",
+        "iostat",
+        "sar",
+        "dstat",
+        "top",
+        "free",
+        "mpstat"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Paquetes sysstat y dstat instalados y verificados con muestreo continuo."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Herramientas estándar de observabilidad del paquete sysstat."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía práctica de observabilidad forense y diagnóstico en tiempo real de servidores Linux. Enseña a interpretar métricas de CPU, memoria, I/O wait (wa), swap (si/so) y latencia de disco (await) utilizando vmstat, iostat, mpstat, dstat y sar del paquete sysstat.",
+      "files": {
+        "guide": "tools-stats.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-1.4-uptime-load-proc",
+      "title": "Diagnóstico de Carga del Sistema: Uptime, Load Average y Estructura Interna de /proc",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.4",
+      "sections": [
+        "1.4",
+        "1"
+      ],
+      "category": "observability",
+      "tags": [
+        "uptime",
+        "load-average",
+        "proc",
+        "kernel",
+        "cpu",
+        "diagnostico",
+        "procesos"
+      ],
+      "tools": [
+        "uptime",
+        "cat",
+        "grep",
+        "nproc"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Inspección de /proc/loadavg, /proc/stat y prueba controlada de estrés con bucles de CPU."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Lectura de métricas nativas del kernel en instancias AWS EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de diagnóstico sobre la métrica de Load Average en Linux. Explica el significado real de las ventanas de 1, 5 y 15 minutos, su relación con los núcleos físicos lógicos (nproc), la diferencia entre procesos en estado R (Running) y D (Uninterruptible Sleep/IO Wait) y cómo el kernel calcula los valores leyendo directamente desde el pseudofilesystem /proc/loadavg.",
+      "files": {
+        "guide": "uptime.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-2.1-systemd-memlogger",
+      "title": "Monitoreo de Memoria con Systemd Services y Systemd Timers (Alternativa Moderna a Cron)",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)",
+      "section": "2.1",
+      "sections": [
+        "2.1",
+        "2"
+      ],
+      "category": "systemd",
+      "tags": [
+        "systemd",
+        "timers",
+        "services",
+        "cron",
+        "memoria",
+        "journald",
+        "automatizacion"
+      ],
+      "tools": [
+        "systemctl",
+        "journalctl",
+        "ps",
+        "bash"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Creación de unidad memlogger.service y memlogger.timer, verificación de ejecución en journalctl con systemd habilitado en WSL2."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución estándar como servicio systemd con registro estructurado en journald."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre automatización y servicios periódicos en Linux mediante systemd. Enseña a crear un script colector de memoria, empaquetarlo como servicio Type=simple/oneshot, configurar un timer de systemd (OnCalendar/AccuracySec) como reemplazo moderno de cron y consultar los logs generados en el journal estructurado con journalctl -u memlogger.",
+      "files": {
+        "guide": "systemd/systemd-memlogger.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-2.2-systemd-socket-activation",
+      "title": "Activación de Servicios por Socket (.socket) y Montajes Declarativos (.mount) en Systemd",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)",
+      "section": "2.2",
+      "sections": [
+        "2.2",
+        "2"
+      ],
+      "category": "systemd",
+      "tags": [
+        "systemd",
+        "sockets",
+        "socket-activation",
+        "mount",
+        "tmpfs",
+        "red",
+        "inetd"
+      ],
+      "tools": [
+        "systemctl",
+        "nc",
+        "curl",
+        "journalctl",
+        "ss"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Creación de unidad .socket en puerto 9999 y activación bajo demanda mediante nc/curl con systemd en WSL2."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Socket activation verificado en entorno de red AWS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre socket activation y unidades .mount en systemd. Demuestra cómo el kernel mantiene un puerto de red abierto (ListenStream) sin gastar memoria RAM en demonios ociosos, levantando instancias bajo demanda solo cuando llega una petición TCP, y cómo declarar puntos de montaje de sistemas de archivos volátiles mediante unidades nativas .mount.",
+      "files": {
+        "guide": "systemd/systemd-scoket.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-2.3-systemd-cgroups-v2",
+      "title": "Gobernanza de Recursos con Cgroups v2 y Systemd (Límites Duros de CPUQuota y MemoryMax)",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)",
+      "section": "2.3",
+      "sections": [
+        "2.3",
+        "2"
+      ],
+      "category": "systemd",
+      "tags": [
+        "systemd",
+        "cgroups",
+        "cgroups-v2",
+        "cpuquota",
+        "memorymax",
+        "recursos",
+        "gobernanza",
+        "kernel"
+      ],
+      "tools": [
+        "systemd-run",
+        "systemctl",
+        "stat",
+        "cat",
+        "top"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Verificación de cgroup2fs en /sys/fs/cgroup y limitación transitoria con systemd-run --property=CPUQuota=50%."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Cgroups v2 nativo en Ubuntu 24.04 LTS en AWS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre control y gobernanza dura de recursos mediante el árbol unificado de cgroups v2 y systemd. Enseña a verificar controladores habilitados en /sys/fs/cgroup, lanzar servicios transitorios con límites de CPU (CPUQuota=50%) usando systemd-run, modificar límites dinámicamente y comprobar la contención física del procesador sin degradar el resto del servidor.",
+      "files": {
+        "guide": "systemd/systemd-cgroups.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.1-anatomia-filesystems",
+      "title": "Anatomía de Sistemas de Archivos (ext4, XFS, Btrfs, tmpfs) y Diagnóstico Forense",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.1",
+      "sections": [
+        "3.1",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "filesystems",
+        "ext4",
+        "xfs",
+        "btrfs",
+        "tmpfs",
+        "tune2fs",
+        "dumpe2fs",
+        "xfs_info",
+        "xfs_growfs",
+        "inodos",
+        "superbloque",
+        "e2fsck",
+        "forense"
+      ],
+      "tools": [
+        "tune2fs",
+        "dumpe2fs",
+        "xfs_info",
+        "xfs_growfs",
+        "btrfs",
+        "e2fsck",
+        "df",
+        "mkfs"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución completa de demo_filesystems.sh sobre loop devices. Formateo ext4/XFS/Btrfs, tune2fs, simulación de inodos agotados con df -i y rescate con e2fsck -b."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Totalmente compatible en volúmenes EBS gp3 y loop devices."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio avanzado sobre la anatomía interna de sistemas de archivos en Linux. Compara arquitecturas de ext4 (bloques e inodos), XFS (Allocation Groups) y Btrfs (Copy-on-Write y subvolúmenes). Enseña inspección forense con dumpe2fs y xfs_info, ajuste de parámetros con tune2fs, resolución de crisis de inodos agotados (df -i al 100% con 90% libre) y rescate de particiones dañadas mediante superbloques de respaldo con e2fsck.",
+      "files": {
+        "guide": "filesystems/anatomia_filesystems.md",
+        "script": "filesystems/demo_filesystems.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.2-lvm2-online-resize",
+      "title": "Almacenamiento Lógico LVM2, Redimensionamiento en Caliente y Dispositivos Loop",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.2",
+      "sections": [
+        "3.2",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "lvm",
+        "lvm2",
+        "pv",
+        "vg",
+        "lv",
+        "loop-device",
+        "online-resize",
+        "ext4",
+        "resize2fs",
+        "lvextend"
+      ],
+      "tools": [
+        "pvcreate",
+        "vgcreate",
+        "lvcreate",
+        "lvextend",
+        "resize2fs",
+        "losetup",
+        "pvs",
+        "vgs",
+        "lvs"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución de demo_lab_storage.sh con loop devices loop20/loop21/loop22, creación de vg_lab, lv_datos y ampliación online con lvextend -r."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Arquitectura estándar de gestión LVM sobre volúmenes EBS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio fundamental de almacenamiento empresarial con Logical Volume Manager (LVM2). Explica la jerarquía Physical Volumes (PV), Volume Groups (VG) y Logical Volumes (LV), y demuestra cómo ampliar la capacidad de un filesystem ext4 en caliente sin desmontarlo (online resize) mediante lvextend -r y resize2fs sobre loop devices controlados.",
+      "files": {
+        "guide": "storage/lab_storage.md",
+        "script": "storage/demo_lab_storage.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.3-cifrado-luks",
+      "title": "Cifrado de Bloques en Reposo con LUKS (dm-crypt, Key Management e Inspección Forense)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.3",
+      "sections": [
+        "3.3",
+        "3"
+      ],
+      "category": "security",
+      "tags": [
+        "security",
+        "cifrado",
+        "luks",
+        "dm-crypt",
+        "cryptsetup",
+        "forense",
+        "loop-device",
+        "dev-mapper"
+      ],
+      "tools": [
+        "cryptsetup",
+        "losetup",
+        "strings",
+        "dd",
+        "mkfs.ext4",
+        "lsblk"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución de demo_luks.sh sobre /dev/loop30, formateo luksFormat, apertura en /dev/mapper/datos_seguros e inspección de entropía forense con strings."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Cifrado de bloques en volúmenes EBS en AWS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio de seguridad y cifrado de datos en reposo con Linux Unified Key Setup (LUKS) y el módulo del kernel dm-crypt. Demuestra cómo inicializar un dispositivo cifrado con cryptsetup, mapearlo en /dev/mapper, montar un filesystem ext4 seguro y realizar un análisis forense con strings para verificar que los datos resultan completamente ilegibles e indistinguibles de ruido aleatorio cuando el contenedor está cerrado.",
+      "files": {
+        "guide": "luks/luks.md",
+        "script": "luks/demo_luks.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.4-cifrado-fuse-gocryptfs",
+      "title": "Cifrado FUSE a Nivel de Archivo con Gocryptfs (Carpetas Cifradas vs Visibles)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.4",
+      "sections": [
+        "3.4",
+        "3"
+      ],
+      "category": "security",
+      "tags": [
+        "security",
+        "cifrado",
+        "gocryptfs",
+        "fuse",
+        "archivos",
+        "cloud-sync",
+        "privacidad"
+      ],
+      "tools": [
+        "gocryptfs",
+        "fusermount",
+        "mkdir",
+        "ls"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Instalación de gocryptfs, inicialización de datos_cifrados, montaje en datos_visibles y desmontaje con fusermount -u."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Cifrado FUSE en espacio de usuario compatible con sincronización en buckets S3."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre cifrado en espacio de usuario con gocryptfs utilizando FUSE (Filesystem in Userspace). Enseña a crear y montar directorios con cifrado transparente individual por archivo (AES-GCM), protegiendo nombres de archivo y contenidos sin requerir permisos de superusuario root ni formatear particiones completas, ideal para respaldos incrementales en la nube.",
+      "files": {
+        "guide": "gocryptfs/gocryptfs.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.5-borg-systemd-timers",
+      "title": "Automatización de Respaldos BorgBackup con Systemd Timers y Manejo Seguro de Contraseñas",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "backup",
+        "borg",
+        "systemd",
+        "timers",
+        "seguridad",
+        "rotacion"
+      ],
+      "tools": [
+        "borg",
+        "systemctl",
+        "journalctl"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Configuración de archivo /etc/borgmatic/borg.env protegido con chmod 600 y servicio systemd Type=oneshot."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Automatización de backups diarios en producción sobre EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de automatización de copias de seguridad continuas con BorgBackup y systemd timers. Explica cómo inyectar la clave BORG_PASSPHRASE de manera segura sin exponerla en la tabla de procesos, crear unidades .service de tipo oneshot con políticas de reinicio y programar la ejecución periódica con rotación automática mediante OnCalendar.",
+      "files": {
+        "guide": "borg/borg-con-systemd-timers.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.5-borg-backup",
+      "title": "Copias de Seguridad Deduplicadas, Comprimidas y Cifradas con BorgBackup",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "backup",
+        "borg",
+        "borgbackup",
+        "deduplicacion",
+        "cifrado",
+        "repokey",
+        "fuse",
+        "prune"
+      ],
+      "tools": [
+        "borg",
+        "fuse"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución de demo_borg.sh, inicialización de repositorio cifrado con repokey, deduplicación de chunks y montaje con borg mount."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Compatible en repositorios locales y remotos a través de SSH."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio sobre copias de seguridad de nivel empresarial con BorgBackup. Enseña a crear repositorios cifrados con repokey, aplicar deduplicación basada en chunking para respaldar solo bloques modificados, inspeccionar archivos en un backup montándolo como sistema de archivos FUSE (borg mount), y aplicar políticas de retención con borg prune.",
+      "files": {
+        "guide": "borg/borg.md",
+        "script": "borg/demo_borg.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.6-monitoreo-metricas",
+      "title": "Monitoreo Continuo y Métricas en Producción (Node Exporter, Textfile Collector, LVM Mirror y Backups)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.6",
+      "sections": [
+        "3.6",
+        "3"
+      ],
+      "category": "observability",
+      "tags": [
+        "observability",
+        "monitoreo",
+        "monitoring",
+        "metricas",
+        "metrics",
+        "node-exporter",
+        "prometheus",
+        "textfile-collector",
+        "pull-push",
+        "lvm-mirror",
+        "backup-metrics",
+        "http-requests",
+        "ssh-sessions"
+      ],
+      "tools": [
+        "node_exporter",
+        "curl",
+        "systemctl",
+        "bash",
+        "lvs",
+        "who"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Ejecución automatizada de demo_monitoreo.sh con Node Exporter v1.8.2, recolectores textfile para salud de espejos LVM, sesiones SSH y métricas de backup atómicas."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Totalmente compatible en instancias EC2 estándar."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio completo de monitoreo continuo en servidores Linux de cero a producción. Explica la diferencia entre diagnóstico puntual (vmstat/iostat) y monitoreo continuo, compara los paradigmas PULL (Prometheus scraping) vs PUSH (Textfile Collector), instala y ejecuta Node Exporter, y despliega scripts recolectores personalizados para monitorear el porcentaje de sincronización de un espejo LVM RAID 1, volumen de tráfico web, sesiones concurrentes y estado/duración de backups.",
+      "files": {
+        "guide": "monitoreo/monitoreo_metricas.md",
+        "script": "monitoreo/demo_monitoreo.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "integrador-4.1-servidor-web-raid-luks-borg",
+      "title": "Trabajo Integrador 1: Servidor Web Nginx Resiliente, LVM vs mdadm RAID 1, LUKS y Borg Remoto por SSH",
+      "difficulty_level": 4,
+      "difficulty_label": "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)",
+      "section": "4.1",
+      "sections": [
+        "4.1",
+        "4"
+      ],
+      "category": "cloud-iac",
+      "tags": [
+        "cloud-iac",
+        "aws",
+        "ec2",
+        "terraform",
+        "nginx",
+        "raid1",
+        "lvm",
+        "mdadm",
+        "luks",
+        "gocryptfs",
+        "borg",
+        "ssh",
+        "systemd-timers",
+        "drp"
+      ],
+      "tools": [
+        "terraform",
+        "nginx",
+        "cryptsetup",
+        "gocryptfs",
+        "borg",
+        "mdadm",
+        "lvcreate",
+        "ssh"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": true,
+        "min_ram_mb": 1024,
+        "min_disks": 3,
+        "cloud_provider": "AWS"
+      },
+      "tested_environments": [
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Despliegue multi-VM en AWS con Terraform (2 instancias EC2 t3.micro, 3 volúmenes EBS gp3 de 1 GB, backup remoto vía SSH y simulación de destrucción física de disco)."
+        }
+      ],
+      "environments": [
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Proyecto integrador empresarial en AWS desplegado mediante Terraform. Implementa un servidor web Nginx tolerante a desastres montado sobre un arreglo de discos espejados RAID 1 (comparando LVM vs mdadm), aplica cifrado en profundidad combinando LUKS y gocryptfs, simula la destrucción y reemplazo en caliente de un disco averiado, y automatiza respaldos remotos deduplicados con BorgBackup y systemd timers hacia un servidor secundario por SSH.",
+      "files": {
+        "guide": "trabajo_integrador/trabajo_integrador.md",
+        "script": null,
+        "terraform": "trabajo_integrador/terraform"
+      }
+    },
+    {
+      "id": "integrador-4.2-docker-lvm-hotmirror-mysql-s3",
+      "title": "Trabajo Integrador 2: Docker Engine en LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3 Cifrado",
+      "difficulty_level": 4,
+      "difficulty_label": "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)",
+      "section": "4.2",
+      "sections": [
+        "4.2",
+        "4"
+      ],
+      "category": "cloud-iac",
+      "tags": [
+        "cloud-iac",
+        "aws",
+        "ec2",
+        "terraform",
+        "docker",
+        "docker-compose",
+        "mysql",
+        "wordpress",
+        "lvm",
+        "hot-mirror",
+        "raid1",
+        "s3",
+        "openssl",
+        "iam",
+        "online-resize"
+      ],
+      "tools": [
+        "terraform",
+        "docker",
+        "docker-compose",
+        "aws-cli",
+        "lvconvert",
+        "lvextend",
+        "resize2fs",
+        "growpart",
+        "openssl"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": true,
+        "min_ram_mb": 1024,
+        "min_disks": 4,
+        "cloud_provider": "AWS"
+      },
+      "tested_environments": [
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Despliegue verificado en AWS con Terraform (1 EC2 t3.micro, 4 discos EBS de 1 GB, bucket S3 cifrado y script interactivo demo_integrador_docker.sh)."
+        }
+      ],
+      "environments": [
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Proyecto integrador de nivel producción combinando Docker, almacenamiento en bloque y nube de AWS. Enseña a aislar /var/lib/docker en LVM antes de instalar Docker, convertir volúmenes a RAID 1 en caliente (hot-mirror) sin pausar el motor, alojar bases de datos MySQL persistentes para WordPress con tolerancia a fallos, realizar dumps lógicos consistentes cifrados con OpenSSL (AES-256) y subirlos a buckets S3 con IAM Instance Profiles.",
+      "files": {
+        "guide": "trabajo_integrador_docker/trabajo_integrador_docker.md",
+        "script": "trabajo_integrador_docker/demo_integrador_docker.sh",
+        "terraform": "trabajo_integrador_docker/terraform"
+      }
+    },
+    {
+      "id": "integrador-4.3-btrfs-subvolumes-reflinks-raid1",
+      "title": "Trabajo Integrador 3: Almacenamiento Avanzado Btrfs (Subvolúmenes, Reflinks O(1), RAID 1 en Vivo y Scrub)",
+      "difficulty_level": 4,
+      "difficulty_label": "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)",
+      "section": "4.3",
+      "sections": [
+        "4.3",
+        "4"
+      ],
+      "category": "cloud-iac",
+      "tags": [
+        "cloud-iac",
+        "storage",
+        "btrfs",
+        "cow",
+        "copy-on-write",
+        "subvolumes",
+        "reflinks",
+        "raid1",
+        "rebalance",
+        "scrub",
+        "replace",
+        "zstd",
+        "aws",
+        "ec2",
+        "terraform"
+      ],
+      "tools": [
+        "terraform",
+        "btrfs",
+        "cp",
+        "mkfs.btrfs",
+        "dd"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": true,
+        "min_ram_mb": 1024,
+        "min_disks": 4,
+        "cloud_provider": "AWS"
+      },
+      "tested_environments": [
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Despliegue multi-VM en AWS con Terraform (2 EC2 t3.micro, 4 discos EBS, script demo_integrador_btrfs.sh, conversión a RAID 1 y auto-curación con scrub)."
+        }
+      ],
+      "environments": [
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Proyecto integrador de almacenamiento empresarial de última generación con el sistema de archivos Btrfs en AWS. Enseña a estructurar subvolúmenes jerárquicos independientes (@app, @data, @snapshots) con compresión transparente ZSTD, clonar archivos instantáneamente en tiempo O(1) con 0 consumo extra vía Reflinks, convertir un disco simple a RAID 1 en vivo mediante btrfs balance, auto-reparar bloques corruptos con btrfs scrub y reemplazar discos defectuosos en caliente.",
+      "files": {
+        "guide": "trabajo_integrador_btrfs/trabajo_integrador_btrfs.md",
+        "script": "trabajo_integrador_btrfs/demo_integrador_btrfs.sh",
+        "terraform": "trabajo_integrador_btrfs/terraform"
+      }
+    },
+    {
+      "id": "integrador-4.4-zfs-ha-activo-pasivo-alb",
+      "title": "Trabajo Integrador 4: ZFS Enterprise HA Activo-Pasivo, Replicación Remota y AWS ALB Failover",
+      "difficulty_level": 4,
+      "difficulty_label": "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)",
+      "section": "4.4",
+      "sections": [
+        "4.4",
+        "4"
+      ],
+      "category": "cloud-iac",
+      "tags": [
+        "cloud-iac",
+        "storage",
+        "zfs",
+        "zpool",
+        "vdev",
+        "ha",
+        "activo-pasivo",
+        "failover",
+        "replicacion",
+        "alb",
+        "aws",
+        "ec2",
+        "terraform",
+        "scrub",
+        "self-healing"
+      ],
+      "tools": [
+        "terraform",
+        "zpool",
+        "zfs",
+        "ssh",
+        "curl",
+        "dd"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": true,
+        "min_ram_mb": 1024,
+        "min_disks": 3,
+        "cloud_provider": "AWS"
+      },
+      "tested_environments": [
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Despliegue multi-AZ en AWS con Terraform (2 EC2 t3.micro, 3 discos EBS, Application Load Balancer ALB con health check HTTP, replicación zfs send/receive y conmutación por error)."
+        }
+      ],
+      "environments": [
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Proyecto integrador de alta disponibilidad empresarial utilizando OpenZFS en Linux y balanceo de carga en AWS. Enseña a crear zpools con VDEVs espejados en caliente, configurar datasets con compresión LZ4, automatizar la replicación periódica de snapshots incrementales por SSH (zfs send | ssh zfs receive), orquestar el tráfico web con un AWS ALB mediante sondas de salud dinámicas (/health) y ejecutar procedimientos de conmutación por error (failover) en segundos sin pérdida de consistencia.",
+      "files": {
+        "guide": "trabajo_integrador_zfs/trabajo_integrador_zfs.md",
+        "script": "trabajo_integrador_zfs/demo_integrador_zfs.sh",
+        "terraform": "trabajo_integrador_zfs/terraform"
+      }
+    }
+  ]
+}

@@ -1,3 +1,71 @@
+---
+id: "lab-1.1-jobs-multiplexores"
+title: "Control de Trabajos, Señales Unix y Multiplexores de Terminal (tmux, screen, zellij)"
+difficulty_level: 1
+difficulty_label: "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel"
+section: "1.1"
+sections:
+  - "1.1"
+  - "1"
+category: "processes"
+tags:
+  - "procesos"
+  - "jobs"
+  - "fg"
+  - "bg"
+  - "nohup"
+  - "setsid"
+  - "sighup"
+  - "tmux"
+  - "screen"
+  - "zellij"
+  - "guacamole"
+  - "tty"
+tools:
+  - "jobs"
+  - "fg"
+  - "bg"
+  - "nohup"
+  - "setsid"
+  - "ps"
+  - "kill"
+  - "tmux"
+  - "screen"
+  - "zellij"
+requirements:
+  root_required: false
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Comportamiento de SIGHUP, nohup, setsid y comandos de multiplexores verificados en consola."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Multiplexores y reconexión remota verificados vía SSH y Guacamole."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Guía completa de control de trabajos y persistencia de procesos en Linux. Cubre diferencias entre segundo plano (&), inmunidad a SIGHUP (nohup), creación de nuevas sesiones sin terminal controladora (setsid), y el uso de multiplexores de terminal (tmux, GNU screen, zellij) con atajos para redimensionar paneles y zoom en terminales remotas como Apache Guacamole."
+files:
+  guide: "procesos/jobs-fg-bg-nohup-setsid.md"
+  script: null
+  terraform: null
+---
+
 # Trabajos, primer plano y procesos separados de la terminal
 
 Esta guía muestra qué hacen `&`, `jobs`, `fg`, `bg`, `nohup` y `setsid`. La idea es distinguir tres cosas diferentes:

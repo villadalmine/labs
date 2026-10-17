@@ -1,3 +1,62 @@
+---
+id: "lab-2.3-systemd-cgroups-v2"
+title: "Gobernanza de Recursos con Cgroups v2 y Systemd (Límites Duros de CPUQuota y MemoryMax)"
+difficulty_level: 2
+difficulty_label: "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)"
+section: "2.3"
+sections:
+  - "2.3"
+  - "2"
+category: "systemd"
+tags:
+  - "systemd"
+  - "cgroups"
+  - "cgroups-v2"
+  - "cpuquota"
+  - "memorymax"
+  - "recursos"
+  - "gobernanza"
+  - "kernel"
+tools:
+  - "systemd-run"
+  - "systemctl"
+  - "stat"
+  - "cat"
+  - "top"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Verificación de cgroup2fs en /sys/fs/cgroup y limitación transitoria con systemd-run --property=CPUQuota=50%."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Cgroups v2 nativo en Ubuntu 24.04 LTS en AWS."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio sobre control y gobernanza dura de recursos mediante el árbol unificado de cgroups v2 y systemd. Enseña a verificar controladores habilitados en /sys/fs/cgroup, lanzar servicios transitorios con límites de CPU (CPUQuota=50%) usando systemd-run, modificar límites dinámicamente y comprobar la contención física del procesador sin degradar el resto del servidor."
+files:
+  guide: "systemd/systemd-cgroups.md"
+  script: null
+  terraform: null
+---
+
 # Límites de CPU y cgroups con systemd
 
 Esta guía muestra cómo iniciar un servicio de prueba con un límite de CPU, modificar el límite en ejecución y localizar sus procesos y archivos de control en cgroups v2.

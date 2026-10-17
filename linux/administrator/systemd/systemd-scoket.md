@@ -1,3 +1,61 @@
+---
+id: "lab-2.2-systemd-socket-activation"
+title: "Activación de Servicios por Socket (.socket) y Montajes Declarativos (.mount) en Systemd"
+difficulty_level: 2
+difficulty_label: "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)"
+section: "2.2"
+sections:
+  - "2.2"
+  - "2"
+category: "systemd"
+tags:
+  - "systemd"
+  - "sockets"
+  - "socket-activation"
+  - "mount"
+  - "tmpfs"
+  - "red"
+  - "inetd"
+tools:
+  - "systemctl"
+  - "nc"
+  - "curl"
+  - "journalctl"
+  - "ss"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Creación de unidad .socket en puerto 9999 y activación bajo demanda mediante nc/curl con systemd en WSL2."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Socket activation verificado en entorno de red AWS."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio sobre socket activation y unidades .mount en systemd. Demuestra cómo el kernel mantiene un puerto de red abierto (ListenStream) sin gastar memoria RAM en demonios ociosos, levantando instancias bajo demanda solo cuando llega una petición TCP, y cómo declarar puntos de montaje de sistemas de archivos volátiles mediante unidades nativas .mount."
+files:
+  guide: "systemd/systemd-scoket.md"
+  script: null
+  terraform: null
+---
+
 # Unidades `.socket` y `.mount` de systemd
 
 `systemd` puede escuchar en un puerto y arrancar un servicio solo cuando llega una conexión. También puede montar sistemas de archivos mediante unidades `.mount`, como alternativa a definirlos en `/etc/fstab`.

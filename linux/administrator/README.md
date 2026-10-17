@@ -46,6 +46,45 @@ Todos los recursos disponen de **enlaces locales directos** (para navegar en tu 
 
 ---
 
+## 🧠 Catálogo Estructurado de Metadatos y Consultas para RAG / IA
+
+Todas las guías y laboratorios del repositorio incorporan **metadatos formales estandarizados** mediante **YAML Frontmatter** en cada archivo `.md` y un registro consolidado en [`catalog.json`](catalog.json) validado por [`metadata.schema.json`](metadata.schema.json).
+
+Esta estructura está diseñada para alimentar motores de **Retrieval-Augmented Generation (RAG)**, bases vectoriales (Chroma, Pinecone, Qdrant) y agentes de IA autónomos, permitiendo responder con cero alucinación preguntas como: *"¿Qué laboratorios de nivel 3 fueron probados en WSL2 con Ubuntu 24.04 y pasaron exitosamente?"*.
+
+### 🔍 Capacidades del Sistema de Metadatos:
+- **Ambientes de Prueba Registrados:** Registro de ejecuciones en `WSL2`, `AWS EC2`, con detalle de kernel y tipo de instancia.
+- **Veredicto y Estado:** Estados `PASSED` (probado y aprobado de punta a punta con scripts), `VERIFIED` (validado por arquitectura en AWS), `FAILED` o `PENDING`.
+- **Sistemas Operativos Validados:** Ej: `Ubuntu 24.04 LTS`, `Debian 12`.
+- **Taxonomía Completa (Tags & Tools):** Etiquetas curriculares y listado exacto de comandos evaluados (`tune2fs`, `node_exporter`, `lvextend`, `borg`, `taskset`).
+- **Resumen Semántico Denso (`rag_summary`):** Párrafos de alta densidad de información para embeddings vectoriales.
+- **Especificación Completa:** Consultá la guía de arquitectura en [`METADATA_SPEC.md`](METADATA_SPEC.md).
+
+### ⚡ Consultas Rápidas desde Terminal:
+Podés consultar el catálogo interactivamente utilizando el script [`query_catalog.py`](query_catalog.py) (o su wrapper [`query_catalog.sh`](query_catalog.sh)):
+
+```bash
+# Listar todos los laboratorios con su estado y ambiente probado
+python query_catalog.py --list
+
+# Filtrar por etiqueta temática (ej: storage, lvm, prometheus, btrfs)
+python query_catalog.py --tag storage
+
+# Filtrar por ambiente y estado de validación
+python query_catalog.py --env WSL2 --status PASSED
+
+# Filtrar por sistema operativo
+python query_catalog.py --os "Ubuntu 24.04 LTS"
+
+# Exportar contexto enriquecido formateado para inyectar en el prompt de un LLM / RAG
+python query_catalog.py --rag-context --tag monitoring
+
+# Re-sincronizar el catálogo tras editar o añadir nuevas guías Markdown
+python query_catalog.py --sync
+```
+
+---
+
 ## 🟢 Nivel 0: Fundamentos y Compilación de Software
 *Comprender qué ocurre antes de que un servicio exista en el sistema: código fuente, llamadas al sistema, compilación y enlaces de bibliotecas.*
 

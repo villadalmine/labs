@@ -1,3 +1,62 @@
+---
+id: "integrador-4.4-zfs-ha-activo-pasivo-alb"
+title: "Trabajo Integrador 4: ZFS Enterprise HA Activo-Pasivo, Replicación Remota y AWS ALB Failover"
+difficulty_level: 4
+difficulty_label: "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)"
+section: "4.4"
+sections:
+  - "4.4"
+  - "4"
+category: "cloud-iac"
+tags:
+  - "cloud-iac"
+  - "storage"
+  - "zfs"
+  - "zpool"
+  - "vdev"
+  - "ha"
+  - "activo-pasivo"
+  - "failover"
+  - "replicacion"
+  - "alb"
+  - "aws"
+  - "ec2"
+  - "terraform"
+  - "scrub"
+  - "self-healing"
+tools:
+  - "terraform"
+  - "zpool"
+  - "zfs"
+  - "ssh"
+  - "curl"
+  - "dd"
+requirements:
+  root_required: true
+  cloud_required: true
+  min_ram_mb: 1024
+  min_disks: 3
+  cloud_provider: "AWS"
+tested_environments:
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Despliegue multi-AZ en AWS con Terraform (2 EC2 t3.micro, 3 discos EBS, Application Load Balancer ALB con health check HTTP, replicación zfs send/receive y conmutación por error)."
+environments:
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "VERIFIED"
+rag_summary: "Proyecto integrador de alta disponibilidad empresarial utilizando OpenZFS en Linux y balanceo de carga en AWS. Enseña a crear zpools con VDEVs espejados en caliente, configurar datasets con compresión LZ4, automatizar la replicación periódica de snapshots incrementales por SSH (zfs send | ssh zfs receive), orquestar el tráfico web con un AWS ALB mediante sondas de salud dinámicas (/health) y ejecutar procedimientos de conmutación por error (failover) en segundos sin pérdida de consistencia."
+files:
+  guide: "trabajo_integrador_zfs/trabajo_integrador_zfs.md"
+  script: "trabajo_integrador_zfs/demo_integrador_zfs.sh"
+  terraform: "trabajo_integrador_zfs/terraform"
+---
+
 # Trabajo Integrador 3: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer
 
 Este laboratorio avanzado de nivel profesional enseña a administrar **ZFS en Linux**, entender **Copy-on-Write (CoW)**, gestionar **VDEVs y Zpools**, realizar **ampliaciones de discos y espejos en caliente**, automatizar la **replicación remota por red con `zfs send | ssh zfs receive`**, y construir una arquitectura **Activo-Pasivo tolerante a fallos** gobernada por un **AWS Application Load Balancer (ALB)**.

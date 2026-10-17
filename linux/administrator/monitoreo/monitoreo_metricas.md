@@ -1,3 +1,68 @@
+---
+id: "lab-3.6-monitoreo-metricas"
+title: "Monitoreo Continuo y Métricas en Producción (Node Exporter, Textfile Collector, LVM Mirror y Backups)"
+difficulty_level: 3
+difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
+section: "3.6"
+sections:
+  - "3.6"
+  - "3"
+category: "observability"
+tags:
+  - "observability"
+  - "monitoreo"
+  - "monitoring"
+  - "metricas"
+  - "metrics"
+  - "node-exporter"
+  - "prometheus"
+  - "textfile-collector"
+  - "pull-push"
+  - "lvm-mirror"
+  - "backup-metrics"
+  - "http-requests"
+  - "ssh-sessions"
+tools:
+  - "node_exporter"
+  - "curl"
+  - "systemctl"
+  - "bash"
+  - "lvs"
+  - "who"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 1024
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Ejecución automatizada de demo_monitoreo.sh con Node Exporter v1.8.2, recolectores textfile para salud de espejos LVM, sesiones SSH y métricas de backup atómicas."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Totalmente compatible en instancias EC2 estándar."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio completo de monitoreo continuo en servidores Linux de cero a producción. Explica la diferencia entre diagnóstico puntual (vmstat/iostat) y monitoreo continuo, compara los paradigmas PULL (Prometheus scraping) vs PUSH (Textfile Collector), instala y ejecuta Node Exporter, y despliega scripts recolectores personalizados para monitorear el porcentaje de sincronización de un espejo LVM RAID 1, volumen de tráfico web, sesiones concurrentes y estado/duración de backups."
+files:
+  guide: "monitoreo/monitoreo_metricas.md"
+  script: "monitoreo/demo_monitoreo.sh"
+  terraform: null
+---
+
 # Laboratorio: Monitoreo y Métricas en Linux (De Cero a Producción)
 
 Este laboratorio está diseñado para enseñar los fundamentos de **métricas y monitoreo continuo en servidores Linux** para estudiantes y administradores que recién comienzan. 

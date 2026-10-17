@@ -1,3 +1,63 @@
+---
+id: "lab-1.2-proceso-zombie"
+title: "Ciclo de Vida de Procesos, Estados Zombie (defunct), SIGCHLD y Adopción por Init"
+difficulty_level: 1
+difficulty_label: "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel"
+section: "1.2"
+sections:
+  - "1.2"
+  - "1"
+category: "processes"
+tags:
+  - "procesos"
+  - "zombies"
+  - "defunct"
+  - "fork"
+  - "wait"
+  - "waitpid"
+  - "sigchld"
+  - "subreaper"
+  - "init"
+  - "systemd"
+tools:
+  - "gcc"
+  - "ps"
+  - "kill"
+  - "strace"
+requirements:
+  root_required: false
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Compilación de zombie_maker.c, observación de estado Z en ps y adopción por proceso 1 tras matar al padre."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Comportamiento del kernel POSIX idéntico en instancias EC2."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio práctico sobre el ciclo de vida de procesos en Linux y el estado zombie (defunct). Explica por qué un proceso zombie no consume memoria ni CPU pero ocupa una entrada en la tabla de procesos (PID exhaustion), demuestra las llamadas del sistema fork() y wait(), y muestra cómo eliminar un zombie terminando a su proceso padre para que sea adoptado y recolectado por init/systemd."
+files:
+  guide: "procesos/proceso_zombie.md"
+  script: null
+  terraform: null
+---
+
 # Proceso zombie en Linux
 
 Un proceso zombie terminó su ejecución, pero todavía conserva una entrada en la tabla de procesos porque su padre no leyó su estado de salida con `wait()` o `waitpid()`. En esta práctica vas a observarlo, terminarás a su padre original y comprobarás que el zombie puede ser adoptado por un *subreaper* que tampoco lo recoge.

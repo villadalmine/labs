@@ -1,3 +1,60 @@
+---
+id: "lab-2.1-systemd-memlogger"
+title: "Monitoreo de Memoria con Systemd Services y Systemd Timers (Alternativa Moderna a Cron)"
+difficulty_level: 2
+difficulty_label: "Nivel 2: Supervisión & Gobernanza Moderna (Systemd)"
+section: "2.1"
+sections:
+  - "2.1"
+  - "2"
+category: "systemd"
+tags:
+  - "systemd"
+  - "timers"
+  - "services"
+  - "cron"
+  - "memoria"
+  - "journald"
+  - "automatizacion"
+tools:
+  - "systemctl"
+  - "journalctl"
+  - "ps"
+  - "bash"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Creación de unidad memlogger.service y memlogger.timer, verificación de ejecución en journalctl con systemd habilitado en WSL2."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Ejecución estándar como servicio systemd con registro estructurado en journald."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Laboratorio sobre automatización y servicios periódicos en Linux mediante systemd. Enseña a crear un script colector de memoria, empaquetarlo como servicio Type=simple/oneshot, configurar un timer de systemd (OnCalendar/AccuracySec) como reemplazo moderno de cron y consultar los logs generados en el journal estructurado con journalctl -u memlogger."
+files:
+  guide: "systemd/systemd-memlogger.md"
+  script: null
+  terraform: null
+---
+
 # Monitor de memoria con systemd
 
 En esta guía vamos a crear un script que registra cada 10 segundos los cinco procesos que más memoria consumen. Después lo ejecutaremos como un servicio de `systemd`, que guardará la salida en el Journal.

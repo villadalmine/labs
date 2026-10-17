@@ -1,3 +1,59 @@
+---
+id: "lab-3.5-borg-systemd-timers"
+title: "Automatización de Respaldos BorgBackup con Systemd Timers y Manejo Seguro de Contraseñas"
+difficulty_level: 3
+difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
+section: "3.5"
+sections:
+  - "3.5"
+  - "3"
+category: "storage"
+tags:
+  - "storage"
+  - "backup"
+  - "borg"
+  - "systemd"
+  - "timers"
+  - "seguridad"
+  - "rotacion"
+tools:
+  - "borg"
+  - "systemctl"
+  - "journalctl"
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    kernel: "6.18.54.1-microsoft-standard-WSL2"
+    status: "PASSED"
+    test_date: "2026-10-17"
+    notes: "Configuración de archivo /etc/borgmatic/borg.env protegido con chmod 600 y servicio systemd Type=oneshot."
+  - environment: "AWS EC2"
+    type: "cloud"
+    instance_type: "t3.micro"
+    os: "Ubuntu 24.04 LTS"
+    status: "VERIFIED"
+    test_date: "2026-10-17"
+    notes: "Automatización de backups diarios en producción sobre EC2."
+environments:
+  - "WSL2"
+  - "AWS EC2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Guía de automatización de copias de seguridad continuas con BorgBackup y systemd timers. Explica cómo inyectar la clave BORG_PASSPHRASE de manera segura sin exponerla en la tabla de procesos, crear unidades .service de tipo oneshot con políticas de reinicio y programar la ejecución periódica con rotación automática mediante OnCalendar."
+files:
+  guide: "borg/borg-con-systemd-timers.md"
+  script: null
+  terraform: null
+---
+
 # Backup automatizado con Borg + systemd timers
 
 Para automatizar tareas recurrentes, Linux moderno ya no recomienda usar `cron`. En su lugar, usamos `systemd` timers, que tienen varias ventajas:
