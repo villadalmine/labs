@@ -1,131 +1,141 @@
-# Laboratorios de Administración de Linux
+# Plan de Carrera: Administración de Servidores Linux
 
-Repositorio de prácticas de laboratorio, guías paso a paso y scripts interactivos para clases de Administración de Servidores Linux.
+Este repositorio contiene el plan de estudios progresivo, laboratorios prácticos, guías paso a paso y scripts interactivos para clases de **Administración de Sistemas Linux, Almacenamiento Empresarial y Alta Disponibilidad en la Nube**.
+
+El contenido está estructurado pedagógicamente en **4 niveles consecutivos (de menor a mayor complejidad)**, agrupando las temáticas relacionadas para que cada concepto sirva de base al siguiente.
 
 ---
 
-## Estructura de Módulos
+## 🗺️ Mapa Curricular (De Menor a Mayor Complejidad)
 
-```text
-linux/administrator/
-├── nice/                          # Prioridad y consumo de CPU con nice, renice y CFS
-│   ├── nice.md                    # Guía conceptual con pesos CFS y afinidad taskset
-│   ├── demo_nice.sh               # Script interactivo paso a paso para la clase
-│   └── cpu_worker.c               # Proceso en C para pruebas de carga y señales
-│
-├── storage/                       # Gestión de almacenamiento con LVM2 y Loop Devices
-│   ├── lab_storage.md             # Guía de laboratorio de LVM y extensión en caliente
-│   ├── demo_lab_storage.sh        # Script interactivo de LVM y resize2fs online
-│   ├── lab_storage.sh             # Script automatizado tradicional
-│   ├── lab_storage_paso_a_paso.md
-│   └── lab_storage_simple.md
-│
-├── luks/                          # Cifrado de dispositivos de bloques (dm-crypt)
-│   ├── luks.md                    # Guía de LUKS con loop device y partición real
-│   └── demo_luks.sh               # Script interactivo con demostración forense
-│
-├── gocryptfs/                     # Cifrado FUSE a nivel de directorios
-│   └── gocryptfs.md               # Guía práctica de gocryptfs
-│
-├── borg/                          # Copias de seguridad, deduplicación y retención
-│   ├── borg.md                    # Guía básica de BorgBackup y montaje FUSE
-│   ├── borg-con-systemd-timers.md # Automatización segura con systemd timers
-│   └── demo_borg.sh               # Script interactivo con deduplicación y desastre
-│
-├── procesos/                      # Gestión de procesos, jobs y señales
-│   ├── jobs-fg-bg-nohup-setsid.md # Control de trabajos y terminales
-│   └── proceso_zombie.md          # Diagnóstico y ciclo de vida de procesos zombies
-│
-├── systemd/                       # Automatización moderna y control de recursos
-│   ├── systemd-cgroups.md         # Límites de CPU y memoria con cgroups v2
-│   ├── systemd-memlogger.md       # Monitores periódicos con oneshot y timers
-│   └── systemd-scoket.md          # Activación por socket bajo demanda
-│
-├── trabajo_integrador/            # PROYECTO FINAL 1: Web + LVM/mdadm + LUKS + Borg
-│   ├── trabajo_integrador.md      # Guía completa paso a paso para dar en clase
-│   └── terraform/                 # IaC: 2 EC2 Ubuntu + 3 discos EBS en AWS Free Tier
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── providers.tf
-│       ├── outputs.tf
-│       └── README.md
-│
-├── trabajo_integrador_docker/     # PROYECTO FINAL 2: Docker LVM + MySQL RAID 1 + S3
-│   ├── trabajo_integrador_docker.md # Guía paso a paso: Hot-Mirror, WordPress y S3
-│   ├── demo_integrador_docker.sh  # Script interactivo completo y comprobado en AWS
-│   └── terraform/                 # IaC: 1 EC2 Ubuntu + 4 discos EBS + S3 + IAM
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── providers.tf
-│       ├── outputs.tf
-│       └── README.md
-│
-├── trabajo_integrador_zfs/        # PROYECTO FINAL 3: ZFS HA Activo-Pasivo + AWS ALB
-│   ├── trabajo_integrador_zfs.md  # Guía paso a paso: Pools, Hot Mirror, Failover y Scrub
-│   ├── demo_integrador_zfs.sh     # Script interactivo completo de ZFS
-│   └── terraform/                 # IaC: 2 EC2 Ubuntu + 3 discos EBS + ALB + Sonda
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── providers.tf
-│       ├── outputs.tf
-│       └── README.md
-│
-└── trabajo_integrador_btrfs/      # PROYECTO FINAL 4: Btrfs Avanzado (Reflinks, RAID1 y Replace)
-    ├── trabajo_integrador_btrfs.md # Guía: Subvolúmenes, Reflinks, Balance RAID1 y Scrub
-    ├── demo_integrador_btrfs.sh   # Script interactivo completo de Btrfs
-    └── terraform/                 # IaC: 2 EC2 Ubuntu + 4 discos EBS (Hot Replace)
-        ├── main.tf
-        ├── variables.tf
-        ├── providers.tf
-        ├── outputs.tf
-        └── README.md
+```
+[NIVEL 1: PROCESOS & CPU]
+  1.1 Control de Trabajos y Señales (fg, bg, nohup, setsid)
+  1.2 Ciclo de Vida y Procesos Zombies
+  1.3 Prioridades de CPU (nice, renice, CFS, taskset)
+           │
+           ▼
+[NIVEL 2: SYSTEMD & CGROUPS]
+  2.1 Automatización con Systemd Timers (memlogger)
+  2.2 Activación por Sockets bajo demanda (socket-activation)
+  2.3 Gobernanza de Recursos con Cgroups v2 (CPU/Memory Limits)
+           │
+           ▼
+[NIVEL 3: STORAGE, CIFRADO & BACKUP TRADICIONAL]
+  3.1 LVM2 y Redimensionamiento en Caliente (Online Resize)
+  3.2 Cifrado de Bloques con LUKS (dm-crypt)
+  3.3 Cifrado de Filesystem FUSE con gocryptfs
+  3.4 Respaldos Deduplicados con BorgBackup
+           │
+           ▼
+[NIVEL 4: PROYECTOS INTEGRADORES EN LA NUBE (AWS)]
+  4.1 Integrador 1: Web Nginx, RAID 1 (LVM vs mdadm), LUKS y Borg Remoto
+  4.2 Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3
+  4.3 Integrador 3: Btrfs Avanzado (Subvolúmenes, Reflinks Zero-Copy, RAID 1 en Vivo y Scrub)
+  4.4 Integrador 4: ZFS HA Activo-Pasivo, Replicación Remota, AWS ALB Failover y Self-Healing
 ```
 
 ---
 
-## Cómo usar los scripts interactivos en clase
+## 🟢 Nivel 1: Procesos, Señales y Planificación de CPU
+*Fundamentos del sistema operativo: cómo interactúan los programas con el kernel, las terminales y los núcleos de CPU.*
 
-Cada módulo temático cuenta con un script interactivo (`demo_*.sh`) diseñado específicamente para proyectar en el aula o compartir pantalla:
-1. **Pausa manual con `[ENTER]`:** Permite al docente dar la explicación teórica a su ritmo antes de ejecutar cada comando.
-2. **Soporte para `tmux`:** Activa automáticamente el scroll con la rueda del ratón (`mouse on`).
-3. **Modo automático (`--auto <segundos>`):** Avanza de forma autónoma con pausas temporizadas si se prefiere.
-4. **Limpieza garantizada (`trap`):** Al finalizar o presionar `Ctrl+C`, desmonta y limpia todos los recursos temporales.
+| Módulo | Guía Teórica | Script de Clase / Código | Conceptos Clave |
+| :--- | :--- | :--- | :--- |
+| **1. Control de Trabajos y Terminales** | [`procesos/jobs-fg-bg-nohup-setsid.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/procesos/jobs-fg-bg-nohup-setsid.md) | Terminal interactiva | `Ctrl+Z`, `bg`, `fg`, `jobs`, `nohup`, `setsid`, desvinculación de TTY, señales `SIGHUP` y `SIGKILL`. |
+| **2. Ciclo de Vida y Procesos Zombies** | [`procesos/proceso_zombie.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/procesos/proceso_zombie.md) | Demostración en bash | Llamadas `fork()`, `wait()`, estados `Z` (defunct), eliminación del padre e init adoption / reaping. |
+| **3. Planificación de CPU y Scheduler** | [`nice/nice.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/nice.md) | [`demo_nice.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/demo_nice.sh) <br> [`cpu_worker.c`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/nice/cpu_worker.c) | Prioridad `nice` (-20 a 19), `renice`, planificador CFS (Completely Fair Scheduler), pesos de tiempo de CPU y afinidad con `taskset`. |
 
 ---
 
-## Trabajos Integradores en la Nube (AWS)
+## 🟡 Nivel 2: Automatización Moderna y Control de Recursos (Systemd)
+*El estándar moderno de inicio, supervisión y límites duros de recursos en Linux.*
 
-1. **[Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS, gocryptfs y Borg Remote Backup](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador/trabajo_integrador.md)**
-   - Despliegue con Terraform de dos instancias EC2 Ubuntu en VPC propia con 3 discos EBS de 1 GB.
-   - Demostración de degradación y reconstrucción de arreglos de almacenamiento.
-   - Cifrado híbrido en capas (bloque y filesystem).
-   - Respaldo remoto automatizado por SSH hacia una segunda máquina con BorgBackup y timers de systemd.
+| Módulo | Guía Teórica | Unidad de Demostración | Conceptos Clave |
+| :--- | :--- | :--- | :--- |
+| **4. Servicios Periódicos y Timers** | [`systemd/systemd-memlogger.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-memlogger.md) | `memlogger.service` <br> `memlogger.timer` | Reemplazo moderno de `cron`, unidades `Type=oneshot`, directivas `OnCalendar` y precisión con `AccuracySec`. |
+| **5. Activación por Sockets** | [`systemd/systemd-scoket.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-scoket.md) | `echo.socket` <br> `echo@.service` | Socket activation bajo demanda, escucha pasiva del kernel, arranque instantáneo al recibir tráfico de red. |
+| **6. Límites con Cgroups v2** | [`systemd/systemd-cgroups.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/systemd/systemd-cgroups.md) | `systemd-run` | Control de contención: `CPUQuota`, `MemoryMax`, `MemoryHigh` y prevención de caídas generales de servidor. |
 
-2. **[Trabajo Integrador 2: Docker Engine en LVM Espejado en Caliente + MySQL en LVM RAID 1 + WordPress + Backup Cifrado en AWS S3](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/trabajo_integrador_docker.md)**
-   - Despliegue con Terraform de una instancia EC2 Ubuntu con 4 discos EBS de 1 GB, bucket S3 cifrado y rol IAM.
-   - Montaje de `/var/lib/docker` en un volumen LVM antes de instalar Docker.
-   - Conversión en caliente (*hot-mirror*) del volumen de Docker a RAID 1 sin reiniciar el demonio.
-   - Partición dedicada en LVM RAID 1 para base de datos MySQL 8.0 montada en `/srv/mysql_data`.
-   - Despliegue de WordPress con Docker Compose persistiendo en el arreglo RAID 1.
-   - Falla inducida de disco con cero tiempo de inactividad (*zero downtime*).
-   - Backup de base de datos cifrado con OpenSSL (AES-256) subido a AWS S3 y prueba de *Disaster Recovery*.
-   - Redimensionamiento en caliente (*online resize*) de `/var/lib/docker` y del rootfs (`/`) con `growpart` + `resize2fs`.
+---
 
-3. **[Trabajo Integrador 3: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/trabajo_integrador_zfs.md)**
-   - Despliegue con Terraform de 2 instancias EC2 Ubuntu en zonas de disponibilidad separadas + 3 discos EBS + AWS ALB.
-   - Creación de zpools nativos y datasets con compresión LZ4 transparente.
-   - Conversión a espejo (Mirror) en caliente con `zpool attach` en vivo sin desmontar.
-   - Replicación remota de snapshots incrementales por SSH con `zfs send | ssh zfs receive`.
-   - Balanceo de carga HTTP gobernado por sonda de salud en `/health` (200 OK en activo, 503 en standby).
-   - Simulación de colapso del nodo activo y conmutación automática (*failover*) con promoción de dataset.
-   - Inyección de corrupción de bloques con `dd`, diagnóstico con `zpool scrub` y auto-curación (*self-healing*).
+## 🟠 Nivel 3: Almacenamiento Tradicional, Cifrado y Respaldos
+*Gestión de discos físicos y lógicos, protección de datos en reposo y políticas de copias de seguridad.*
 
-4. **[Trabajo Integrador 4: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, Conversión en Vivo a RAID 1, Scrub y Reemplazo de Discos)](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/trabajo_integrador_btrfs.md)**
-   - Despliegue con Terraform de 2 instancias EC2 Ubuntu + 4 discos EBS dedicados.
-   - Creación de subvolúmenes jerárquicos independientes (`@app`, `@data`, `@snapshots`) sobre espacio dinámico compartido.
-   - Montaje avanzado con compresión transparente ZSTD nivel 3.
-   - Demostración de Reflinks (`cp --reflink=always`) logrando clonación instantánea de archivos en $O(1)$ con 0 bytes de sobrecarga física.
-   - Conversión en caliente de disco simple a RAID 1 en vivo mediante `btrfs device add` y `btrfs balance`.
-   - Replicación remota de subvolúmenes con `btrfs send | ssh btrfs receive`.
-   - Simulación de corrupción con `dd`, detección con `btrfs scrub` y auto-reparación.
-   - Reemplazo en caliente de un disco físico dañado mediante `btrfs replace` sin degradar el servicio.
+| Módulo | Guía Teórica | Script de Clase | Conceptos Clave |
+| :--- | :--- | :--- | :--- |
+| **7. LVM2 y Online Resize** | [`storage/lab_storage.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/storage/lab_storage.md) | [`demo_lab_storage.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/storage/demo_lab_storage.sh) | Dispositivos loop, Physical Volumes (PV), Volume Groups (VG), Logical Volumes (LV), y redimensionamiento en caliente (`lvextend -r`, `resize2fs`, `growpart`). |
+| **8. Cifrado de Bloques (LUKS)** | [`luks/luks.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/luks/luks.md) | [`demo_luks.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/luks/demo_luks.sh) | `cryptsetup`, cifrado dm-crypt a nivel de sectores, mapeo en `/dev/mapper/`, inspección forense con `strings` y protección contra robo físico. |
+| **9. Cifrado FUSE (gocryptfs)** | [`gocryptfs/gocryptfs.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/gocryptfs/gocryptfs.md) | Guía práctica | Cifrado en espacio de usuario a nivel de archivos/directorios. Comparativa directa vs LUKS (ventajas en nubes y backup granular). |
+| **10. Respaldos y Deduplicación** | [`borg/borg.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/borg.md) <br> [`borg/borg-con-systemd-timers.md`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/borg-con-systemd-timers.md) | [`demo_borg.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/borg/demo_borg.sh) | BorgBackup: inicialización cifrada (repokey), deduplicación por chunking, montaje FUSE (`borg mount`), retención (`prune`) y timers automáticos. |
+
+---
+
+## 🔴 Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier)
+*Aplicación de todos los conocimientos previos en escenarios productivos reales desplegados con Terraform.*
+
+```
+   [Integrador 1: Storage Clásico]   --> LVM RAID 1 / mdadm + LUKS + Borg por SSH
+                  │
+   [Integrador 2: Contenedores]      --> Docker aislado en LVM Hot-Mirror + MySQL + S3
+                  │
+   [Integrador 3: Filesystem CoW]    --> Btrfs Subvolúmenes + Reflinks O(1) + Rebalance
+                  │
+   [Integrador 4: Enterprise HA]     --> ZFS Replicación Remota + AWS ALB Failover
+```
+
+### 1. [Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS y Borg Remoto](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador/trabajo_integrador.md)
+* **Infraestructura:** 2 EC2 Ubuntu `t3.micro` en AWS + 3 discos EBS de 1 GB.
+* **Qué enseña:**
+  - Creación de RAID 1 con LVM y comparación directa con `mdadm`.
+  - Servidor Nginx resiliente a la destrucción física de un disco del arreglo.
+  - Cifrado en capas (LUKS en el bloque de datos + gocryptfs en carpetas críticas).
+  - Respaldo automatizado por SSH hacia una segunda máquina de backup con BorgBackup y timers de systemd.
+
+### 2. [Trabajo Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/trabajo_integrador_docker.md)
+* **Infraestructura:** 1 EC2 Ubuntu `t3.micro` + 4 discos EBS de 1 GB + Bucket S3 Cifrado + Rol IAM.
+* **Qué enseña:**
+  - Montaje obligatorio de `/var/lib/docker` en un volumen LVM dedicado **antes** de instalar Docker para proteger la raíz `/`.
+  - Conversión en caliente (*hot-mirror*) del almacenamiento de Docker a RAID 1 sin apagar el demonio.
+  - Almacenamiento redundante para MySQL 8.0 en `/srv/mysql_data` y despliegue de WordPress con Docker Compose.
+  - Simulación de falla física de disco sin pérdida de transacciones (*zero downtime*).
+  - Backup lógico consistente, cifrado simétrico con OpenSSL (AES-256) y subida a AWS S3 mediante IAM Instance Profile (sin claves estáticas).
+  - Redimensionamiento en caliente (*online resize*) de `/var/lib/docker` y del rootfs (`/`) con `growpart` y `resize2fs`.
+* **Script de Demostración:** [`demo_integrador_docker.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_docker/demo_integrador_docker.sh) (probado en AWS y con modo loop local).
+
+### 3. [Trabajo Integrador 3: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, RAID 1 en Vivo y Scrub)](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/trabajo_integrador_btrfs.md)
+* **Infraestructura:** 2 EC2 Ubuntu `t3.micro` + 4 discos EBS de 1 GB.
+* **Qué enseña:**
+  - Superación de los límites de LVM + ext4 mediante sistemas Copy-on-Write (CoW).
+  - Subvolúmenes jerárquicos independientes (`@app`, `@data`, `@snapshots`) compartiendo espacio dinámico común.
+  - Montaje avanzado con compresión transparente ZSTD nivel 3.
+  - Reflinks (`cp --reflink=always`): clonación instantánea de archivos en tiempo $O(1)$ con **0 bytes de consumo extra**.
+  - Conversión en caliente de disco simple a RAID 1 con `btrfs device add` y rebalanceo en vivo (`btrfs balance`).
+  - Replicación remota de subvolúmenes con `btrfs send | ssh btrfs receive`.
+  - Inyección de sectores dañados con `dd`, diagnóstico y auto-curación con `btrfs scrub`.
+  - Reemplazo en caliente de discos averiados con `btrfs replace`.
+* **Script de Demostración:** [`demo_integrador_btrfs.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_btrfs/demo_integrador_btrfs.sh).
+
+### 4. [Trabajo Integrador 4: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/trabajo_integrador_zfs.md)
+* **Infraestructura:** 2 EC2 Ubuntu `t3.micro` en AZs distintas + 3 discos EBS + AWS Application Load Balancer (ALB).
+* **Qué enseña:**
+  - Arquitectura empresarial ZFS on Linux: zpools, VDEVs y datasets con compresión LZ4.
+  - Conversión a espejo en caliente (`zpool attach`) sin reiniciar ni desmontar.
+  - Replicación periódica de snapshots incrementales por SSH (`zfs send -i | ssh zfs receive -F`).
+  - Balanceo de carga HTTP gobernado por sonda de salud en `/health` (200 OK en activo, 503 en standby).
+  - Simulación de caída del nodo primario y procedimiento de conmutación por error (*Failover*) con promoción de dataset en segundos.
+  - Inyección de corrupción de bloques con `dd`, verificación con `zpool scrub` y demostración de auto-curación (*self-healing*).
+* **Script de Demostración:** [`demo_integrador_zfs.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/trabajo_integrador_zfs/demo_integrador_zfs.sh).
+
+---
+
+## 🛠️ Cómo utilizar los Scripts Educativos en Clase
+
+Todos los scripts interactivos (`demo_*.sh`) disponen de:
+1. **Pausa manual con `[ENTER]`:** Para explicar la teoría antes de que el comando se ejecute.
+2. **Soporte `tmux`:** Activa automáticamente el scroll del ratón (`mouse on`).
+3. **Modo automático (`--auto <segundos>`):** Para corridas automáticas temporizadas.
+4. **Modo Dual (Local o AWS):**
+   - **En local / WSL2:** Sin parámetros, crean automáticamente discos virtuales loop de 1 GB.
+   - **En AWS:** Pasando los dispositivos EBS reales como argumentos (`/dev/nvme1n1...`).
+5. **Limpieza garantizada (`trap`):** Al finalizar o presionar `Ctrl+C`, desmontan y limpian todo.
