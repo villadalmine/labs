@@ -75,10 +75,18 @@ explain() {
 }
 
 pie_clase() {
-    echo -e "\n${C_MAGENTA}🎤 [PIE PARA LA CLASE EN VIVO]:${C_RESET}"
-    echo -e "${C_BOLD}${C_YELLOW}👉 Preguntale a los alumnos:${C_RESET} \"$1\""
-    if [ -n "${2:-}" ]; then
-        echo -e "   ${C_CYAN}Respuesta clave esperada:${C_RESET} $2"
+    local pregunta="$1"
+    local respuesta="${2:-}"
+    
+    echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta: ${pregunta}${C_RESET}"
+    if [ -n "$respuesta" ]; then
+        if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
+            sleep 1
+        else
+            echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
+            read -r
+        fi
+        echo -e "   ${C_BOLD}${C_CYAN}✔ Respuesta esperada:${C_RESET} ${respuesta}\n"
     fi
 }
 
