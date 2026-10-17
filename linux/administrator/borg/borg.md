@@ -1,58 +1,70 @@
 ---
-id: "lab-3.5-borg-backup"
-title: "Copias de Seguridad Deduplicadas, Comprimidas y Cifradas con BorgBackup"
+id: lab-3.5-borg-backup
+title: Copias de Seguridad Deduplicadas, Comprimidas y Cifradas con BorgBackup
 difficulty_level: 3
-difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
-section: "3.5"
+difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
+section: '3.5'
 sections:
-  - "3.5"
-  - "3"
-category: "storage"
+- '3.5'
+- '3'
+category: storage
 tags:
-  - "storage"
-  - "backup"
-  - "borg"
-  - "borgbackup"
-  - "deduplicacion"
-  - "cifrado"
-  - "repokey"
-  - "fuse"
-  - "prune"
+- storage
+- backup
+- borg
+- borgbackup
+- deduplicacion
+- cifrado
+- repokey
+- fuse
+- prune
 tools:
-  - "borg"
-  - "fuse"
+- borg
+- fuse
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Ejecución de demo_borg.sh, inicialización de repositorio cifrado con repokey, deduplicación de chunks y montaje con borg mount."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Compatible en repositorios locales y remotos a través de SSH."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Ejecución de demo_borg.sh, inicialización de repositorio cifrado con repokey,
+    deduplicación de chunks y montaje con borg mount.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Compatible en repositorios locales y remotos a través de SSH.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio sobre copias de seguridad de nivel empresarial con BorgBackup. Enseña a crear repositorios cifrados con repokey, aplicar deduplicación basada en chunking para respaldar solo bloques modificados, inspeccionar archivos en un backup montándolo como sistema de archivos FUSE (borg mount), y aplicar políticas de retención con borg prune."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio sobre copias de seguridad de nivel empresarial con BorgBackup.
+  Enseña a crear repositorios cifrados con repokey, aplicar deduplicación basada en
+  chunking para respaldar solo bloques modificados, inspeccionar archivos en un backup
+  montándolo como sistema de archivos FUSE (borg mount), y aplicar políticas de retención
+  con borg prune.
 files:
-  guide: "borg/borg.md"
-  script: "borg/demo_borg.sh"
+  guide: borg/borg.md
+  script: borg/demo_borg.sh
   terraform: null
+resource_type: interactive_lab
+has_guide: true
+has_interactive_script: true
+has_terraform: false
+execution_mode: cli_interactive
+prerequisites:
+- lab-3.2-lvm2-online-resize
 ---
 
 # Borg

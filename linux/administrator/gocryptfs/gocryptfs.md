@@ -1,58 +1,71 @@
 ---
-id: "lab-3.4-cifrado-fuse-gocryptfs"
-title: "Cifrado FUSE a Nivel de Archivo con Gocryptfs (Carpetas Cifradas vs Visibles)"
+id: lab-3.4-cifrado-fuse-gocryptfs
+title: Cifrado FUSE a Nivel de Archivo con Gocryptfs (Carpetas Cifradas vs Visibles)
 difficulty_level: 3
-difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
-section: "3.4"
+difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
+section: '3.4'
 sections:
-  - "3.4"
-  - "3"
-category: "security"
+- '3.4'
+- '3'
+category: security
 tags:
-  - "security"
-  - "cifrado"
-  - "gocryptfs"
-  - "fuse"
-  - "archivos"
-  - "cloud-sync"
-  - "privacidad"
+- security
+- cifrado
+- gocryptfs
+- fuse
+- archivos
+- cloud-sync
+- privacidad
 tools:
-  - "gocryptfs"
-  - "fusermount"
-  - "mkdir"
-  - "ls"
+- gocryptfs
+- fusermount
+- mkdir
+- ls
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Instalación de gocryptfs, inicialización de datos_cifrados, montaje en datos_visibles y desmontaje con fusermount -u."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Cifrado FUSE en espacio de usuario compatible con sincronización en buckets S3."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Instalación de gocryptfs, inicialización de datos_cifrados, montaje en datos_visibles
+    y desmontaje con fusermount -u.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Cifrado FUSE en espacio de usuario compatible con sincronización en buckets
+    S3.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio sobre cifrado en espacio de usuario con gocryptfs utilizando FUSE (Filesystem in Userspace). Enseña a crear y montar directorios con cifrado transparente individual por archivo (AES-GCM), protegiendo nombres de archivo y contenidos sin requerir permisos de superusuario root ni formatear particiones completas, ideal para respaldos incrementales en la nube."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio sobre cifrado en espacio de usuario con gocryptfs utilizando
+  FUSE (Filesystem in Userspace). Enseña a crear y montar directorios con cifrado
+  transparente individual por archivo (AES-GCM), protegiendo nombres de archivo y
+  contenidos sin requerir permisos de superusuario root ni formatear particiones completas,
+  ideal para respaldos incrementales en la nube.
 files:
-  guide: "gocryptfs/gocryptfs.md"
+  guide: gocryptfs/gocryptfs.md
   script: null
   terraform: null
+resource_type: theoretical_guide
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: manual_commands
+prerequisites:
+- lab-3.3-cifrado-luks
 ---
 
 # gocryptfs paso a paso

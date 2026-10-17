@@ -1,63 +1,71 @@
 ---
-id: "ref-guia-discos-procesos"
-title: "Guía Rápida de Referencia: Procesos, Systemd, Discos, RAID y LVM"
+id: ref-guia-discos-procesos
+title: 'Guía Rápida de Referencia: Procesos, Systemd, Discos, RAID y LVM'
 difficulty_level: 1
-difficulty_label: "Material de Referencia General"
-section: "1.0"
+difficulty_label: Material de Referencia General
+section: '1.0'
 sections:
-  - "1.0"
-  - "1"
-  - "2"
-  - "3"
-category: "reference"
+- '1.0'
+- '1'
+- '2'
+- '3'
+category: reference
 tags:
-  - "reference"
-  - "cheatsheet"
-  - "procesos"
-  - "systemd"
-  - "storage"
-  - "raid"
-  - "lvm"
+- reference
+- cheatsheet
+- procesos
+- systemd
+- storage
+- raid
+- lvm
 tools:
-  - "ps"
-  - "systemctl"
-  - "lsblk"
-  - "mdadm"
-  - "pvs"
-  - "vgs"
-  - "lvs"
+- ps
+- systemctl
+- lsblk
+- mdadm
+- pvs
+- vgs
+- lvs
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Comandos de consulta validados en terminal."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Comandos de diagnóstico estándar del sistema."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Comandos de consulta validados en terminal.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Comandos de diagnóstico estándar del sistema.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Guía de referencia rápida y comandos operativos esenciales para la administración de servidores Linux. Incluye chuleta de sintaxis para gestión de procesos (ps, kill), unidades systemd (systemctl, journalctl), inspección de almacenamiento físico (lsblk, blkid), creación de arreglos RAID con mdadm y administración de volúmenes LVM."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Guía de referencia rápida y comandos operativos esenciales para la administración
+  de servidores Linux. Incluye chuleta de sintaxis para gestión de procesos (ps, kill),
+  unidades systemd (systemctl, journalctl), inspección de almacenamiento físico (lsblk,
+  blkid), creación de arreglos RAID con mdadm y administración de volúmenes LVM.
 files:
-  guide: "guia_discos_procesos.md"
+  guide: guia_discos_procesos.md
   script: null
   terraform: null
+resource_type: cheatsheet
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: reading_only
 ---
 
 # Guía de procesos, systemd y almacenamiento en Linux

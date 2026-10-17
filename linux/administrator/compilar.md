@@ -1,59 +1,68 @@
 ---
-id: "lab-0.1-compilar"
-title: "Compilación de Programas en C, Makefiles y Resolución de Dependencias"
+id: lab-0.1-compilar
+title: Compilación de Programas en C, Makefiles y Resolución de Dependencias
 difficulty_level: 0
-difficulty_label: "Nivel 0: Fundamentos y Compilación de Software"
-section: "0.1"
+difficulty_label: 'Nivel 0: Fundamentos y Compilación de Software'
+section: '0.1'
 sections:
-  - "0.1"
-  - "0"
-category: "fundamentals"
+- '0.1'
+- '0'
+category: fundamentals
 tags:
-  - "compilacion"
-  - "c"
-  - "gcc"
-  - "make"
-  - "makefile"
-  - "dependencias"
-  - "headers"
-  - "ncurses"
+- compilacion
+- c
+- gcc
+- make
+- makefile
+- dependencias
+- headers
+- ncurses
 tools:
-  - "gcc"
-  - "make"
-  - "apt"
-  - "git"
+- gcc
+- make
+- apt
+- git
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Compilación de programa en C con resolución de cabeceras libncurses-dev y ejecución interactiva."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Compatible en cualquier distribución Debian/Ubuntu con build-essential."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Compilación de programa en C con resolución de cabeceras libncurses-dev y
+    ejecución interactiva.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Compatible en cualquier distribución Debian/Ubuntu con build-essential.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio introductorio de compilación en Linux. Enseña a descargar código fuente en C, diagnosticar errores de cabeceras faltantes (fatal error curses.h), instalar paquetes de desarrollo (libncurses-dev), interpretar Makefiles y compilar binarios nativos con make y gcc."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio introductorio de compilación en Linux. Enseña a descargar
+  código fuente en C, diagnosticar errores de cabeceras faltantes (fatal error curses.h),
+  instalar paquetes de desarrollo (libncurses-dev), interpretar Makefiles y compilar
+  binarios nativos con make y gcc.
 files:
-  guide: "compilar.md"
+  guide: compilar.md
   script: null
   terraform: null
+resource_type: theoretical_guide
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: manual_commands
 ---
 
 # Compilar un programa en Linux

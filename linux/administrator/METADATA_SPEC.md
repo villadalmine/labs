@@ -175,10 +175,11 @@ El campo `rag_summary` contiene un resumen de alta densidad semántica (sin cód
 
 ---
 
-## 🛠️ Herramienta CLI de Consulta y Sincronización
+## 🛠️ Herramientas CLI: Consulta, ABM y Motor Pedagógico
 
-El repositorio incluye el utilitario [`query_catalog.py`](query_catalog.py) que permite:
+El repositorio dispone de tres utilitarios complementarios:
 
+### 1. `query_catalog.py`: Consultas y RAG Context
 ```bash
 # Listar todos los laboratorios con su estado y ambiente
 python query_catalog.py --list
@@ -194,7 +195,39 @@ python query_catalog.py --os "Ubuntu 24.04 LTS"
 
 # Exportar contexto estructurado para el system prompt de un LLM / RAG
 python query_catalog.py --rag-context
+```
 
-# Sincronizar todos los archivos .md y reconstruir catalog.json
-python query_catalog.py --sync
+### 2. `manage_catalog.py`: Motor ABM (Alta, Baja, Modificación) y Validación
+Permite extender o modificar el esquema iterando automáticamente sobre todos los archivos `.md`:
+```bash
+# Autodetectar scripts/terraform y rellenar tipos de recurso y modos de ejecución
+python manage_catalog.py populate
+
+# ALTA DE CAMPO: Agregar un nuevo atributo con valor por defecto a todos los laboratorios
+python manage_catalog.py add-field --field "target_role" --default "devops-engineer"
+
+# BAJA DE CAMPO: Eliminar un atributo obsoleto en todo el repositorio
+python manage_catalog.py remove-field --field "target_role"
+
+# MODIFICACIÓN: Actualizar un atributo de un laboratorio puntual
+python manage_catalog.py set --id lab-3.6-monitoreo-metricas --field "difficulty_level" --value 3
+
+# SCAFFOLD: Generar la plantilla de un nuevo laboratorio con frontmatter validado
+python manage_catalog.py new-lab --id lab-1.5-strace --title "Diagnóstico de Syscalls con strace" --category processes --section 1.5
+
+# VALIDACIÓN: Validar cumplimiento del esquema formal
+python manage_catalog.py validate
+
+# SINCRONIZACIÓN: Reconstruir catalog.json
+python manage_catalog.py sync
+```
+
+### 3. `tutor_engine.py`: Motor de Decisiones para Protocolos de Agentes (jdev / MCP)
+Diseñado para que agentes autónomos tomen decisiones algorítmicas sin alucinar:
+```bash
+# Recomendar siguiente laboratorio según ambiente y trayectoria
+python tutor_engine.py recommend --env WSL2 --os "Ubuntu 24.04 LTS" --completed lab-0.1-compilar
+
+# Verificar si el alumno cumple los requisitos de ejecución
+python tutor_engine.py verify --id lab-3.2-lvm2-online-resize --env WSL2 --root
 ```

@@ -1,63 +1,78 @@
 ---
-id: "integrador-4.2-docker-lvm-hotmirror-mysql-s3"
-title: "Trabajo Integrador 2: Docker Engine en LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3 Cifrado"
+id: integrador-4.2-docker-lvm-hotmirror-mysql-s3
+title: 'Trabajo Integrador 2: Docker Engine en LVM Hot-Mirror, MySQL RAID 1, WordPress
+  y AWS S3 Cifrado'
 difficulty_level: 4
-difficulty_label: "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)"
-section: "4.2"
+difficulty_label: 'Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)'
+section: '4.2'
 sections:
-  - "4.2"
-  - "4"
-category: "cloud-iac"
+- '4.2'
+- '4'
+category: cloud-iac
 tags:
-  - "cloud-iac"
-  - "aws"
-  - "ec2"
-  - "terraform"
-  - "docker"
-  - "docker-compose"
-  - "mysql"
-  - "wordpress"
-  - "lvm"
-  - "hot-mirror"
-  - "raid1"
-  - "s3"
-  - "openssl"
-  - "iam"
-  - "online-resize"
+- cloud-iac
+- aws
+- ec2
+- terraform
+- docker
+- docker-compose
+- mysql
+- wordpress
+- lvm
+- hot-mirror
+- raid1
+- s3
+- openssl
+- iam
+- online-resize
 tools:
-  - "terraform"
-  - "docker"
-  - "docker-compose"
-  - "aws-cli"
-  - "lvconvert"
-  - "lvextend"
-  - "resize2fs"
-  - "growpart"
-  - "openssl"
+- terraform
+- docker
+- docker-compose
+- aws-cli
+- lvconvert
+- lvextend
+- resize2fs
+- growpart
+- openssl
 requirements:
   root_required: true
   cloud_required: true
   min_ram_mb: 1024
   min_disks: 4
-  cloud_provider: "AWS"
+  cloud_provider: AWS
 tested_environments:
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Despliegue verificado en AWS con Terraform (1 EC2 t3.micro, 4 discos EBS de 1 GB, bucket S3 cifrado y script interactivo demo_integrador_docker.sh)."
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Despliegue verificado en AWS con Terraform (1 EC2 t3.micro, 4 discos EBS
+    de 1 GB, bucket S3 cifrado y script interactivo demo_integrador_docker.sh).
 environments:
-  - "AWS EC2"
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "VERIFIED"
-rag_summary: "Proyecto integrador de nivel producción combinando Docker, almacenamiento en bloque y nube de AWS. Enseña a aislar /var/lib/docker en LVM antes de instalar Docker, convertir volúmenes a RAID 1 en caliente (hot-mirror) sin pausar el motor, alojar bases de datos MySQL persistentes para WordPress con tolerancia a fallos, realizar dumps lógicos consistentes cifrados con OpenSSL (AES-256) y subirlos a buckets S3 con IAM Instance Profiles."
+- Ubuntu 24.04 LTS
+status: VERIFIED
+rag_summary: Proyecto integrador de nivel producción combinando Docker, almacenamiento
+  en bloque y nube de AWS. Enseña a aislar /var/lib/docker en LVM antes de instalar
+  Docker, convertir volúmenes a RAID 1 en caliente (hot-mirror) sin pausar el motor,
+  alojar bases de datos MySQL persistentes para WordPress con tolerancia a fallos,
+  realizar dumps lógicos consistentes cifrados con OpenSSL (AES-256) y subirlos a
+  buckets S3 con IAM Instance Profiles.
 files:
-  guide: "trabajo_integrador_docker/trabajo_integrador_docker.md"
-  script: "trabajo_integrador_docker/demo_integrador_docker.sh"
-  terraform: "trabajo_integrador_docker/terraform"
+  guide: trabajo_integrador_docker/trabajo_integrador_docker.md
+  script: trabajo_integrador_docker/demo_integrador_docker.sh
+  terraform: trabajo_integrador_docker/terraform
+resource_type: cloud_project
+has_guide: true
+has_interactive_script: true
+has_terraform: true
+execution_mode: terraform_apply
+prerequisites:
+- lab-3.2-lvm2-online-resize
+- integrador-4.1-servidor-web-raid-luks-borg
 ---
 
 # Trabajo Integrador 2: Docker Engine en LVM Espejado en Caliente + MySQL en LVM RAID 1 + WordPress + Backup Cifrado en AWS S3

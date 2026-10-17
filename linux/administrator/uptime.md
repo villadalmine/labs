@@ -1,58 +1,71 @@
 ---
-id: "lab-1.4-uptime-load-proc"
-title: "Diagnóstico de Carga del Sistema: Uptime, Load Average y Estructura Interna de /proc"
+id: lab-1.4-uptime-load-proc
+title: 'Diagnóstico de Carga del Sistema: Uptime, Load Average y Estructura Interna
+  de /proc'
 difficulty_level: 1
-difficulty_label: "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel"
-section: "1.4"
+difficulty_label: 'Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel'
+section: '1.4'
 sections:
-  - "1.4"
-  - "1"
-category: "observability"
+- '1.4'
+- '1'
+category: observability
 tags:
-  - "uptime"
-  - "load-average"
-  - "proc"
-  - "kernel"
-  - "cpu"
-  - "diagnostico"
-  - "procesos"
+- uptime
+- load-average
+- proc
+- kernel
+- cpu
+- diagnostico
+- procesos
 tools:
-  - "uptime"
-  - "cat"
-  - "grep"
-  - "nproc"
+- uptime
+- cat
+- grep
+- nproc
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Inspección de /proc/loadavg, /proc/stat y prueba controlada de estrés con bucles de CPU."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Lectura de métricas nativas del kernel en instancias AWS EC2."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Inspección de /proc/loadavg, /proc/stat y prueba controlada de estrés con
+    bucles de CPU.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Lectura de métricas nativas del kernel en instancias AWS EC2.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Guía de diagnóstico sobre la métrica de Load Average en Linux. Explica el significado real de las ventanas de 1, 5 y 15 minutos, su relación con los núcleos físicos lógicos (nproc), la diferencia entre procesos en estado R (Running) y D (Uninterruptible Sleep/IO Wait) y cómo el kernel calcula los valores leyendo directamente desde el pseudofilesystem /proc/loadavg."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Guía de diagnóstico sobre la métrica de Load Average en Linux. Explica
+  el significado real de las ventanas de 1, 5 y 15 minutos, su relación con los núcleos
+  físicos lógicos (nproc), la diferencia entre procesos en estado R (Running) y D
+  (Uninterruptible Sleep/IO Wait) y cómo el kernel calcula los valores leyendo directamente
+  desde el pseudofilesystem /proc/loadavg.
 files:
-  guide: "uptime.md"
+  guide: uptime.md
   script: null
   terraform: null
+resource_type: theoretical_guide
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: manual_commands
+prerequisites:
+- lab-1.4-tools-stats
 ---
 
 # `uptime`, load average y `/proc`

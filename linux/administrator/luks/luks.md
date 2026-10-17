@@ -1,61 +1,75 @@
 ---
-id: "lab-3.3-cifrado-luks"
-title: "Cifrado de Bloques en Reposo con LUKS (dm-crypt, Key Management e Inspección Forense)"
+id: lab-3.3-cifrado-luks
+title: Cifrado de Bloques en Reposo con LUKS (dm-crypt, Key Management e Inspección
+  Forense)
 difficulty_level: 3
-difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
-section: "3.3"
+difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
+section: '3.3'
 sections:
-  - "3.3"
-  - "3"
-category: "security"
+- '3.3'
+- '3'
+category: security
 tags:
-  - "security"
-  - "cifrado"
-  - "luks"
-  - "dm-crypt"
-  - "cryptsetup"
-  - "forense"
-  - "loop-device"
-  - "dev-mapper"
+- security
+- cifrado
+- luks
+- dm-crypt
+- cryptsetup
+- forense
+- loop-device
+- dev-mapper
 tools:
-  - "cryptsetup"
-  - "losetup"
-  - "strings"
-  - "dd"
-  - "mkfs.ext4"
-  - "lsblk"
+- cryptsetup
+- losetup
+- strings
+- dd
+- mkfs.ext4
+- lsblk
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 1024
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Ejecución de demo_luks.sh sobre /dev/loop30, formateo luksFormat, apertura en /dev/mapper/datos_seguros e inspección de entropía forense con strings."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Cifrado de bloques en volúmenes EBS en AWS."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Ejecución de demo_luks.sh sobre /dev/loop30, formateo luksFormat, apertura
+    en /dev/mapper/datos_seguros e inspección de entropía forense con strings.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Cifrado de bloques en volúmenes EBS en AWS.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio de seguridad y cifrado de datos en reposo con Linux Unified Key Setup (LUKS) y el módulo del kernel dm-crypt. Demuestra cómo inicializar un dispositivo cifrado con cryptsetup, mapearlo en /dev/mapper, montar un filesystem ext4 seguro y realizar un análisis forense con strings para verificar que los datos resultan completamente ilegibles e indistinguibles de ruido aleatorio cuando el contenedor está cerrado."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio de seguridad y cifrado de datos en reposo con Linux Unified
+  Key Setup (LUKS) y el módulo del kernel dm-crypt. Demuestra cómo inicializar un
+  dispositivo cifrado con cryptsetup, mapearlo en /dev/mapper, montar un filesystem
+  ext4 seguro y realizar un análisis forense con strings para verificar que los datos
+  resultan completamente ilegibles e indistinguibles de ruido aleatorio cuando el
+  contenedor está cerrado.
 files:
-  guide: "luks/luks.md"
-  script: "luks/demo_luks.sh"
+  guide: luks/luks.md
+  script: luks/demo_luks.sh
   terraform: null
+resource_type: interactive_lab
+has_guide: true
+has_interactive_script: true
+has_terraform: false
+execution_mode: cli_interactive
+prerequisites:
+- lab-3.2-lvm2-online-resize
 ---
 
 # LUKS paso a paso: loop device y disco real

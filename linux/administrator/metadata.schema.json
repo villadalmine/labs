@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/villadalmine/labs/main/linux/administrator/metadata.schema.json",
   "title": "LinuxLabMetadata",
-  "description": "Esquema formal de metadatos estructurados para guías, laboratorios y scripts de administración Linux. Diseñado para indexación en bases de datos vectoriales, sistemas RAG y consultas asistidas por IA.",
+  "description": "Esquema formal de metadatos estructurados para guías, laboratorios y scripts de administración Linux. Diseñado para indexación en bases de datos vectoriales, sistemas RAG, protocolos de agentes (jdev, MCP) y tutores inteligentes de IA.",
   "type": "object",
   "required": [
     "id",
@@ -10,6 +10,11 @@
     "difficulty_level",
     "section",
     "category",
+    "resource_type",
+    "has_guide",
+    "has_interactive_script",
+    "has_terraform",
+    "execution_mode",
     "tags",
     "tools",
     "tested_environments",
@@ -19,7 +24,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^[a-z0-9_-]+$",
+      "pattern": "^[a-z0-9._-]+$",
       "description": "Identificador único y canónico en formato kebab-case"
     },
     "title": {
@@ -60,6 +65,38 @@
       ],
       "description": "Dominio tecnológico primario del módulo"
     },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "interactive_lab",
+        "theoretical_guide",
+        "cheatsheet",
+        "cloud_project"
+      ],
+      "description": "Naturaleza del recurso: laboratorio interactivo con script, guía paso a paso, chuleta de comandos o proyecto integrador de nube"
+    },
+    "has_guide": {
+      "type": "boolean",
+      "description": "Indica si el recurso incluye guía teórica/procedimental Markdown"
+    },
+    "has_interactive_script": {
+      "type": "boolean",
+      "description": "Indica si el recurso dispone de script automatizado/interactivo .sh para ejecutar pruebas"
+    },
+    "has_terraform": {
+      "type": "boolean",
+      "description": "Indica si el recurso provee código IaC con Terraform para desplegar infraestructura en nube"
+    },
+    "execution_mode": {
+      "type": "string",
+      "enum": [
+        "cli_interactive",
+        "manual_commands",
+        "terraform_apply",
+        "reading_only"
+      ],
+      "description": "Modo de interacción recomendado para el estudiante o agente autónomo"
+    },
     "tags": {
       "type": "array",
       "items": { "type": "string" },
@@ -74,6 +111,11 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "IDs de laboratorios o conceptos requeridos previamente"
+    },
+    "next_recommended_labs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "IDs de laboratorios recomendados inmediatamente después para continuar la ruta de aprendizaje"
     },
     "requirements": {
       "type": "object",

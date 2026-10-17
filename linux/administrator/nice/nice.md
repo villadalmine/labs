@@ -1,62 +1,75 @@
 ---
-id: "lab-1.3-planificacion-cpu-nice"
-title: "Planificación de CPU, Prioridades Nice/Renice, CFS y Afinidad de Núcleos con Taskset"
+id: lab-1.3-planificacion-cpu-nice
+title: Planificación de CPU, Prioridades Nice/Renice, CFS y Afinidad de Núcleos con
+  Taskset
 difficulty_level: 1
-difficulty_label: "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel"
-section: "1.3"
+difficulty_label: 'Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel'
+section: '1.3'
 sections:
-  - "1.3"
-  - "1"
-category: "processes"
+- '1.3'
+- '1'
+category: processes
 tags:
-  - "procesos"
-  - "cpu"
-  - "nice"
-  - "renice"
-  - "cfs"
-  - "scheduler"
-  - "taskset"
-  - "afinidad"
-  - "prioridades"
+- procesos
+- cpu
+- nice
+- renice
+- cfs
+- scheduler
+- taskset
+- afinidad
+- prioridades
 tools:
-  - "nice"
-  - "renice"
-  - "taskset"
-  - "top"
-  - "htop"
-  - "pidstat"
+- nice
+- renice
+- taskset
+- top
+- htop
+- pidstat
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Ejecución exitosa de demo_nice.sh compilando cpu_worker.c, fijando núcleos con taskset y comprobando reparto porcentual de CFS."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Validado en instancias EC2 multi-core y single-core."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Ejecución exitosa de demo_nice.sh compilando cpu_worker.c, fijando núcleos
+    con taskset y comprobando reparto porcentual de CFS.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Validado en instancias EC2 multi-core y single-core.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio sobre el planificador de CPU Completely Fair Scheduler (CFS) en el kernel Linux. Demuestra matemáticamente cómo los valores nice (-20 a 19) se transforman en pesos de CPU cuando los procesos compiten en el mismo núcleo, cómo modificar prioridades en caliente con renice y cómo aislar la ejecución a CPUs específicas con taskset."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio sobre el planificador de CPU Completely Fair Scheduler (CFS)
+  en el kernel Linux. Demuestra matemáticamente cómo los valores nice (-20 a 19) se
+  transforman en pesos de CPU cuando los procesos compiten en el mismo núcleo, cómo
+  modificar prioridades en caliente con renice y cómo aislar la ejecución a CPUs específicas
+  con taskset.
 files:
-  guide: "nice/nice.md"
-  script: "nice/demo_nice.sh"
+  guide: nice/nice.md
+  script: nice/demo_nice.sh
   terraform: null
+resource_type: interactive_lab
+has_guide: true
+has_interactive_script: true
+has_terraform: false
+execution_mode: cli_interactive
+prerequisites:
+- lab-1.1-jobs-multiplexores
 ---
 
 # Prioridad y consumo de CPU con `nice` y `renice`

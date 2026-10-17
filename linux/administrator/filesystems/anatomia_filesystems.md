@@ -1,69 +1,82 @@
 ---
-id: "lab-3.1-anatomia-filesystems"
-title: "Anatomía de Sistemas de Archivos (ext4, XFS, Btrfs, tmpfs) y Diagnóstico Forense"
+id: lab-3.1-anatomia-filesystems
+title: Anatomía de Sistemas de Archivos (ext4, XFS, Btrfs, tmpfs) y Diagnóstico Forense
 difficulty_level: 3
-difficulty_label: "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo"
-section: "3.1"
+difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
+section: '3.1'
 sections:
-  - "3.1"
-  - "3"
-category: "storage"
+- '3.1'
+- '3'
+category: storage
 tags:
-  - "storage"
-  - "filesystems"
-  - "ext4"
-  - "xfs"
-  - "btrfs"
-  - "tmpfs"
-  - "tune2fs"
-  - "dumpe2fs"
-  - "xfs_info"
-  - "xfs_growfs"
-  - "inodos"
-  - "superbloque"
-  - "e2fsck"
-  - "forense"
+- storage
+- filesystems
+- ext4
+- xfs
+- btrfs
+- tmpfs
+- tune2fs
+- dumpe2fs
+- xfs_info
+- xfs_growfs
+- inodos
+- superbloque
+- e2fsck
+- forense
 tools:
-  - "tune2fs"
-  - "dumpe2fs"
-  - "xfs_info"
-  - "xfs_growfs"
-  - "btrfs"
-  - "e2fsck"
-  - "df"
-  - "mkfs"
+- tune2fs
+- dumpe2fs
+- xfs_info
+- xfs_growfs
+- btrfs
+- e2fsck
+- df
+- mkfs
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 1024
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Ejecución completa de demo_filesystems.sh sobre loop devices. Formateo ext4/XFS/Btrfs, tune2fs, simulación de inodos agotados con df -i y rescate con e2fsck -b."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Totalmente compatible en volúmenes EBS gp3 y loop devices."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Ejecución completa de demo_filesystems.sh sobre loop devices. Formateo ext4/XFS/Btrfs,
+    tune2fs, simulación de inodos agotados con df -i y rescate con e2fsck -b.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Totalmente compatible en volúmenes EBS gp3 y loop devices.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Laboratorio avanzado sobre la anatomía interna de sistemas de archivos en Linux. Compara arquitecturas de ext4 (bloques e inodos), XFS (Allocation Groups) y Btrfs (Copy-on-Write y subvolúmenes). Enseña inspección forense con dumpe2fs y xfs_info, ajuste de parámetros con tune2fs, resolución de crisis de inodos agotados (df -i al 100% con 90% libre) y rescate de particiones dañadas mediante superbloques de respaldo con e2fsck."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio avanzado sobre la anatomía interna de sistemas de archivos
+  en Linux. Compara arquitecturas de ext4 (bloques e inodos), XFS (Allocation Groups)
+  y Btrfs (Copy-on-Write y subvolúmenes). Enseña inspección forense con dumpe2fs y
+  xfs_info, ajuste de parámetros con tune2fs, resolución de crisis de inodos agotados
+  (df -i al 100% con 90% libre) y rescate de particiones dañadas mediante superbloques
+  de respaldo con e2fsck.
 files:
-  guide: "filesystems/anatomia_filesystems.md"
-  script: "filesystems/demo_filesystems.sh"
+  guide: filesystems/anatomia_filesystems.md
+  script: filesystems/demo_filesystems.sh
   terraform: null
+resource_type: interactive_lab
+has_guide: true
+has_interactive_script: true
+has_terraform: false
+execution_mode: cli_interactive
+prerequisites:
+- ref-guia-discos-procesos
 ---
 
 # Laboratorio: Anatomía de Sistemas de Archivos en Linux (ext4, XFS, Btrfs, tmpfs) y Diagnóstico Forense

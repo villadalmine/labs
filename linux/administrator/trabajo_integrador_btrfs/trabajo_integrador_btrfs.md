@@ -1,59 +1,74 @@
 ---
-id: "integrador-4.3-btrfs-subvolumes-reflinks-raid1"
-title: "Trabajo Integrador 3: Almacenamiento Avanzado Btrfs (Subvolúmenes, Reflinks O(1), RAID 1 en Vivo y Scrub)"
+id: integrador-4.3-btrfs-subvolumes-reflinks-raid1
+title: 'Trabajo Integrador 3: Almacenamiento Avanzado Btrfs (Subvolúmenes, Reflinks
+  O(1), RAID 1 en Vivo y Scrub)'
 difficulty_level: 4
-difficulty_label: "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)"
-section: "4.3"
+difficulty_label: 'Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)'
+section: '4.3'
 sections:
-  - "4.3"
-  - "4"
-category: "cloud-iac"
+- '4.3'
+- '4'
+category: cloud-iac
 tags:
-  - "cloud-iac"
-  - "storage"
-  - "btrfs"
-  - "cow"
-  - "copy-on-write"
-  - "subvolumes"
-  - "reflinks"
-  - "raid1"
-  - "rebalance"
-  - "scrub"
-  - "replace"
-  - "zstd"
-  - "aws"
-  - "ec2"
-  - "terraform"
+- cloud-iac
+- storage
+- btrfs
+- cow
+- copy-on-write
+- subvolumes
+- reflinks
+- raid1
+- rebalance
+- scrub
+- replace
+- zstd
+- aws
+- ec2
+- terraform
 tools:
-  - "terraform"
-  - "btrfs"
-  - "cp"
-  - "mkfs.btrfs"
-  - "dd"
+- terraform
+- btrfs
+- cp
+- mkfs.btrfs
+- dd
 requirements:
   root_required: true
   cloud_required: true
   min_ram_mb: 1024
   min_disks: 4
-  cloud_provider: "AWS"
+  cloud_provider: AWS
 tested_environments:
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Despliegue multi-VM en AWS con Terraform (2 EC2 t3.micro, 4 discos EBS, script demo_integrador_btrfs.sh, conversión a RAID 1 y auto-curación con scrub)."
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Despliegue multi-VM en AWS con Terraform (2 EC2 t3.micro, 4 discos EBS, script
+    demo_integrador_btrfs.sh, conversión a RAID 1 y auto-curación con scrub).
 environments:
-  - "AWS EC2"
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "VERIFIED"
-rag_summary: "Proyecto integrador de almacenamiento empresarial de última generación con el sistema de archivos Btrfs en AWS. Enseña a estructurar subvolúmenes jerárquicos independientes (@app, @data, @snapshots) con compresión transparente ZSTD, clonar archivos instantáneamente en tiempo O(1) con 0 consumo extra vía Reflinks, convertir un disco simple a RAID 1 en vivo mediante btrfs balance, auto-reparar bloques corruptos con btrfs scrub y reemplazar discos defectuosos en caliente."
+- Ubuntu 24.04 LTS
+status: VERIFIED
+rag_summary: Proyecto integrador de almacenamiento empresarial de última generación
+  con el sistema de archivos Btrfs en AWS. Enseña a estructurar subvolúmenes jerárquicos
+  independientes (@app, @data, @snapshots) con compresión transparente ZSTD, clonar
+  archivos instantáneamente en tiempo O(1) con 0 consumo extra vía Reflinks, convertir
+  un disco simple a RAID 1 en vivo mediante btrfs balance, auto-reparar bloques corruptos
+  con btrfs scrub y reemplazar discos defectuosos en caliente.
 files:
-  guide: "trabajo_integrador_btrfs/trabajo_integrador_btrfs.md"
-  script: "trabajo_integrador_btrfs/demo_integrador_btrfs.sh"
-  terraform: "trabajo_integrador_btrfs/terraform"
+  guide: trabajo_integrador_btrfs/trabajo_integrador_btrfs.md
+  script: trabajo_integrador_btrfs/demo_integrador_btrfs.sh
+  terraform: trabajo_integrador_btrfs/terraform
+resource_type: cloud_project
+has_guide: true
+has_interactive_script: true
+has_terraform: true
+execution_mode: terraform_apply
+prerequisites:
+- lab-3.1-anatomia-filesystems
+- integrador-4.1-servidor-web-raid-luks-borg
 ---
 
 # Trabajo Integrador 4: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, Conversión en Vivo a RAID 1, Scrub y Replicación Remota)

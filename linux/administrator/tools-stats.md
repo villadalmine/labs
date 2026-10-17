@@ -1,63 +1,73 @@
 ---
-id: "lab-1.4-tools-stats"
-title: "Herramientas de Estadísticas y Diagnóstico en Vivo (vmstat, iostat, sar, dstat)"
+id: lab-1.4-tools-stats
+title: Herramientas de Estadísticas y Diagnóstico en Vivo (vmstat, iostat, sar, dstat)
 difficulty_level: 1
-difficulty_label: "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel"
-section: "1.4"
+difficulty_label: 'Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel'
+section: '1.4'
 sections:
-  - "1.4"
-  - "1"
-category: "observability"
+- '1.4'
+- '1'
+category: observability
 tags:
-  - "diagnostico"
-  - "metricas"
-  - "estadisticas"
-  - "vmstat"
-  - "iostat"
-  - "sar"
-  - "dstat"
-  - "sysstat"
-  - "rendimiento"
+- diagnostico
+- metricas
+- estadisticas
+- vmstat
+- iostat
+- sar
+- dstat
+- sysstat
+- rendimiento
 tools:
-  - "vmstat"
-  - "iostat"
-  - "sar"
-  - "dstat"
-  - "top"
-  - "free"
-  - "mpstat"
+- vmstat
+- iostat
+- sar
+- dstat
+- top
+- free
+- mpstat
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: "WSL2"
-    type: "local"
-    instance_type: "virtualized"
-    os: "Ubuntu 24.04 LTS"
-    kernel: "6.18.54.1-microsoft-standard-WSL2"
-    status: "PASSED"
-    test_date: "2026-10-17"
-    notes: "Paquetes sysstat y dstat instalados y verificados con muestreo continuo."
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Herramientas estándar de observabilidad del paquete sysstat."
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Paquetes sysstat y dstat instalados y verificados con muestreo continuo.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Herramientas estándar de observabilidad del paquete sysstat.
 environments:
-  - "WSL2"
-  - "AWS EC2"
+- WSL2
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "PASSED"
-rag_summary: "Guía práctica de observabilidad forense y diagnóstico en tiempo real de servidores Linux. Enseña a interpretar métricas de CPU, memoria, I/O wait (wa), swap (si/so) y latencia de disco (await) utilizando vmstat, iostat, mpstat, dstat y sar del paquete sysstat."
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Guía práctica de observabilidad forense y diagnóstico en tiempo real
+  de servidores Linux. Enseña a interpretar métricas de CPU, memoria, I/O wait (wa),
+  swap (si/so) y latencia de disco (await) utilizando vmstat, iostat, mpstat, dstat
+  y sar del paquete sysstat.
 files:
-  guide: "tools-stats.md"
+  guide: tools-stats.md
   script: null
   terraform: null
+resource_type: theoretical_guide
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: manual_commands
+prerequisites:
+- lab-1.3-planificacion-cpu-nice
 ---
 
 # Herramientas para consultar estadísticas del sistema Linux

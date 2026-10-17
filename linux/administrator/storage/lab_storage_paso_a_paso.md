@@ -1,3 +1,78 @@
+---
+id: lab-3.2-storage-paso-a-paso
+title: 'Laboratorio Paso a Paso: Loop Devices, LVM y Redimensionamiento Ext4 Manual'
+difficulty_level: 3
+difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
+section: '3.2'
+sections:
+- '3.2'
+- '3'
+category: storage
+resource_type: theoretical_guide
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: manual_commands
+tags:
+- storage
+- lvm
+- pv
+- vg
+- lv
+- loop-device
+- ext4
+- resize2fs
+- lvextend
+tools:
+- truncate
+- losetup
+- pvcreate
+- vgcreate
+- lvcreate
+- mkfs.ext4
+- mount
+- lvextend
+- resize2fs
+prerequisites:
+- lab-3.2-storage-simple-loop
+requirements:
+  root_required: true
+  cloud_required: false
+  min_ram_mb: 1024
+  min_disks: 0
+tested_environments:
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-17'
+  notes: Ejecución paso a paso manual con 3 discos virtuales de 2 GiB y ampliación
+    en caliente.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Totalmente compatible en Linux.
+environments:
+- WSL2
+- AWS EC2
+operating_systems:
+- Ubuntu 24.04 LTS
+status: PASSED
+rag_summary: Laboratorio manual paso a paso sobre administración de volúmenes LVM.
+  Guía al alumno sin scripts para crear tres loop devices de 2 GiB, inicializar Physical
+  Volumes (pvcreate), agruparlos en un Volume Group (vgcreate), crear un Logical Volume
+  (lvcreate) con ext4 y ampliarlo en caliente con lvextend y resize2fs.
+files:
+  guide: storage/lab_storage_paso_a_paso.md
+  script: null
+  terraform: null
+---
+
 # Laboratorio paso a paso: loop devices y LVM
 
 En este laboratorio vas a ejecutar cada comando manualmente para ver cómo un archivo se convierte en un dispositivo de bloques, cómo LVM organiza ese almacenamiento y cómo se amplía un filesystem ext4 montado.

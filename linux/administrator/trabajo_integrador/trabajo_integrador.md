@@ -1,61 +1,77 @@
 ---
-id: "integrador-4.1-servidor-web-raid-luks-borg"
-title: "Trabajo Integrador 1: Servidor Web Nginx Resiliente, LVM vs mdadm RAID 1, LUKS y Borg Remoto por SSH"
+id: integrador-4.1-servidor-web-raid-luks-borg
+title: 'Trabajo Integrador 1: Servidor Web Nginx Resiliente, LVM vs mdadm RAID 1,
+  LUKS y Borg Remoto por SSH'
 difficulty_level: 4
-difficulty_label: "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)"
-section: "4.1"
+difficulty_label: 'Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)'
+section: '4.1'
 sections:
-  - "4.1"
-  - "4"
-category: "cloud-iac"
+- '4.1'
+- '4'
+category: cloud-iac
 tags:
-  - "cloud-iac"
-  - "aws"
-  - "ec2"
-  - "terraform"
-  - "nginx"
-  - "raid1"
-  - "lvm"
-  - "mdadm"
-  - "luks"
-  - "gocryptfs"
-  - "borg"
-  - "ssh"
-  - "systemd-timers"
-  - "drp"
+- cloud-iac
+- aws
+- ec2
+- terraform
+- nginx
+- raid1
+- lvm
+- mdadm
+- luks
+- gocryptfs
+- borg
+- ssh
+- systemd-timers
+- drp
 tools:
-  - "terraform"
-  - "nginx"
-  - "cryptsetup"
-  - "gocryptfs"
-  - "borg"
-  - "mdadm"
-  - "lvcreate"
-  - "ssh"
+- terraform
+- nginx
+- cryptsetup
+- gocryptfs
+- borg
+- mdadm
+- lvcreate
+- ssh
 requirements:
   root_required: true
   cloud_required: true
   min_ram_mb: 1024
   min_disks: 3
-  cloud_provider: "AWS"
+  cloud_provider: AWS
 tested_environments:
-  - environment: "AWS EC2"
-    type: "cloud"
-    instance_type: "t3.micro"
-    os: "Ubuntu 24.04 LTS"
-    status: "VERIFIED"
-    test_date: "2026-10-17"
-    notes: "Despliegue multi-VM en AWS con Terraform (2 instancias EC2 t3.micro, 3 volúmenes EBS gp3 de 1 GB, backup remoto vía SSH y simulación de destrucción física de disco)."
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-17'
+  notes: Despliegue multi-VM en AWS con Terraform (2 instancias EC2 t3.micro, 3 volúmenes
+    EBS gp3 de 1 GB, backup remoto vía SSH y simulación de destrucción física de disco).
 environments:
-  - "AWS EC2"
+- AWS EC2
 operating_systems:
-  - "Ubuntu 24.04 LTS"
-status: "VERIFIED"
-rag_summary: "Proyecto integrador empresarial en AWS desplegado mediante Terraform. Implementa un servidor web Nginx tolerante a desastres montado sobre un arreglo de discos espejados RAID 1 (comparando LVM vs mdadm), aplica cifrado en profundidad combinando LUKS y gocryptfs, simula la destrucción y reemplazo en caliente de un disco averiado, y automatiza respaldos remotos deduplicados con BorgBackup y systemd timers hacia un servidor secundario por SSH."
+- Ubuntu 24.04 LTS
+status: VERIFIED
+rag_summary: Proyecto integrador empresarial en AWS desplegado mediante Terraform.
+  Implementa un servidor web Nginx tolerante a desastres montado sobre un arreglo
+  de discos espejados RAID 1 (comparando LVM vs mdadm), aplica cifrado en profundidad
+  combinando LUKS y gocryptfs, simula la destrucción y reemplazo en caliente de un
+  disco averiado, y automatiza respaldos remotos deduplicados con BorgBackup y systemd
+  timers hacia un servidor secundario por SSH.
 files:
-  guide: "trabajo_integrador/trabajo_integrador.md"
+  guide: trabajo_integrador/trabajo_integrador.md
   script: null
-  terraform: "trabajo_integrador/terraform"
+  terraform: trabajo_integrador/terraform
+resource_type: cloud_project
+has_guide: true
+has_interactive_script: false
+has_terraform: true
+execution_mode: terraform_apply
+prerequisites:
+- lab-3.2-lvm2-online-resize
+- lab-3.3-cifrado-luks
+- lab-3.5-borg-systemd-timers
 ---
 
 # Trabajo Integrador: Servidor Web Resiliente, Cifrado Multicapa y Backups Remotos (AWS Free Tier)
