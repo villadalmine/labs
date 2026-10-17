@@ -1,0 +1,55 @@
+{
+  "models": [
+    {
+      "title": "Ollama Local - Llama 3.2 3B (CPU)",
+      "provider": "ollama",
+      "model": "llama3.2:3b",
+      "apiBase": "http://localhost:11434"
+    },
+    {
+      "title": "OpenRouter - DeepSeek R1 (Razonamiento)",
+      "provider": "openai",
+      "model": "deepseek/deepseek-r1",
+      "apiKey": "TU_OPENROUTER_API_KEY",
+      "apiBase": "https://openrouter.ai/api/v1"
+    },
+    {
+      "title": "OpenRouter - Claude 3.5 Sonnet",
+      "provider": "openai",
+      "model": "anthropic/claude-3.5-sonnet",
+      "apiKey": "TU_OPENROUTER_API_KEY",
+      "apiBase": "https://openrouter.ai/api/v1"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Ollama Autocomplete (CPU)",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:1.5b",
+    "apiBase": "http://localhost:11434"
+  },
+  "customCommands": [
+    {
+      "name": "tutor",
+      "prompt": "Actúa como mi Tutor de Administración Linux para este archivo. Explica qué hace cada comando, advierte de posibles riesgos de corrupción o permisos, y guíame en los pasos necesarios.",
+      "description": "Explicación interactiva del laboratorio con el Tutor Linux"
+    }
+  ],
+  "contextProviders": [
+    {
+      "name": "code",
+      "params": {}
+    },
+    {
+      "name": "docs",
+      "params": {}
+    },
+    {
+      "name": "diff",
+      "params": {}
+    },
+    {
+      "name": "terminal",
+      "params": {}
+    }
+  ]
+}

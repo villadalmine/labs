@@ -76,6 +76,10 @@ execution_mode: cli_interactive
 prerequisites:
 - lab-1.4-tools-stats
 - lab-3.2-lvm2-online-resize
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Laboratorio: Monitoreo y Métricas en Linux (De Cero a Producción)

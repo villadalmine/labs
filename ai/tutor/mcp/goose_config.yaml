@@ -1,0 +1,26 @@
+# goose_config.yaml - Configuración para Goose CLI (Agente de Terminal con MCP)
+# Copia este archivo a ~/.config/goose/config.yaml o úsalo con 'goose session'
+
+# Proveedor de Inteligencia Artificial:
+# Opción A (Local con Ollama):
+# provider: ollama
+# model: llama3.2:3b  (o qwen2.5-coder:7b si tienes GPU/16GB RAM)
+
+# Opción B (Cloud con OpenRouter):
+provider: openrouter
+model: deepseek/deepseek-r1  # O 'anthropic/claude-3.5-sonnet', 'meta-llama/llama-3.3-70b-instruct'
+
+# Extensiones y Servidores MCP Conectados:
+extensions:
+  # Servidor MCP de Laboratorios Linux (Nativo del Repositorio)
+  linux_labs_tutor:
+    name: linux_labs_tutor
+    cmd: python
+    args:
+      - "ai/tutor/mcp/labs_mcp_server.py"
+    type: stdio
+    enabled: true
+
+  # Servidor MCP estándar de ejecución de comandos en el sistema
+  developer:
+    enabled: true

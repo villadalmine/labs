@@ -66,6 +66,8 @@ has_guide: true
 has_interactive_script: false
 has_terraform: false
 execution_mode: reading_only
+mcp_tools:
+- linux-labs-tutor
 ---
 
 # Guía de procesos, systemd y almacenamiento en Linux

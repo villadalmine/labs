@@ -71,6 +71,10 @@ execution_mode: terraform_apply
 prerequisites:
 - lab-3.1-anatomia-filesystems
 - integrador-4.3-btrfs-subvolumes-reflinks-raid1
+mcp_tools:
+- linux-labs-tutor
+- terraform
+- aws
 ---
 
 # Trabajo Integrador 3: Alta Disponibilidad con ZFS Replicación Remota Activo-Pasivo y AWS Application Load Balancer

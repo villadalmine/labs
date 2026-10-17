@@ -73,6 +73,11 @@ execution_mode: terraform_apply
 prerequisites:
 - lab-3.2-lvm2-online-resize
 - integrador-4.1-servidor-web-raid-luks-borg
+mcp_tools:
+- linux-labs-tutor
+- docker
+- terraform
+- aws
 ---
 
 # Trabajo Integrador 2: Docker Engine en LVM Espejado en Caliente + MySQL en LVM RAID 1 + WordPress + Backup Cifrado en AWS S3

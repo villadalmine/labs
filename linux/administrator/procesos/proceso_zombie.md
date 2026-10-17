@@ -69,6 +69,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-1.1-jobs-multiplexores
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Proceso zombie en Linux

@@ -66,6 +66,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-1.4-tools-stats
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # `uptime`, load average y `/proc`

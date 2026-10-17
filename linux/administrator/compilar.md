@@ -63,6 +63,10 @@ has_guide: true
 has_interactive_script: false
 has_terraform: false
 execution_mode: manual_commands
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Compilar un programa en Linux

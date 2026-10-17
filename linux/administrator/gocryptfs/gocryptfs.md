@@ -66,6 +66,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-3.3-cifrado-luks
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # gocryptfs paso a paso

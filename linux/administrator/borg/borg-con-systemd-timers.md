@@ -66,6 +66,10 @@ execution_mode: manual_commands
 prerequisites:
 - lab-3.5-borg-backup
 - lab-2.1-systemd-memlogger
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Backup automatizado con Borg + systemd timers

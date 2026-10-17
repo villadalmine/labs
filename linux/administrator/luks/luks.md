@@ -70,6 +70,10 @@ has_terraform: false
 execution_mode: cli_interactive
 prerequisites:
 - lab-3.2-lvm2-online-resize
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # LUKS paso a paso: loop device y disco real

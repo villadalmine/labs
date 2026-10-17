@@ -67,6 +67,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-2.1-systemd-memlogger
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Unidades `.socket` y `.mount` de systemd

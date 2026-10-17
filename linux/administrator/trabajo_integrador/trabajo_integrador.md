@@ -72,6 +72,10 @@ prerequisites:
 - lab-3.2-lvm2-online-resize
 - lab-3.3-cifrado-luks
 - lab-3.5-borg-systemd-timers
+mcp_tools:
+- linux-labs-tutor
+- terraform
+- aws
 ---
 
 # Trabajo Integrador: Servidor Web Resiliente, Cifrado Multicapa y Backups Remotos (AWS Free Tier)

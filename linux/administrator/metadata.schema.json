@@ -107,6 +107,11 @@
       "items": { "type": "string" },
       "description": "Comandos, binarios y herramientas de línea de órdenes evaluados"
     },
+    "mcp_tools": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Lista de herramientas y servidores MCP recomendados para que el agente interactúe con el lab (ej: bash, filesystem, docker, terraform, linux-labs-tutor)"
+    },
     "prerequisites": {
       "type": "array",
       "items": { "type": "string" },

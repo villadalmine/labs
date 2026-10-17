@@ -77,6 +77,10 @@ has_terraform: false
 execution_mode: cli_interactive
 prerequisites:
 - ref-guia-discos-procesos
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Laboratorio: Anatomía de Sistemas de Archivos en Linux (ext4, XFS, Btrfs, tmpfs) y Diagnóstico Forense

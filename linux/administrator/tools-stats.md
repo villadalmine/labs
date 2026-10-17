@@ -68,6 +68,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-1.3-planificacion-cpu-nice
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Herramientas para consultar estadísticas del sistema Linux

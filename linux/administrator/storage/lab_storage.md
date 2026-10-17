@@ -74,6 +74,10 @@ has_terraform: false
 execution_mode: cli_interactive
 prerequisites:
 - lab-3.1-anatomia-filesystems
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Laboratorio: LVM, ampliación en caliente y gocryptfs

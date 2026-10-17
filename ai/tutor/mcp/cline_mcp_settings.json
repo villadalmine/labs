@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "linux-labs-tutor": {
+      "command": "python",
+      "args": [
+        "ai/tutor/mcp/labs_mcp_server.py"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "get_student_roadmap",
+        "get_lab_details",
+        "search_curriculum",
+        "verify_student_readiness",
+        "read_lab_guide"
+      ]
+    }
+  }
+}

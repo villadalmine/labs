@@ -77,6 +77,10 @@ has_terraform: false
 execution_mode: manual_commands
 prerequisites:
 - lab-0.1-compilar
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Trabajos, primer plano y procesos separados de la terminal

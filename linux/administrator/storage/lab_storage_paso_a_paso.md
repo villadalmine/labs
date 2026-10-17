@@ -71,6 +71,10 @@ files:
   guide: storage/lab_storage_paso_a_paso.md
   script: null
   terraform: null
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Laboratorio paso a paso: loop devices y LVM

@@ -62,6 +62,10 @@ files:
   guide: storage/lab_storage_simple.md
   script: null
   terraform: null
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Laboratorio simple: un disco virtual con loop

@@ -70,6 +70,10 @@ has_terraform: false
 execution_mode: cli_interactive
 prerequisites:
 - lab-1.1-jobs-multiplexores
+mcp_tools:
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Prioridad y consumo de CPU con `nice` y `renice`

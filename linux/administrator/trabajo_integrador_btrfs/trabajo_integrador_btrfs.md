@@ -69,6 +69,10 @@ execution_mode: terraform_apply
 prerequisites:
 - lab-3.1-anatomia-filesystems
 - integrador-4.1-servidor-web-raid-luks-borg
+mcp_tools:
+- linux-labs-tutor
+- terraform
+- aws
 ---
 
 # Trabajo Integrador 4: Almacenamiento Avanzado con Btrfs (Subvolúmenes, Reflinks Zero-Copy, Conversión en Vivo a RAID 1, Scrub y Replicación Remota)

@@ -143,6 +143,17 @@ def auto_populate_resource_types():
         data["has_terraform"] = has_tf
         data["execution_mode"] = execution_mode
 
+        # Determinar herramientas MCP compatibles para que los agentes las reconozcan
+        mcp_tools = ["linux-labs-tutor"]
+        tags_lower = [t.lower() for t in data.get("tags", [])]
+        if category in ["storage", "security", "systemd", "processes", "fundamentals", "observability"]:
+            mcp_tools.extend(["bash", "filesystem"])
+        if "docker" in tags_lower:
+            mcp_tools.append("docker")
+        if "terraform" in tags_lower or category == "cloud-iac":
+            mcp_tools.extend(["terraform", "aws"])
+        data["mcp_tools"] = list(dict.fromkeys(mcp_tools))
+
         if lab_id in prereqs and ("prerequisites" not in data or not data["prerequisites"]):
             data["prerequisites"] = prereqs[lab_id]
 
