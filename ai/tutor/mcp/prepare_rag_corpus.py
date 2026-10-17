@@ -144,15 +144,29 @@ def export_code_corpus(output_dir: Path, by_guide: dict[str, dict], by_id: dict[
         ".tf": "hcl",
     }
 
-    # Mapa inverso: script -> lab
+    # Mapa por nombre de script y por directorio raíz del laboratorio
     script_to_lab = {}
+    dir_to_lab = {}
     for lid, lab in by_id.items():
-        script = lab.get("files", {}).get("script")
+        files = lab.get("files", {})
+        script = files.get("script")
         if script:
-            script_to_lab[Path(script).name] = lab
-        tf_dir = lab.get("files", {}).get("terraform")
+            p_script = Path(script)
+            script_to_lab[p_script.name] = lab
+            if len(p_script.parts) > 1:
+                dir_to_lab[p_script.parts[0]] = lab
+        guide = files.get("guide")
+        if guide:
+            p_guide = Path(guide)
+            if len(p_guide.parts) > 1:
+                dir_to_lab[p_guide.parts[0]] = lab
+        tf_dir = files.get("terraform")
         if tf_dir:
-            script_to_lab[Path(tf_dir).name] = lab
+            p_tf = Path(tf_dir)
+            if len(p_tf.parts) > 1:
+                dir_to_lab[p_tf.parts[0]] = lab
+            else:
+                dir_to_lab[p_tf.name] = lab
 
     for file_path in sorted(LABS_ADMIN_DIR.rglob("*")):
         if file_path.suffix not in code_extensions:
@@ -161,17 +175,21 @@ def export_code_corpus(output_dir: Path, by_guide: dict[str, dict], by_id: dict[
             continue
 
         rel_path = file_path.relative_to(LABS_ADMIN_DIR).as_posix()
+        rel_parts = file_path.relative_to(LABS_ADMIN_DIR).parts
+        root_dir = rel_parts[0] if len(rel_parts) > 1 else ""
+
         lang = code_extensions[file_path.suffix]
-        lab = script_to_lab.get(file_path.name)
+        # Búsqueda: 1) por nombre exacto de script, 2) por carpeta raíz del lab
+        lab = script_to_lab.get(file_path.name) or (dir_to_lab.get(root_dir) if root_dir else None)
 
         if lab:
             lab_title = lab.get("title")
             lab_id = lab.get("id")
             category = lab.get("category")
         else:
-            lab_title = file_path.parent.name.replace("_", " ").title()
-            lab_id = file_path.parent.name
-            category = "scripts"
+            lab_title = "Utilidades del Catálogo de Laboratorios" if file_path.name == "query_catalog.sh" else file_path.parent.name.replace("_", " ").title()
+            lab_id = "catalog-tools" if file_path.name == "query_catalog.sh" else file_path.parent.name
+            category = "tooling" if file_path.name == "query_catalog.sh" else "scripts"
 
         try:
             content = file_path.read_text(encoding="utf-8", errors="replace")
@@ -196,8 +214,8 @@ def export_code_corpus(output_dir: Path, by_guide: dict[str, dict], by_id: dict[
             f"```\n"
         )
 
-        clean_ext = file_path.suffix.replace(".", "")
-        dest_filename = f"codigo-{file_path.stem}-{clean_ext}.md"
+        rel_slug = rel_path.replace("/", "-").replace("\\", "-").replace(".", "-")
+        dest_filename = f"codigo-{rel_slug}.md"
         dest = code_out / dest_filename
         dest.write_text(md_wrapped, encoding="utf-8")
         count += 1
