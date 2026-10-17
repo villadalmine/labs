@@ -21,12 +21,14 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-BASE_DIR = Path(__file__).resolve().parent
-CATALOG_PATH = BASE_DIR / "catalog.json"
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+ADMIN_DIR = REPO_ROOT / "linux" / "administrator"
+CATALOG_PATH = ADMIN_DIR / "catalog.json"
 
 
 def load_catalog():
     if not CATALOG_PATH.exists():
+        sys.path.insert(0, str(ADMIN_DIR))
         from manage_catalog import sync_catalog
         sync_catalog()
     with open(CATALOG_PATH, "r", encoding="utf-8") as f:

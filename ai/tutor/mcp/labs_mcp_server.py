@@ -24,7 +24,11 @@ if hasattr(sys.stdout, "reconfigure"):
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 ADMIN_DIR = REPO_ROOT / "linux" / "administrator"
+TUTOR_DIR = Path(__file__).resolve().parent.parent
 CATALOG_PATH = ADMIN_DIR / "catalog.json"
+
+sys.path.insert(0, str(TUTOR_DIR))
+sys.path.insert(0, str(ADMIN_DIR))
 
 
 def load_catalog():

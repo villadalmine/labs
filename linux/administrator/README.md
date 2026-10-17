@@ -83,17 +83,21 @@ python query_catalog.py --rag-context --tag monitoring
 python query_catalog.py --sync
 ```
 
-### 🤖 Tutor de IA Local y Protocolos de Agentes:
-- **Tutor RAG 100% Local en CPU (Sin GPU):** Seguí la guía paso a paso [`GUIA_RAG_LOCAL_OLLAMA_OPENWEBUI.md`](GUIA_RAG_LOCAL_OLLAMA_OPENWEBUI.md) para levantar un tutor privado con Ollama (`llama3.2:3b` + `nomic-embed-text`) y Open WebUI consumiendo menos de 3 GB de RAM.
-- **Motor de Decisiones Pedagógicas (`tutor_engine.py`):** Diseñado para protocolos de agentes (`jdev`, MCP o Tool-Calling), evalúa el perfil del estudiante, resuelve el siguiente laboratorio compatible y valida prerequisitos de permisos `sudo` o nube:
+### 🤖 Ecosistema de Tutor de IA, RAG y Protocolos de Agentes (Centralizado en `ai/tutor/`):
+Todo el entorno de estudio inteligente (interfaces web, agentes de terminal, extensiones de editor y protocolos) se encuentra unificado en la carpeta raíz [`ai/tutor/`](../../ai/tutor/README.md):
+- **Guía Maestra Paso a Paso:** Seguí [`ai/tutor/GUIA_PASO_A_PASO.md`](../../ai/tutor/GUIA_PASO_A_PASO.md) para levantar **Open WebUI** (RAG local en CPU), **Goose CLI** (agente autónomo en terminal) y **Continue.dev / Cline** en VS Code, con Ollama local o OpenRouter.
+- **Motor de Decisiones Pedagógicas (`ai/tutor/tutor_engine.py`):** Diseñado para protocolos de agentes (`jdev`, MCP o Tool-Calling), evalúa el perfil del estudiante, resuelve el siguiente laboratorio compatible y valida prerequisitos:
   ```bash
   # Recomendación pedagógica del siguiente lab según entorno y labs ya cursados
-  python tutor_engine.py recommend --env WSL2 --os "Ubuntu 24.04 LTS" --completed lab-0.1-compilar
+  python ../../ai/tutor/tutor_engine.py recommend --env WSL2 --os "Ubuntu 24.04 LTS" --completed lab-0.1-compilar
 
   # Validación de prerequisitos antes de ejecutar
-  python tutor_engine.py verify --id lab-3.2-lvm2-online-resize --env WSL2 --root
+  python ../../ai/tutor/tutor_engine.py verify --id lab-3.2-lvm2-online-resize --env WSL2 --root
   ```
-- **Herramienta ABM de Metadatos (`manage_catalog.py`):** Facilita la adición, edición o remoción de campos en lote sobre todos los archivos `.md`, creación de nuevos labs y validación estricta del esquema:
+- **Servidor MCP Nativo:** [`ai/tutor/mcp/labs_mcp_server.py`](../../ai/tutor/mcp/labs_mcp_server.py) expone las herramientas del catálogo para cualquier cliente compatible.
+
+### 🛠️ Herramienta ABM de Metadatos de Laboratorios (`manage_catalog.py`):
+Facilita la adición, edición o remoción de campos en lote sobre todos los archivos `.md`, creación de nuevos labs y validación estricta del esquema:
   ```bash
   # Extender un nuevo atributo a todos los laboratorios
   python manage_catalog.py add-field --field "target_audience" --default "junior-sysadmin"
