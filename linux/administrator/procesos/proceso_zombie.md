@@ -60,13 +60,13 @@ rag_summary: Laboratorio práctico sobre el ciclo de vida de procesos en Linux y
   a su proceso padre para que sea adoptado y recolectado por init/systemd.
 files:
   guide: procesos/proceso_zombie.md
-  script: null
+  script: procesos/demo_zombie.sh
   terraform: null
-resource_type: theoretical_guide
+resource_type: interactive_lab
 has_guide: true
-has_interactive_script: false
+has_interactive_script: true
 has_terraform: false
-execution_mode: manual_commands
+execution_mode: cli_interactive
 prerequisites:
 - lab-1.1-jobs-multiplexores
 mcp_tools:
@@ -164,6 +164,14 @@ Ejecutá el programa en segundo plano:
 ```
 
 Anotá los PID del subreaper, del padre original y del hijo que aparecen en pantalla. Abrí otra terminal para las comprobaciones.
+
+### ⚡ Demostración Interactiva Automatizada para Clase en Vivo
+Si vas a presentar este tema a alumnos o querés una demostración paso a paso con los comandos ejecutados, salidas reales formateadas, análisis de `/proc` y preguntas disparadoras para el grupo:
+```bash
+chmod +x demo_zombie.sh
+./demo_zombie.sh          # Modo interactivo (pausa con [ENTER])
+./demo_zombie.sh --auto 4 # Modo automático para streaming o grabaciones
+```
 
 ## 3. Ver el hijo antes de que termine
 

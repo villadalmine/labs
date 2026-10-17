@@ -450,3 +450,7 @@ id_rsa_lab.pem
 # RAG exports temporales
 ai/tutor/rag_corpus_export/
 
+# Binarios de prueba compilados
+linux/administrator/nice/cpu_worker
+linux/administrator/procesos/zombie_maker
+

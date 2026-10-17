@@ -323,14 +323,14 @@
       "rag_summary": "Laboratorio práctico sobre el ciclo de vida de procesos en Linux y el estado zombie (defunct). Explica por qué un proceso zombie no consume memoria ni CPU pero ocupa una entrada en la tabla de procesos (PID exhaustion), demuestra las llamadas del sistema fork() y wait(), y muestra cómo eliminar un zombie terminando a su proceso padre para que sea adoptado y recolectado por init/systemd.",
       "files": {
         "guide": "procesos/proceso_zombie.md",
-        "script": null,
+        "script": "procesos/demo_zombie.sh",
         "terraform": null
       },
-      "resource_type": "theoretical_guide",
+      "resource_type": "interactive_lab",
       "has_guide": true,
-      "has_interactive_script": false,
+      "has_interactive_script": true,
       "has_terraform": false,
-      "execution_mode": "manual_commands",
+      "execution_mode": "cli_interactive",
       "prerequisites": [
         "lab-1.1-jobs-multiplexores"
       ],

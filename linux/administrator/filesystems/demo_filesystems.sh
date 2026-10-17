@@ -3,6 +3,12 @@
 # DEMOSTRACIÓN EDUCATIVA: Anatomía de Sistemas de Archivos en Linux
 # ext4, XFS, Btrfs, tmpfs, tune2fs, Agotamiento de Inodos y Rescate de Superbloque
 #
+# Diseñado para clases en vivo:
+#  - Muestra SIEMPRE el comando exacto ejecutado ($ comando).
+#  - Muestra la salida real del sistema destacada en una caja limpia.
+#  - Desglosa qué significa cada campo (Superbloques, Inodos, Bloques).
+#  - Preguntas disparadoras ("pie de clase") para interactuar con los alumnos.
+#
 # Uso:
 #   sudo ./demo_filesystems.sh [opciones]
 # Opciones:
@@ -10,23 +16,25 @@
 #   --keep               No desmontar ni limpiar al finalizar (dejar montado)
 # ==============================================================================
 
+set -uo pipefail
+
 # Si se ejecuta en tmux, activar scroll con la rueda del ratón
-if [ -n "$TMUX" ]; then
+if [ -n "${TMUX:-}" ]; then
     tmux set -g mouse on 2>/dev/null || true
 fi
 
 # Paleta de colores didáctica
-BOLD='\033[1m'
-CYAN='\033[0;36m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-RESET='\033[0m'
+C_RESET="\033[0m"
+C_BOLD="\033[1m"
+C_CYAN="\033[0;36m"
+C_GREEN="\033[0;32m"
+C_YELLOW="\033[1;33m"
+C_RED="\033[0;31m"
+C_BLUE="\033[1;34m"
+C_MAGENTA="\033[1;35m"
 
 if [ "$EUID" -ne 0 ]; then
-    echo -e "${RED}[ERROR] Este script requiere privilegios de superusuario (sudo).${RESET}"
+    echo -e "${C_RED}[ERROR] Este script requiere privilegios de superusuario (sudo).${C_RESET}"
     exit 1
 fi
 
@@ -34,7 +42,6 @@ AUTO_MODE=false
 AUTO_DELAY=3
 KEEP_RUNNING=false
 
-# Procesar argumentos
 while [[ $# -gt 0 ]]; do
     case $1 in
         --auto)
@@ -55,12 +62,49 @@ done
 pause_step() {
     local mensaje="${1:-Presiona [ENTER] para continuar al siguiente paso...}"
     if [ "$AUTO_MODE" = true ]; then
-        echo -e "\n${YELLOW}[MODO AUTOMÁTICO] Esperando ${AUTO_DELAY}s: ${mensaje}${RESET}"
+        echo -e "\n${C_YELLOW}⏳ [MODO AUTO] Esperando ${AUTO_DELAY}s: ${mensaje}${C_RESET}"
         sleep "$AUTO_DELAY"
     else
-        echo -e "\n${YELLOW}>>> ${mensaje}${RESET}"
+        echo -e "\n${C_BOLD}${C_GREEN}▶ ${mensaje}${C_RESET}"
         read -r
     fi
+}
+
+step_banner() {
+    local num="$1"
+    local title="$2"
+    echo -e "\n${C_MAGENTA}╔════════════════════════════════════════════════════════════════════════════════════╗${C_RESET}"
+    echo -e "${C_MAGENTA}║${C_RESET} ${C_BOLD}${C_YELLOW}PASO ${num}: ${title}${C_RESET}"
+    echo -e "${C_MAGENTA}╚════════════════════════════════════════════════════════════════════════════════════╝${C_RESET}"
+}
+
+explain() {
+    echo -e "${C_CYAN}💡 EXPLICACIÓN TEÓRICA:${C_RESET} $1"
+}
+
+pie_clase() {
+    echo -e "\n${C_MAGENTA}🎤 [PIE PARA LA CLASE EN VIVO]:${C_RESET}"
+    echo -e "${C_BOLD}${C_YELLOW}👉 Preguntale a los alumnos:${C_RESET} \"$1\""
+    if [ -n "${2:-}" ]; then
+        echo -e "   ${C_CYAN}Respuesta clave esperada:${C_RESET} $2"
+    fi
+}
+
+run_and_show() {
+    local cmd="$1"
+    echo -e "\n${C_BOLD}${C_BLUE}┌─── COMANDO A EJECUTAR ────────────────────────────────────────────────────────────┐${C_RESET}"
+    echo -e "${C_BOLD}${C_GREEN}$ ${cmd}${C_RESET}"
+    echo -e "${C_BOLD}${C_BLUE}├─── SALIDA REAL DEL SISTEMA ───────────────────────────────────────────────────────┤${C_RESET}"
+    
+    local output
+    output=$(eval "$cmd" 2>&1) || true
+    
+    if [ -z "$output" ]; then
+        echo -e "${C_YELLOW}(El comando finalizó exitosamente sin imprimir texto en stdout/stderr)${C_RESET}"
+    else
+        echo -e "${output}"
+    fi
+    echo -e "${C_BOLD}${C_BLUE}└───────────────────────────────────────────────────────────────────────────────────┘${C_RESET}"
 }
 
 DIR_LAB="/tmp/lab_demo_fs"
@@ -75,260 +119,285 @@ LOOP_BTRFS=""
 LOOP_INODE=""
 
 cleanup() {
-    echo -e "\n${YELLOW}=== Limpieza de recursos del laboratorio ===${RESET}"
+    echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Desmontando y liberando recursos del laboratorio...${C_RESET}"
     if [ "$KEEP_RUNNING" = true ]; then
-        echo -e "${GREEN}[INFO] Se mantienen los montajes activos por opción --keep.${RESET}"
-        echo -e "${CYAN}Puntos de montaje activos:${RESET}"
+        echo -e "${C_GREEN}[INFO] Se mantienen los montajes activos por opción --keep.${C_RESET}"
         df -h | grep "/mnt/lab_demo" || true
         return
     fi
 
-    # Desmontar puntos de montaje
     for m in "$MNT_EXT4" "$MNT_XFS" "$MNT_BTRFS" "$MNT_RAM" "/mnt/lab_demo_inode"; do
         if mountpoint -q "$m" 2>/dev/null; then
-            echo "Desmontando: $m..."
             umount -f "$m" 2>/dev/null || true
         fi
         rm -rf "$m" 2>/dev/null || true
     done
 
-    # Desasociar loop devices
     for l in "$LOOP_EXT4" "$LOOP_XFS" "$LOOP_BTRFS" "$LOOP_INODE"; do
         if [ -n "$l" ]; then
-            echo "Liberando loop device: $l..."
             losetup -d "$l" 2>/dev/null || true
         fi
     done
 
     rm -rf "$DIR_LAB"
-    echo -e "${GREEN}[OK] Laboratorio limpio correctamente.${RESET}"
+    echo -e "${C_GREEN}✔ Laboratorio limpio y recursos desmontados.${C_RESET}\n"
 }
-
 trap cleanup EXIT INT TERM
 
-clear
-echo -e "${BOLD}${PURPLE}========================================================================${RESET}"
-echo -e "${BOLD}${CYAN}   ANATOMÍA DE SISTEMAS DE ARCHIVOS EN LINUX (ext4, XFS, Btrfs, tmpfs)  ${RESET}"
-echo -e "${BOLD}${PURPLE}========================================================================${RESET}"
-echo -e "${CYAN}Conceptos clave: VFS | Superbloques | Inodos vs Bloques | tune2fs | Rescate${RESET}"
-echo -e "${CYAN}Arquitectura: Agnóstico mediante Discos Virtuales Loop (WSL2, VM o EC2)${RESET}"
-echo -e "${PURPLE}------------------------------------------------------------------------${RESET}"
+clear || true
+echo -e "${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN} 🗄️ LABORATORIO EN VIVO: ANATOMÍA DE SISTEMAS DE ARCHIVOS EN LINUX             ${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"
+echo -e "ext4, XFS, Btrfs, tmpfs, tune2fs, Agotamiento de Inodos y Rescate de Superbloque"
+echo -e "Arquitectura agnóstica con discos virtuales loop (/dev/loopX)\n"
 
 # ==============================================================================
-# PASO 1: VERIFICAR HERRAMIENTAS DEL SISTEMA
+# PASO 1: VERIFICAR HERRAMIENTAS
 # ==============================================================================
-echo -e "\n${BOLD}${BLUE}[PASO 1] Verificando herramientas del sistema operativo...${RESET}"
+step_banner "1" "Verificación de paquetes y herramientas del sistema"
+
+explain "Revisando utilitarios esenciales de formateo y gestión de sistemas de archivos:"
 MISSING_PKGS=()
-for tool in mkfs.ext4 tune2fs dumpe2fs mkfs.xfs xfs_info xfs_admin xfs_growfs mkfs.btrfs btrfs losetup; do
+for tool in mkfs.ext4 tune2fs dumpe2fs mkfs.xfs xfs_info xfs_growfs mkfs.btrfs btrfs losetup; do
     if ! command -v "$tool" &>/dev/null; then
         MISSING_PKGS+=("$tool")
     fi
 done
 
 if [ ${#MISSING_PKGS[@]} -gt 0 ]; then
-    echo -e "${YELLOW}Faltan herramientas: ${MISSING_PKGS[*]}. Instalando e2fsprogs, xfsprogs, btrfs-progs...${RESET}"
-    apt-get update -qq && apt-get install -y -qq e2fsprogs xfsprogs btrfs-progs util-linux
+    echo -e "${C_YELLOW}Faltan herramientas: ${MISSING_PKGS[*]}. Instalando con el gestor del sistema...${C_RESET}"
+    if command -v dnf &>/dev/null; then
+        dnf install -y e2fsprogs xfsprogs btrfs-progs util-linux
+    elif command -v apt-get &>/dev/null; then
+        apt-get update -qq && apt-get install -y -qq e2fsprogs xfsprogs btrfs-progs util-linux
+    fi
 fi
-echo -e "${GREEN}✓ Todas las herramientas necesarias están disponibles.${RESET}"
+echo -e "${C_GREEN}✔ Todas las herramientas necesarias están disponibles.${C_RESET}"
 
 mkdir -p "$DIR_LAB" "$MNT_EXT4" "$MNT_XFS" "$MNT_BTRFS" "$MNT_RAM"
 
-pause_step "Avanzar para crear discos virtuales loop y analizar ext4 con tune2fs..."
+pie_clase "¿Qué capa del kernel permite que Linux use ext4, xfs o btrfs con los mismos comandos?" \
+          "VFS (Virtual File System), la capa abstracta que unifica todas las llamadas POSIX."
+
+pause_step "Presioná [ENTER] para crear el disco ext4 y analizar su superbloque..."
 
 # ==============================================================================
 # PASO 2: EXT4 AL DETALLE: SUPERBLOQUE Y GESTIÓN CON TUNE2FS
 # ==============================================================================
-echo -e "\n${BOLD}${BLUE}[PASO 2] Creación de Disco ext4 y Análisis de Superbloque${RESET}"
-echo -e "Creando disco virtual de 300 MB..."
-dd if=/dev/zero of="$DIR_LAB/disco_ext4.img" bs=1M count=300 status=none
-LOOP_EXT4=$(losetup -f --show "$DIR_LAB/disco_ext4.img")
+step_banner "2" "ext4 al Detalle: Creación, Superbloque y tune2fs"
 
-echo -e "Asociado a: ${GREEN}${LOOP_EXT4}${RESET}"
-echo -e "Formateando con ext4 (Bloque de 4096 bytes y etiqueta DISCO_EXT4)..."
-mkfs.ext4 -q -b 4096 -L "DISCO_EXT4" "$LOOP_EXT4"
+explain "Creamos un disco virtual loop de 300 MB para no arriesgar discos reales:"
+run_and_show "dd if=/dev/zero of=${DIR_LAB}/disco_ext4.img bs=1M count=300 status=none && losetup -f --show ${DIR_LAB}/disco_ext4.img"
+LOOP_EXT4=$(losetup -j "${DIR_LAB}/disco_ext4.img" | cut -d: -f1 | head -n 1)
 
-echo -e "\n${BOLD}1) Leyendo el Superbloque con tune2fs -l:${RESET}"
-tune2fs -l "$LOOP_EXT4" | grep -E "(Filesystem volume name|Filesystem state|Block size|Inode count|Reserved block count)"
+explain "Formateamos con ext4 (tamaño de bloque 4096 bytes y etiqueta DISCO_EXT4):"
+run_and_show "mkfs.ext4 -F -q -b 4096 -L 'DISCO_EXT4' ${LOOP_EXT4}"
 
-echo -e "\n${BOLD}2) Reclamando bloques reservados con tune2fs -m (El truco del SysAdmin):${RESET}"
-echo -e "Por defecto, ext4 reserva el 5% del disco para root. En discos de datos podemos reducirlo al 1%:"
-tune2fs -m 1 "$LOOP_EXT4" >/dev/null
-echo -e "Nuevo estado de bloques reservados: ${GREEN}$(tune2fs -l "$LOOP_EXT4" | grep 'Reserved block count')${RESET}"
+explain "1) Inspeccionamos el Superbloque primario con tune2fs -l:"
+run_and_show "tune2fs -l ${LOOP_EXT4} | grep -E '(Filesystem volume name|Filesystem state|Block size|Inode count|Reserved block count)'"
 
-echo -e "\n${BOLD}3) Modificando la etiqueta del volumen con tune2fs -L:${RESET}"
-tune2fs -L "DATA_PROD" "$LOOP_EXT4" >/dev/null
-echo -e "Identificación del volumen: ${CYAN}$(lsblk -f "$LOOP_EXT4" | grep -v FSTYPE)${RESET}"
+echo -e "\n${C_CYAN}🔍 ANÁLISIS DE LA SALIDA:${C_RESET}"
+echo -e " • ${C_BOLD}Block size: 4096${C_RESET} -> Unidad mínima de asignación física (4 KB)."
+echo -e " • ${C_BOLD}Inode count${C_RESET} -> Cantidad fija de inodos reservada al formatear."
+echo -e " • ${C_BOLD}Reserved block count${C_RESET} -> Bloques reservados por defecto para el usuario root (5%)."
 
-mount "$LOOP_EXT4" "$MNT_EXT4"
-echo -e "${GREEN}✓ ext4 montado exitosamente en: $MNT_EXT4${RESET}"
+pie_clase "¿Para qué reserva Linux un 5% de bloques para root en particiones ext4?" \
+          "Para que si un usuario llena el disco al 100%, root pueda seguir iniciando sesión y los daemons no colapsen."
 
-pause_step "Avanzar para simular la catástrofe de producción: Inodos agotados vs Espacio..."
+pause_step "Presioná [ENTER] para ver cómo un SysAdmin recupera ese 5% de espacio reservado..."
+
+explain "2) Reducción de bloques reservados con tune2fs -m (optimización en discos de datos):"
+run_and_show "tune2fs -m 1 ${LOOP_EXT4} && tune2fs -l ${LOOP_EXT4} | grep 'Reserved block count'"
+
+explain "3) Modificación de etiqueta del volumen en caliente con tune2fs -L:"
+run_and_show "tune2fs -L 'DATA_PROD' ${LOOP_EXT4} && lsblk -f ${LOOP_EXT4}"
+
+explain "Montamos el sistema de archivos en ${MNT_EXT4}:"
+run_and_show "mount ${LOOP_EXT4} ${MNT_EXT4} && df -h ${MNT_EXT4}"
+
+pause_step "Presioná [ENTER] para simular la catástrofe 1: Agotamiento de Inodos vs Espacio..."
 
 # ==============================================================================
-# PASO 3: DESASTRE EN PRODUCCIÓN: AGOTAMIENTO DE INODOS VS ESPACIO
+# PASO 3: CATÁSTROFE EN PRODUCCIÓN: INODOS AGOTADOS (df -i vs df -h)
 # ==============================================================================
-echo -e "\n${BOLD}${PURPLE}========================================================================${RESET}"
-echo -e "${BOLD}${RED}  CASO REAL DE PRODUCCIÓN 1: 'NO SPACE LEFT ON DEVICE' CON DISCO VACÍO  ${RESET}"
-echo -e "${BOLD}${PURPLE}========================================================================${RESET}"
-echo -e "Explicación:"
-echo -e "  * ${BOLD}df -h${RESET} mide espacio físico en bloques (Gigabytes)."
-echo -e "  * ${BOLD}df -i${RESET} mide la tabla de inodos (cantidad de archivos permitidos)."
-echo -e "  * Si un script genera millones de archivos vacíos (0 bytes), los inodos se agotan"
-echo -e "    y el sistema bloquea cualquier nueva escritura, ¡aunque el disco esté al 95% libre!"
+step_banner "3" "Catástrofe Real: 'No space left on device' con Disco 90% Libre"
 
+explain "Crearemos un disco de 20 MB pero forzando una cantidad minúscula de inodos (-N 512):"
 mkdir -p /mnt/lab_demo_inode
-dd if=/dev/zero of="$DIR_LAB/disco_inode.img" bs=1M count=20 status=none
-LOOP_INODE=$(losetup -f --show "$DIR_LAB/disco_inode.img")
-# Formatear forzando solo 512 inodos
-mkfs.ext4 -q -N 512 "$LOOP_INODE"
-mount "$LOOP_INODE" /mnt/lab_demo_inode
+run_and_show "dd if=/dev/zero of=${DIR_LAB}/disco_inode.img bs=1M count=20 status=none && losetup -f --show ${DIR_LAB}/disco_inode.img"
+LOOP_INODE=$(losetup -j "${DIR_LAB}/disco_inode.img" | cut -d: -f1 | head -n 1)
 
-echo -e "\n${BOLD}Estado inicial antes de la tormenta de archivos:${RESET}"
-printf "%-25s %-15s %-15s\n" "COMANDO" "USO" "ESTADO"
-printf "%-25s %-15s %-15s\n" "df -h (Espacio físico)" "$(df -h /mnt/lab_demo_inode | awk 'NR==2 {print $5}')" "Mucho espacio libre"
-printf "%-25s %-15s %-15s\n" "df -i (Inodos disponibles)" "$(df -i /mnt/lab_demo_inode | awk 'NR==2 {print $5}')" "Inodos disponibles"
+run_and_show "mkfs.ext4 -F -q -N 512 ${LOOP_INODE} && mount ${LOOP_INODE} /mnt/lab_demo_inode"
 
-echo -e "\n${YELLOW}Simulando servicio que genera cientos de archivos de sesión vacíos (0 bytes)...${RESET}"
-bash -c 'for i in $(seq 1 520); do touch /mnt/lab_demo_inode/sesion_$i.tmp; done 2>/dev/null || true'
+explain "Comparativa inicial antes de la tormenta de archivos:"
+run_and_show "df -h /mnt/lab_demo_inode && df -i /mnt/lab_demo_inode"
 
-echo -e "\nIntentando crear un archivo nuevo esencial: ${CYAN}touch /mnt/lab_demo_inode/archivo_critico.txt${RESET}"
-TOUCH_OUT=$(touch /mnt/lab_demo_inode/archivo_critico.txt 2>&1 || true)
-echo -e "${RED}[ERROR OBTENIDO] $TOUCH_OUT${RESET}"
+explain "Simulamos un servicio web o cron con bug que crea 520 archivos vacíos (0 bytes):"
+run_and_show "bash -c 'for i in \$(seq 1 520); do touch /mnt/lab_demo_inode/sesion_\$i.tmp; done 2>/dev/null || true'"
 
-echo -e "\n${BOLD}Diagnóstico Forense comparado:${RESET}"
-echo -e "  ${YELLOW}1. df -h (Espacio en Bloques):${RESET}"
-df -h /mnt/lab_demo_inode | head -n 2
-echo -e "  ${RED}2. df -i (Inodos del Sistema):${RESET}"
-df -i /mnt/lab_demo_inode | head -n 2
+explain "Ahora intentamos crear un archivo nuevo esencial en el disco:"
+run_and_show "touch /mnt/lab_demo_inode/archivo_critico.txt"
 
-echo -e "\n${GREEN}--> Lección de SysAdmin: Siempre diagnosticar con 'df -h' Y 'df -i' en conjunto.${RESET}"
+echo -e "\n${C_BOLD}${C_RED}❌ ERROR OBTENIDO: 'No space left on device'${C_RESET}"
+
+explain "Diagnóstico Forense comparativo en vivo: ¿Por qué falló si el disco no está lleno?"
+run_and_show "df -h /mnt/lab_demo_inode"
+run_and_show "df -i /mnt/lab_demo_inode"
+
+echo -e "\n${C_CYAN}🔍 ANÁLISIS DE LA SALIDA:${C_RESET}"
+echo -e " • ${C_BOLD}df -h${C_RESET} muestra que el disco está al ${C_GREEN}1% de uso (¡99% libre!)${C_RESET}."
+echo -e " • ${C_BOLD}df -i${C_RESET} muestra ${C_RED}100% de inodos usados (0 inodos libres)${C_RESET}."
+echo -e " • En Linux, cada archivo o directorio requiere 1 inodo. Sin inodos libres, no se puede crear nada."
+
+pie_clase "¿Cómo diagnostica un SysAdmin novato vs un SysAdmin profesional este problema?" \
+          "El novato solo mira 'df -h' y no entiende el fallo; el profesional siempre revisa 'df -i'."
+
+pause_step "Presioná [ENTER] para limpiar este disco y pasar al desastre de superbloque corrupto..."
 
 umount /mnt/lab_demo_inode
 losetup -d "$LOOP_INODE"
+LOOP_INODE=""
 rm -f "$DIR_LAB/disco_inode.img"
 
-pause_step "Avanzar para simular la catástrofe 2: Superbloque dañado y rescate..."
-
 # ==============================================================================
-# PASO 4: DESASTRE EN PRODUCCIÓN: SUPERBLOQUE CORRUPTO Y RECUPERACIÓN
+# PASO 4: CATÁSTROFE 2: CORRUPCIÓN DE SUPERBLOQUE Y RESCATE CON E2FSCK
 # ==============================================================================
-echo -e "\n${BOLD}${PURPLE}========================================================================${RESET}"
-echo -e "${BOLD}${RED}  CASO REAL DE PRODUCCIÓN 2: CORRUPCIÓN DE SUPERBLOQUE Y RESCATE FSCK  ${RESET}"
-echo -e "${BOLD}${PURPLE}========================================================================${RESET}"
+step_banner "4" "Catástrofe Real: Corrupción de Superbloque y Rescate Forense"
 
+explain "Desmontamos ${LOOP_EXT4} para investigar los Superbloques de respaldo:"
 umount "$MNT_EXT4"
 
-echo -e "1) Localizando los Superbloques de Respaldo (Backup Superblocks)..."
+explain "Localizamos dónde colocó ext4 los bloques de respaldo con dumpe2fs:"
+run_and_show "dumpe2fs ${LOOP_EXT4} 2>/dev/null | grep -i 'Backup superblock at' | head -n 3"
+
 BACKUP_BLOCK=$(dumpe2fs "$LOOP_EXT4" 2>/dev/null | grep -i "Backup superblock at" | head -n 1 | awk '{print $4}' | tr -d ',')
 [ -z "$BACKUP_BLOCK" ] && BACKUP_BLOCK="32768"
-echo -e "Superbloque de respaldo identificado en el bloque: ${GREEN}${BACKUP_BLOCK}${RESET}"
 
-echo -e "\n2) ${RED}[INYECCIÓN DE FALLA] Destruyendo intencionalmente el Superbloque Primario con dd...${RESET}"
-dd if=/dev/urandom of="$LOOP_EXT4" bs=1024 count=4 seek=1 conv=notrunc status=none
+explain "INYECCIÓN DE FALLA: Destruimos intencionalmente el Superbloque Primario (bloque 1) con dd:"
+run_and_show "dd if=/dev/urandom of=${LOOP_EXT4} bs=1024 count=4 seek=1 conv=notrunc status=none"
 
-echo -e "Intentando montar el sistema de archivos dañado:"
-MOUNT_ERR=$(mount "$LOOP_EXT4" "$MNT_EXT4" 2>&1 || true)
-echo -e "${RED}[FALLO DE KERNEL] $MOUNT_ERR${RESET}"
+explain "Intentamos montar el sistema de archivos dañado:"
+run_and_show "mount ${LOOP_EXT4} ${MNT_EXT4}"
 
-pause_step "Presiona [ENTER] para iniciar la Operación de Rescate con e2fsck..."
+echo -e "\n${C_BOLD}${C_RED}❌ ERROR: El kernel rechaza el montaje (wrong fs type, bad superblock, etc.)${C_RESET}"
 
-echo -e "\n3) ${GREEN}[OPERACIÓN DE RESCATE] Reparando usando el Superbloque de Respaldo en bloque ${BACKUP_BLOCK}...${RESET}"
-e2fsck -b "$BACKUP_BLOCK" -y "$LOOP_EXT4" >/dev/null 2>&1 || true
+pie_clase "¿Por qué el sistema no puede montar el disco? ¿Toda la información está perdida?" \
+          "No: el superbloque primario contiene los metadatos raíz, pero ext4 guarda múltiples copias de respaldo."
 
-echo -e "4) Comprobando si el sistema de archivos resucitó:"
-mount "$LOOP_EXT4" "$MNT_EXT4"
-if mountpoint -q "$MNT_EXT4"; then
-    echo -e "${BOLD}${GREEN}✓ ¡ÉXITO TOTAL! El sistema de archivos fue recuperado y montado intacto.${RESET}"
-    df -h "$MNT_EXT4"
-else
-    echo -e "${RED}[ERROR] No se pudo montar tras la reparación.${RESET}"
-fi
+pause_step "Presioná [ENTER] para rescatar el disco con e2fsck usando el bloque de respaldo ${BACKUP_BLOCK}..."
 
-pause_step "Avanzar para explorar XFS (Allocation Groups y Expansión en Caliente)..."
+explain "OPERACIÓN DE RESCATE: Ejecutamos e2fsck forzando la lectura del superbloque de respaldo:"
+run_and_show "e2fsck -b ${BACKUP_BLOCK} -y ${LOOP_EXT4}"
+
+explain "Comprobamos si el sistema de archivos resucitó y vuelve a montarse:"
+run_and_show "mount ${LOOP_EXT4} ${MNT_EXT4} && df -h ${MNT_EXT4}"
+
+echo -e "${C_BOLD}${C_GREEN}✔ ¡ÉXITO TOTAL! El sistema de archivos fue reparado y montado intacto.${C_RESET}"
+
+pause_step "Presioná [ENTER] para explorar XFS y la ampliación en caliente..."
 
 # ==============================================================================
 # PASO 5: XFS AL DETALLE: ALLOCATION GROUPS Y EXPANSION EN CALIENTE
 # ==============================================================================
-echo -e "\n${BOLD}${BLUE}[PASO 5] XFS en Profundidad: Allocation Groups y xfs_growfs${RESET}"
-echo -e "Creando disco virtual de 300 MB para XFS..."
-dd if=/dev/zero of="$DIR_LAB/disco_xfs.img" bs=1M count=300 status=none
-LOOP_XFS=$(losetup -f --show "$DIR_LAB/disco_xfs.img")
+step_banner "5" "XFS en Profundidad: Allocation Groups y xfs_growfs"
 
-mkfs.xfs -q -L "STORAGE_XFS" "$LOOP_XFS"
-mount "$LOOP_XFS" "$MNT_XFS"
-echo -e "XFS montado en: ${GREEN}${MNT_XFS}${RESET}"
+explain "Creamos un disco virtual loop de 300 MB para XFS:"
+run_and_show "dd if=/dev/zero of=${DIR_LAB}/disco_xfs.img bs=1M count=300 status=none && losetup -f --show ${DIR_LAB}/disco_xfs.img"
+LOOP_XFS=$(losetup -j "${DIR_LAB}/disco_xfs.img" | cut -d: -f1 | head -n 1)
 
-echo -e "\n${BOLD}1) Geometría interna de XFS con xfs_info:${RESET}"
-xfs_info "$MNT_XFS" | grep -E "(data|naming|log)"
+explain "Formateamos con XFS y lo montamos:"
+run_and_show "mkfs.xfs -f -q -L 'STORAGE_XFS' ${LOOP_XFS} && mount ${LOOP_XFS} ${MNT_XFS}"
 
-echo -e "\n${BOLD}2) Ampliación en caliente (Online Growth):${RESET}"
-echo -e "Aumentando el archivo de disco de 300 MB a 600 MB en caliente..."
-truncate -s 600M "$DIR_LAB/disco_xfs.img"
-losetup -c "$LOOP_XFS"
+explain "1) Inspeccionamos la geometría interna de XFS con xfs_info (Allocation Groups):"
+run_and_show "xfs_info ${MNT_XFS} | grep -E '(data|naming|log)'"
 
-echo -e "Tamaño antes de xfs_growfs: $(df -h "$MNT_XFS" | awk 'NR==2 {print $2}')"
-xfs_growfs "$MNT_XFS" >/dev/null
-echo -e "Tamaño después de xfs_growfs: ${GREEN}$(df -h "$MNT_XFS" | awk 'NR==2 {print $2}')${RESET}"
-echo -e "${YELLOW}Nota clave: XFS se puede agrandar en caliente, pero NUNCA se puede reducir de tamaño.${RESET}"
+echo -e "\n${C_CYAN}🔍 ANÁLISIS DE LA SALIDA:${C_RESET}"
+echo -e " • XFS divide el disco en ${C_BOLD}Allocation Groups (agcount)${C_RESET} independientes."
+echo -e " • Cada grupo tiene su propio gestor de inodos y espacio libre, permitiendo escrituras paralelas masivas."
 
-pause_step "Avanzar para explorar Btrfs (Copy-on-Write y Snapshots Instantáneos)..."
+explain "2) Ampliación en caliente (Online Growth): Aumentamos el archivo de 300 MB a 600 MB:"
+run_and_show "truncate -s 600M ${DIR_LAB}/disco_xfs.img && losetup -c ${LOOP_XFS}"
+
+explain "Tamaño actual según df -h:"
+run_and_show "df -h ${MNT_XFS}"
+
+explain "Ejecutamos xfs_growfs para expandir XFS sobre el espacio nuevo EN CALIENTE (montado):"
+run_and_show "xfs_growfs ${MNT_XFS}"
+
+explain "Comprobamos el nuevo tamaño expandido:"
+run_and_show "df -h ${MNT_XFS}"
+
+pie_clase "¿Se puede reducir de tamaño (shrink) un sistema de archivos XFS?" \
+          "¡NUNCA! XFS está diseñado exclusivamente para crecer. Reducir un filesystem solo lo soporta ext4 o Btrfs."
+
+pause_step "Presioná [ENTER] para explorar Btrfs y sus snapshots instantáneos Copy-on-Write..."
 
 # ==============================================================================
-# PASO 6: BTRFS AL DETALLE: SUBVOLÚMENES Y SNAPSHOTS O(1)
+# PASO 6: BTRFS: SUBVOLÚMENES Y SNAPSHOTS COPY-ON-WRITE
 # ==============================================================================
-echo -e "\n${BOLD}${BLUE}[PASO 6] Btrfs en Profundidad: Subvolúmenes y Snapshots Instantáneos${RESET}"
-dd if=/dev/zero of="$DIR_LAB/disco_btrfs.img" bs=1M count=300 status=none
-LOOP_BTRFS=$(losetup -f --show "$DIR_LAB/disco_btrfs.img")
+step_banner "6" "Btrfs: Subvolúmenes y Snapshots Instantáneos (CoW)"
 
-mkfs.btrfs -q -L "STORAGE_BTRFS" "$LOOP_BTRFS"
-mount "$LOOP_BTRFS" "$MNT_BTRFS"
+explain "Creamos un disco de 300 MB, formateamos con Btrfs y lo montamos:"
+run_and_show "dd if=/dev/zero of=${DIR_LAB}/disco_btrfs.img bs=1M count=300 status=none && losetup -f --show ${DIR_LAB}/disco_btrfs.img"
+LOOP_BTRFS=$(losetup -j "${DIR_LAB}/disco_btrfs.img" | cut -d: -f1 | head -n 1)
+run_and_show "mkfs.btrfs -f -q -L 'STORAGE_BTRFS' ${LOOP_BTRFS} && mount ${LOOP_BTRFS} ${MNT_BTRFS}"
 
-echo -e "1) Creando subvolumen independiente @app_data..."
-btrfs subvolume create "$MNT_BTRFS/@app_data" >/dev/null
+explain "1) Creamos un subvolumen independiente llamado @app_data:"
+run_and_show "btrfs subvolume create ${MNT_BTRFS}/@app_data && btrfs subvolume list ${MNT_BTRFS}"
 
-echo -e "2) Creando archivo de 20 MB en el subvolumen..."
-dd if=/dev/urandom of="$MNT_BTRFS/@app_data/base_de_datos.bin" bs=1M count=20 status=none
+explain "2) Creamos un archivo de 20 MB simulando una base de datos:"
+run_and_show "dd if=/dev/urandom of=${MNT_BTRFS}/@app_data/db.bin bs=1M count=20 status=none && ls -lh ${MNT_BTRFS}/@app_data/"
 
-echo -e "3) Creando SNAPSHOT instantáneo con Copy-on-Write:"
-START_SNAP=$(date +%s%N)
-btrfs subvolume snapshot "$MNT_BTRFS/@app_data" "$MNT_BTRFS/@snapshot_seguridad" >/dev/null
-END_SNAP=$(date +%s%N)
-TIEMPO_MS=$(( (END_SNAP - START_SNAP) / 1000000 ))
+explain "3) Creamos un SNAPSHOT instantáneo con Copy-on-Write:"
+run_and_show "btrfs subvolume snapshot ${MNT_BTRFS}/@app_data ${MNT_BTRFS}/@snapshot_seguridad"
 
-echo -e "${GREEN}✓ Snapshot creado en ${TIEMPO_MS} ms con 0 bytes de consumo extra.${RESET}"
-btrfs filesystem df "$MNT_BTRFS"
+explain "Comprobamos el consumo real de espacio en Btrfs:"
+run_and_show "btrfs filesystem df ${MNT_BTRFS}"
 
-pause_step "Avanzar para explorar tmpfs (Almacenamiento en Memoria RAM)..."
+echo -e "\n${C_CYAN}🔍 ANÁLISIS DE LA SALIDA:${C_RESET}"
+echo -e " • El snapshot se creó en ${C_BOLD}0 milisegundos${C_RESET}."
+echo -e " • Gracias a ${C_BOLD}Copy-on-Write (CoW)${C_RESET}, el snapshot comparte los mismos bloques físicos que el original."
+echo -e " • Consume ${C_BOLD}0 bytes adicionales${C_RESET} hasta que algún bloque sea modificado."
+
+pause_step "Presioná [ENTER] para comparar Btrfs contra tmpfs en memoria RAM..."
 
 # ==============================================================================
 # PASO 7: TMPFS: VELOCIDAD Y VOLATILIDAD EN MEMORIA RAM
 # ==============================================================================
-echo -e "\n${BOLD}${BLUE}[PASO 7] tmpfs: Rendimiento Extremo en Memoria RAM${RESET}"
-mount -t tmpfs -o size=100M tmpfs "$MNT_RAM"
-echo -e "tmpfs montado en ${GREEN}${MNT_RAM}${RESET} (Límite: 100 MB de RAM)"
+step_banner "7" "tmpfs: Almacenamiento Volátil a Máxima Velocidad en RAM"
 
-echo -e "\nComparativa de velocidad de escritura:"
-echo -e "Escribiendo 50 MB en Disco Virtual Loop..."
-dd if=/dev/zero of="$DIR_LAB/test_disk.bin" bs=1M count=50 conv=fdatasync 2>&1 | grep -E "copied"
+explain "Montamos un sistema de archivos tmpfs en memoria RAM (límite 100 MB):"
+run_and_show "mount -t tmpfs -o size=100M tmpfs ${MNT_RAM} && df -h ${MNT_RAM}"
 
-echo -e "Escribiendo 50 MB en Memoria RAM (tmpfs)..."
-dd if=/dev/zero of="$MNT_RAM/test_ram.bin" bs=1M count=50 conv=fdatasync 2>&1 | grep -E "copied"
+explain "Test de Benchmark: Escribimos 50 MB con sincronización a disco (fdatasync) en el loop device:"
+run_and_show "dd if=/dev/zero of=${DIR_LAB}/test_disk.bin bs=1M count=50 conv=fdatasync 2>&1"
 
-pause_step "Avanzar para ver la Matriz de Síntesis del Laboratorio..."
+explain "Test de Benchmark: Escribimos exactamente los mismos 50 MB en memoria RAM (tmpfs):"
+run_and_show "dd if=/dev/zero of=${MNT_RAM}/test_ram.bin bs=1M count=50 conv=fdatasync 2>&1"
+
+echo -e "\n${C_CYAN}🔍 ANÁLISIS DE LA SALIDA:${C_RESET}"
+echo -e " • tmpfs escribe directamente sobre las páginas del kernel en memoria RAM."
+echo -e " • No hay llamadas de E/S física al bus de almacenamiento."
+echo -e " • Peligro: Al reiniciar o apagar el servidor, ${C_BOLD}TODO lo almacenado en tmpfs se desvanece${C_RESET}."
+
+pie_clase "¿Qué directorios de Linux suelen montarse sobre tmpfs?" \
+          "/run, /tmp, /dev/shm (memoria compartida POSIX) y los sockets de procesos efímeros."
+
+pause_step "Presioná [ENTER] para ver la matriz comparativa de síntesis..."
 
 # ==============================================================================
 # PASO 8: RESUMEN Y MATRIZ COMPARATIVA DE SÍNTESIS
 # ==============================================================================
-echo -e "\n${BOLD}${CYAN}========================================================================${RESET}"
-echo -e "${BOLD}${CYAN}            MATRIZ DE SÍNTESIS DE SISTEMAS DE ARCHIVOS LINUX            ${RESET}"
-echo -e "${BOLD}${CYAN}========================================================================${RESET}"
+step_banner "8" "Matriz de Síntesis de Sistemas de Archivos"
 
-printf "${BOLD}%-10s %-25s %-20s %-20s${RESET}\n" "FS" "PARADIGMA" "HERRAMIENTA CLAVE" "CASO DE PRODUCCIÓN"
-printf "%-10s %-25s %-20s %-20s\n" "----------" "-------------------------" "--------------------" "--------------------"
-printf "%-10s %-25s %-20s %-20s\n" "ext4" "Journaling / Bloques" "tune2fs, dumpe2fs" "General, compatibilidad"
-printf "%-10s %-25s %-20s %-20s\n" "XFS" "Allocation Groups" "xfs_info, xfs_growfs" "Bases de datos, RHEL/Rocky"
-printf "%-10s %-25s %-20s %-20s\n" "Btrfs" "Copy-on-Write (CoW)" "btrfs subvolume/scrub" "Snapshots, NAS, NextGen"
-printf "%-10s %-25s %-20s %-20s\n" "tmpfs" "Memoria RAM Volátil" "mount -t tmpfs" "Caché, sockets, /tmp"
+echo -e "${C_BOLD}Resumen de comandos y herramientas aprendidas:${C_RESET}\n"
+printf "${C_BOLD}%-10s %-22s %-24s %-25s${C_RESET}\n" "FS" "PARADIGMA" "HERRAMIENTA CLAVE" "CASO EN PRODUCCIÓN"
+printf "%-10s %-22s %-24s %-25s\n" "----------" "----------------------" "------------------------" "-------------------------"
+printf "%-10s %-22s %-24s %-25s\n" "ext4" "Journaling / Bloques" "tune2fs, dumpe2fs, e2fsck" "Estándar general, servidores"
+printf "%-10s %-22s %-24s %-25s\n" "XFS" "Allocation Groups" "xfs_info, xfs_growfs" "Base de datos, I/O paralelo"
+printf "%-10s %-22s %-24s %-25s\n" "Btrfs" "Copy-on-Write (CoW)" "btrfs subvolume, snapshot" "Snapshots O(1), NAS, rollbacks"
+printf "%-10s %-22s %-24s %-25s\n" "tmpfs" "RAM Volátil en Kernel" "mount -t tmpfs" "Caché, IPC, /run, /tmp"
 
-echo -e "\n${BOLD}${GREEN}¡Laboratorio completado exitosamente!${RESET}"
-echo -e "${PURPLE}========================================================================${RESET}"
+echo -e "\n${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN} 🎉 ¡DEMOSTRACIÓN DE FILESYSTEMS FINALIZADA CON ÉXITO!                          ${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN}===============================================================================${C_RESET}\n"

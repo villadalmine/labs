@@ -20,6 +20,7 @@ void handle_sigusr1(int signum) {
 }
 
 int main(void) {
+    setvbuf(stdout, NULL, _IONBF, 0);
     unsigned long long counter = 0;
     struct sigaction action_term = {0};
     action_term.sa_handler = handle_sigterm;
@@ -40,6 +41,7 @@ int main(void) {
 
         if (print_status) {
             printf("[PID %d] SIGUSR1 recibido. Contador: %llu\n", getpid(), counter);
+            fflush(stdout);
             print_status = 0;
         }
     }
