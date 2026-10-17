@@ -447,3 +447,6 @@ terraform.rc
 *.key
 id_rsa_lab.pem
 
+# RAG exports temporales
+ai/tutor/rag_corpus_export/
+

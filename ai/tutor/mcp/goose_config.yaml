@@ -1,4 +1,4 @@
-# goose_config.yaml - Configuración para Goose CLI (Agente de Terminal con MCP)
+# goose_config.yaml - Configuración para Goose CLI (Agente de Terminal con MCP Dual)
 # Copia este archivo a ~/.config/goose/config.yaml o úsalo con 'goose session'
 
 # Proveedor de Inteligencia Artificial:
@@ -12,7 +12,7 @@ model: deepseek/deepseek-r1  # O 'anthropic/claude-3.5-sonnet', 'meta-llama/llam
 
 # Extensiones y Servidores MCP Conectados:
 extensions:
-  # Servidor MCP de Laboratorios Linux (Nativo del Repositorio)
+  # 1. Servidor MCP de Laboratorios Linux Prácticos (labs)
   linux_labs_tutor:
     name: linux_labs_tutor
     cmd: python
@@ -21,6 +21,17 @@ extensions:
     type: stdio
     enabled: true
 
-  # Servidor MCP estándar de ejecución de comandos en el sistema
+  # 2. Servidor MCP de Certificaciones IT y Teoría Oficial (study-cybercirujas)
+  # Requiere haber clonado https://github.com/villadalmine/study-cybercirujas
+  study_cybercirujas:
+    name: study_cybercirujas
+    cmd: python
+    args:
+      - "-m"
+      - "teach.mcp_server"
+    type: stdio
+    enabled: true
+
+  # 3. Servidor MCP estándar de ejecución de comandos en el sistema
   developer:
     enabled: true

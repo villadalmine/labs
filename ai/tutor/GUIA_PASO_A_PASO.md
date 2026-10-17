@@ -228,15 +228,35 @@ Open WebUI incluye soporte nativo para **Speech-to-Text (STT)** y **Text-to-Spee
 
 ---
 
+## 🌐 Paso 7: Super-Cerebro: Integración con study.cybercirujas (MCP y RAG Oficial)
+
+Para enriquecer al tutor con la **teoría conceptual de 28 certificaciones internacionales** (LPIC-1, Linux Essentials, LPIC-3, CKA, CKAD, MCPA, etc.) preservando la soberanía y privacidad en tu propia máquina:
+
+1. **Clona localmente [study.cybercirujas](https://github.com/villadalmine/study-cybercirujas):**
+   ```bash
+   cd ..
+   git clone https://github.com/villadalmine/study-cybercirujas.git
+   cd study-cybercirujas && make setup && make mcp-setup
+   ```
+2. **Servidor MCP Dual:** Conecta ambos servidores (`linux_labs_tutor` + `study_cybercirujas`) en Goose CLI o Cline. Tu agente podrá consultar la teoría de examen y prescribir los laboratorios prácticos en loop devices.
+3. **RAG Unificado:** Ejecuta `python ai/tutor/mcp/prepare_rag_corpus.py` para exportar tanto los 24 labs prácticos como la teoría oficial en una carpeta lista para arrastrar a **Knowledge** en Open WebUI.
+
+> 📖 Consulta la guía completa y detallada en: [**`INTEGRACION_STUDY_CYBERCIRUJAS.md`**](INTEGRACION_STUDY_CYBERCIRUJAS.md).
+
+---
+
 ## 📋 Resumen de Archivos en `ai/tutor/`
 
 | Archivo | Propósito |
 | :--- | :--- |
 | [`README.md`](README.md) | Portal principal de bienvenida y arquitectura general para el estudiante. |
 | [`GUIA_PASO_A_PASO.md`](GUIA_PASO_A_PASO.md) | Este tutorial completo de instalación, backends (Ollama/OpenRouter) y clientes. |
+| [`INTEGRACION_STUDY_CYBERCIRUJAS.md`](INTEGRACION_STUDY_CYBERCIRUJAS.md) | **Guía de integración con study.cybercirujas** (MCP dual, RAG con `prepare_rag_corpus.py` y API REST). |
 | [`system_prompt_tutor.md`](system_prompt_tutor.md) | Instrucciones maestras del Tutor para Open WebUI, Goose, Cline o Continue. |
-| [`mcp/labs_mcp_server.py`](mcp/labs_mcp_server.py) | Servidor MCP nativo stdio con 5 herramientas curriculares. |
-| [`mcp/goose_config.yaml`](mcp/goose_config.yaml) | Configuración para Goose CLI con MCP de laboratorios y shell. |
+| [`mcp/labs_mcp_server.py`](mcp/labs_mcp_server.py) | Servidor MCP nativo stdio con 5 herramientas curriculares de labs prácticos. |
+| [`mcp/prepare_rag_corpus.py`](mcp/prepare_rag_corpus.py) | Script utilitario para preparar y exportar el corpus unificado para Open WebUI. |
+| [`mcp/goose_config.yaml`](mcp/goose_config.yaml) | Configuración para Goose CLI con MCP dual (labs + study-cybercirujas). |
 | [`mcp/continue_config.json`](mcp/continue_config.json) | Configuración para Continue.dev en VS Code (Ollama + OpenRouter). |
-| [`mcp/cline_mcp_settings.json`](mcp/cline_mcp_settings.json) | Configuración para Cline / Roo Code en VS Code. |
+| [`mcp/cline_mcp_settings.json`](mcp/cline_mcp_settings.json) | Configuración para Cline / Roo Code en VS Code con MCP dual. |
 | [`mcp/openwebui_tools.py`](mcp/openwebui_tools.py) | Herramienta en Python para importar en Open WebUI. |
+

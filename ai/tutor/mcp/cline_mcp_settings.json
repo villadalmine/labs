@@ -13,6 +13,21 @@
         "verify_student_readiness",
         "read_lab_guide"
       ]
+    },
+    "study-cybercirujas": {
+      "command": "python",
+      "args": [
+        "-m",
+        "teach.mcp_server"
+      ],
+      "cwd": "../study-cybercirujas",
+      "disabled": false,
+      "autoApprove": [
+        "list_certs",
+        "get_syllabus",
+        "get_topic",
+        "search_topics"
+      ]
     }
   }
 }

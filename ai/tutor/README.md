@@ -17,11 +17,13 @@ Este directorio contiene la arquitectura, herramientas, configuraciones y guías
 | Recurso | Descripción |
 | :--- | :--- |
 | 📖 [`GUIA_PASO_A_PASO.md`](GUIA_PASO_A_PASO.md) | **Tutorial maestro paso a paso** para configurar Ollama, OpenRouter, Open WebUI, Goose CLI, VS Code y Voice-to-Voice. |
+| 🧠 [`INTEGRACION_STUDY_CYBERCIRUJAS.md`](INTEGRACION_STUDY_CYBERCIRUJAS.md) | **Integración con study.cybercirujas**: Conecta la teoría oficial de 28 certificaciones (LPIC-1, CKA, etc.) vía MCP y RAG local al tutor. |
 | 🤖 [`system_prompt_tutor.md`](system_prompt_tutor.md) | Prompt de sistema universal listo para configurar el rol y la metodología pedagógica del Tutor. |
 | 🔌 [`mcp/labs_mcp_server.py`](mcp/labs_mcp_server.py) | **Servidor MCP nativo** (JSON-RPC stdio) que expone herramientas para consultar el catálogo de laboratorios, verificar requisitos y leer guías. |
-| 🛠️ [`mcp/goose_config.yaml`](mcp/goose_config.yaml) | Archivo de configuración para el agente de terminal **Goose CLI**. |
+| 📦 [`mcp/prepare_rag_corpus.py`](mcp/prepare_rag_corpus.py) | Script utilitario para preparar y exportar el corpus unificado (labs + certificaciones) listo para subir a Open WebUI. |
+| 🛠️ [`mcp/goose_config.yaml`](mcp/goose_config.yaml) | Archivo de configuración para el agente de terminal **Goose CLI** (servidor dual: labs + study-cybercirujas). |
 | 💻 [`mcp/continue_config.json`](mcp/continue_config.json) | Configuración para **Continue.dev** en VS Code. |
-| 🧩 [`mcp/cline_mcp_settings.json`](mcp/cline_mcp_settings.json) | Configuración de servidor MCP para **Cline / Roo Code** en VS Code. |
+| 🧩 [`mcp/cline_mcp_settings.json`](mcp/cline_mcp_settings.json) | Configuración de servidor MCP dual para **Cline / Roo Code** en VS Code. |
 | 🐍 [`mcp/openwebui_tools.py`](mcp/openwebui_tools.py) | Herramienta Python nativa para importar directamente en **Open WebUI**. |
 
 ---
