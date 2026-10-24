@@ -1,0 +1,49 @@
+# Despliegue de Infraestructura AWS: Trabajo Integrador RAID & Observabilidad
+
+Este directorio contiene las definiciones de **Terraform** para levantar un entorno de laboratorio completo en **AWS (apto para Free Tier)**:
+
+- **1 Instancia EC2** Ubuntu 24.04 LTS (`t3.micro`).
+- **5 Volúmenes EBS** de 1 GB (`gp3`) dedicados a almacenamiento empresarial:
+  - 3 Discos para el RAID 5 base.
+  - 1 Disco asignado como **Hot Spare** automático.
+  - 1 Disco asignado para reemplazo físico tras contingencias.
+- **Servicio Web Nginx** y **Prometheus Node Exporter** (puerto 9100) preconfigurado con recolector de métricas de telemetría RAID por Systemd Timer.
+
+---
+
+## 🚀 Despliegue Paso a Paso
+
+### 1. Prerrequisitos
+- Cuenta de AWS activa y credenciales configuradas (`aws configure`).
+- Terraform >= 1.5.0 instalado.
+
+### 2. Inicializar y Aplicar
+```bash
+terraform init
+terraform apply -auto-approve
+```
+
+### 3. Conectarse a la Instancia
+Terraform genera automáticamente la clave SSH `id_rsa_lab.pem`. Conectate usando el output provisto:
+
+```bash
+# Permisos seguros para la clave privada
+chmod 400 id_rsa_lab.pem
+
+# Conexión SSH
+ssh -i id_rsa_lab.pem -o StrictHostKeyChecking=no ubuntu@<IP_PUBLICA>
+```
+
+### 4. Ejecución del Laboratorio
+Una vez conectado por SSH, ejecutá el script integrador de la serie:
+
+```bash
+# Subir o clonar el repo en la instancia y ejecutar:
+sudo ./demo_integrador_raid.sh
+```
+
+### 5. Destrucción de Recursos al Finalizar
+Para evitar costos residuales en AWS:
+```bash
+terraform destroy -auto-approve
+```
