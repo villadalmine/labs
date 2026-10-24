@@ -1,0 +1,44 @@
+# ==============================================================================
+# CONFIGURACIÓN EDUCATIVA DE PROMETHEUS ALERTMANAGER
+# Ruta por defecto hacia receptor en terminal local (sin correo ni slack externos)
+# ==============================================================================
+global:
+  resolve_timeout: 1m
+
+# Árbol de enrutamiento
+route:
+  group_by: ['alertname', 'mountpoint']
+  group_wait: 10s       # Tiempo de espera para agrupar alertas iniciales
+  group_interval: 30s   # Tiempo de espera antes de enviar nuevas alertas del mismo grupo
+  repeat_interval: 2h   # Reenvío periódico de la alerta si continúa activa
+  receiver: 'terminal-local'
+
+receivers:
+  # 1. RECEPTOR LOCAL DIDÁCTICO (Python HTTP stdout en puerto 9999)
+  - name: 'terminal-local'
+    webhook_configs:
+      - url: 'http://127.0.0.1:9999/alert'
+        send_resolved: true
+
+# ------------------------------------------------------------------------------
+# EJEMPLOS PARA PRODUCCIÓN (Comentados como referencia educativa)
+# ------------------------------------------------------------------------------
+#  # Ejemplo para Email SMTP (Gmail, Outlook, Postfix):
+#  - name: 'email-sysadmin'
+#    email_configs:
+#      - to: 'guardia-it@tuempresa.com'
+#        from: 'alertas@tuempresa.com'
+#        smarthost: 'smtp.gmail.com:587'
+#        auth_username: 'alertas@tuempresa.com'
+#        auth_password: 'tu-app-password'
+#        require_tls: true
+#        send_resolved: true
+#
+#  # Ejemplo para Canal de Slack:
+#  - name: 'slack-canal'
+#    slack_configs:
+#      - api_url: 'https://hooks.slack.example.com/services/TU_TOKEN_DE_SLACK'
+#        channel: '#alertas-infra'
+#        send_resolved: true
+#        title: '{{ .CommonAnnotations.summary }}'
+#        text: '{{ .CommonAnnotations.description }}'
