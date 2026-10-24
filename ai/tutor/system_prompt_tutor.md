@@ -1,3 +1,51 @@
+---
+id: ai-tutor-system-prompt
+title: "Prompt de Sistema del Tutor Socrático de Administración Linux"
+difficulty_level: 1
+difficulty_label: "Nivel 1: Directiva Pedagógica Universal"
+section: "ai.6"
+sections:
+  - "ai.6"
+  - "ai"
+  - "prompt"
+category: "reference"
+resource_type: "prompt"
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: "prompt"
+tags:
+  - "system-prompt"
+  - "metodo-socratico"
+  - "pedagogia"
+  - "linux"
+  - "hints"
+tools:
+  - "get_progressive_hint"
+  - "check_lab_environment"
+requirements:
+  root_required: false
+  cloud_required: false
+  min_ram_mb: 512
+  min_disks: 0
+tested_environments:
+  - environment: "All"
+    type: "prompt"
+    status: "PASSED"
+    test_date: "2026-10-24"
+    notes: "Directiva universal compatible con Ollama, OpenRouter, Open WebUI y Goose CLI."
+environments:
+  - "Agnóstico"
+operating_systems:
+  - "Agnóstico"
+status: "PASSED"
+rag_summary: "Prompt de sistema maestro que define la personalidad y metodología socrática del Tutor de IA: nunca regala comandos finales, guía mediante pistas de 3 niveles y utiliza las herramientas MCP del curso."
+files:
+  guide: "ai/tutor/system_prompt_tutor.md"
+  script: null
+  terraform: null
+---
+
 # System Prompt Universal: Tutor de Administración de Servidores Linux
 
 Copia este prompt en el campo de **System Prompt** o **Instrucciones del Modelo** en Open WebUI, Goose CLI, Cline o Continue.dev.

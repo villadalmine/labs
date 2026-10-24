@@ -1,12 +1,71 @@
+---
+id: ai-tutor-guia-paso-a-paso
+title: "Guía Maestra: Entorno de Aprendizaje con IA Local, Protocolos Modernos (MCP, A2A, jdev, RAG), Open WebUI, Goose CLI y VS Code"
+difficulty_level: 2
+difficulty_label: "Nivel 2: Despliegue de Entorno Completo de Tutoría"
+section: "ai.4"
+sections:
+  - "ai.4"
+  - "ai"
+  - "tutor"
+category: "reference"
+resource_type: "tutorial"
+has_guide: true
+has_interactive_script: true
+has_terraform: false
+execution_mode: "hybrid"
+tags:
+  - "tutor"
+  - "open-webui"
+  - "goose"
+  - "vs-code"
+  - "mcp"
+  - "rag"
+  - "voice"
+  - "study-cybercirujas"
+tools:
+  - "ollama"
+  - "docker"
+  - "python"
+  - "goose"
+  - "code"
+requirements:
+  root_required: false
+  cloud_required: false
+  min_ram_mb: 4096
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    status: "PASSED"
+    test_date: "2026-10-24"
+    notes: "Docker con Open WebUI, Python nativo y Goose CLI validados."
+environments:
+  - "WSL2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Tutorial paso a paso maestro para configurar el ecosistema completo del Tutor de IA: Ollama local, OpenRouter, Open WebUI (con Docker y Python nativo), Goose CLI en terminal, extensiones Continue/Cline en VS Code y servidor MCP dual."
+files:
+  guide: "ai/tutor/GUIA_PASO_A_PASO.md"
+  script: "ai/tutor/mcp/labs_mcp_server.py"
+  terraform: null
+---
+
 # Guía Maestra: Entorno de Aprendizaje con IA Local, Protocolos Modernos (MCP, A2A, jdev, RAG), Open WebUI, Goose CLI y VS Code
 
 Esta guía paso a paso te enseña a armar un **entorno integral de estudio y tutoría asistido por Inteligencia Artificial** para dominar la administración de servidores Linux.
 
-Aprenderás a conectar interfaces visuales (**Open WebUI**), agentes autónomos de terminal (**Goose CLI**) y tu editor de código (**VS Code**) tanto con **modelos 100% locales en tu CPU/GPU (Ollama)** como con **APIs en la nube (OpenRouter)**, utilizando los protocolos modernos de la industria:
-* **MCP (Model Context Protocol):** Estándar abierto para que los modelos invoquen herramientas del catálogo de laboratorios y de la terminal.
-* **RAG (Retrieval-Augmented Generation):** Recuperación semántica de conceptos sobre el plan de estudios.
-* **A2A (Agent-to-Agent) & jdev:** Patrones de interacción donde un agente tutor delega tareas a un agente evaluador o ejecutor de comandos.
+Aprenderás a conectar interfaces visuales (**[Open WebUI](GLOSARIO.md#open-webui)**), agentes autónomos de terminal (**Goose CLI**) y tu editor de código (**VS Code**) tanto con **modelos 100% locales en tu CPU/GPU ([Ollama](GLOSARIO.md#ollama))** como con **APIs en la nube (OpenRouter)**, utilizando los protocolos modernos de la industria:
+* **[MCP (Model Context Protocol)](GLOSARIO.md#mcp-model-context-protocol):** Estándar abierto para que los modelos invoquen herramientas del catálogo de laboratorios y de la terminal.
+* **[RAG (Retrieval-Augmented Generation)](GLOSARIO.md#rag-retrieval-augmented-generation):** Recuperación semántica de conceptos sobre el plan de estudios.
+* **[A2A (Agent-to-Agent)](GLOSARIO.md#a2a-agent-to-agent) & jdev:** Patrones de interacción donde un agente tutor delega tareas a un agente evaluador o ejecutor de comandos.
 * **Voz Local (Voice-to-Voice en CPU):** Módulo opcional para hablarle al tutor por micrófono y escuchar sus explicaciones en tiempo real sin GPU.
+
+> [!NOTE] Glosario de Conceptos de IA
+> Todos los términos técnicos y arquitecturas de hardware cuentan con definiciones y enlaces a su documentación oficial en el [**`GLOSARIO.md`**](GLOSARIO.md).
 
 ---
 
@@ -62,6 +121,7 @@ Tu Tutor (configurado con `system_prompt_tutor.md` y la herramienta MCP `get_pro
    * **Nivel 2 (Búsqueda):** Te señala qué comando, llamada al sistema o ruta en `/proc` o `/sys` tenés que inspeccionar.
    * **Nivel 3 (Sintaxis análoga):** Te muestra un ejemplo de referencia análogo para que vos deduzcas tu solución.
 2. **Inspección en vivo:** Mediante la herramienta MCP `check_lab_environment`, el tutor puede tomar una radiografía de solo lectura de tu máquina Linux (discos, loop devices, memoria, inodos, zombies) y decirte exactamente dónde estás parado sin que tengas que pegar 50 líneas de consola.
+3. **Seguridad y Human-in-the-Loop (HITL):** En la terminal con Goose o en VS Code con Cline, el agente nunca ejecuta comandos destructivos de forma arbitraria; opera dentro de un [Harness](GLOSARIO.md#harness-entorno-de-ejecucion-evaluacion-y-sandbox) que exige confirmación explícita ([Human-in-the-Loop](GLOSARIO.md#human-in-the-loop-hitl)) antes de escribir o modificar el sistema de archivos.
 
 ### Capa 2: Dónde Vive tu Tutor (Elige tu Interfaz según tu Tarea)
 El mismo motor de tutoría (`labs_mcp_server.py` + `catalog.json` + RAG) se adapta al lugar donde estés trabajando:
@@ -86,8 +146,13 @@ Puedes elegir entre correr los modelos 100% en tu máquina o conectarte a la API
 
 ### Opción A: 100% Local con Ollama (CPU o GPU, Sin Costo, Privado)
 1. Instala Ollama:
-   * **Windows:** Descarga e instala desde [ollama.com](https://ollama.com).
+   * **Windows:** Descarga e instala desde [ollama.com](https://ollama.com) o ejecuta `winget install Ollama.Ollama`.
    * **Linux / WSL2:** `curl -fsSL https://ollama.com/install.sh | sh`
+   * **macOS:** Descarga el instalador o ejecuta `brew install ollama`.
+
+> [!TIP] Gestión de Hardware y CPU vs GPU
+> Para entender a fondo cómo Ollama decide si usar tu tarjeta gráfica (**VRAM**) o tu procesador (**RAM de sistema**), cómo auditarlo con `ollama ps` o cómo forzar 100% CPU, consulta la guía especializada: [**`GUIA_OLLAMA_HARDWARE.md`**](GUIA_OLLAMA_HARDWARE.md).
+
 2. Descarga los modelos optimizados:
    ```bash
    # Modelo de lenguaje para el tutor (2.0 GB - corre a 35 tokens/seg en CPU)
@@ -119,9 +184,9 @@ Si prefieres usar modelos más grandes sin consumir CPU ni RAM local:
 
 ## 🌐 Paso 2: Interfaz Visual y RAG con Open WebUI
 
-Open WebUI te ofrece una experiencia similar a ChatGPT en tu navegador, integrada con RAG local y herramientas personalizadas.
+Open WebUI te ofrece una experiencia similar a ChatGPT en tu navegador, integrada con RAG local y herramientas personalizadas. Puedes iniciarlo con Docker o de forma nativa con Python:
 
-### 1. Iniciar Open WebUI con Docker
+### Opción 1: Iniciar Open WebUI con Docker (Recomendado)
 ```bash
 docker run -d -p 3000:8080 \
   --add-host=host.docker.internal:host-gateway \
@@ -129,9 +194,31 @@ docker run -d -p 3000:8080 \
   --name open-webui --restart always \
   ghcr.io/open-webui/open-webui:main
 ```
+Abre en tu navegador: `http://localhost:3000`.
+
+### Opción 2: Iniciar Open WebUI con Python (Sin Docker)
+Si no tienes Docker instalado o prefieres no usar contenedores:
+```bash
+# Se recomienda crear un entorno virtual con Python 3.11 o 3.12
+python -m venv venv_openwebui
+
+# En Linux/macOS:
+source venv_openwebui/bin/activate
+# En Windows PowerShell:
+.\venv_openwebui\Scripts\Activate.ps1
+
+# Instalar Open WebUI
+pip install open-webui
+
+# Iniciar el servidor
+open-webui serve
+```
+Abre en tu navegador: `http://localhost:8080`.
+*(Al correr en tu propio sistema operativo, Open WebUI se conecta automáticamente a Ollama en `http://127.0.0.1:11434` sin necesidad de configurar hostnames especiales).*
 
 ### 2. Conectar Open WebUI a tu Backend
-* **Si usas Ollama Local:** Ya viene configurado por defecto apuntando a `http://host.docker.internal:11434`.
+* **Si usas Ollama Local (con Docker):** Viene configurado por defecto apuntando a `http://host.docker.internal:11434`.
+* **Si usas Ollama Local (con Python):** Se conecta directamente a `http://127.0.0.1:11434`.
 * **Si usas OpenRouter:** En **Admin Settings** -> **Connections** -> **OpenAI API**:
   * URL: `https://openrouter.ai/api/v1`
   * Key: Tu `OPENROUTER_API_KEY`.
