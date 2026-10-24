@@ -62,7 +62,7 @@ info "LVM2 no usa el viejo target 'mirror', sino 'dm-raid' (código MD del kerne
 tour_lvm() {
     local tipo="$1" nombre="$2"; shift 2
     info "Creando LV tipo --type $tipo..."
-    run lvcreate -y --type "$tipo" -n "$nombre" "$@" "$VG_NAME"
+    run lvcreate -y --type "$tipo" -n "$nombre" "$VG_NAME" "$@"
     run lvs -o name,vg_name,segtype,size,devices "$VG_NAME/$nombre"
     run lvremove -y "$VG_NAME/$nombre" >/dev/null 2>&1
 }

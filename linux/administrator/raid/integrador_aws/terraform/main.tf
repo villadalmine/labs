@@ -126,7 +126,7 @@ resource "tls_private_key" "ssh" {
 }
 
 resource "aws_key_pair" "lab_key" {
-  key_name   = "key-lab-raid-${formatdate("YYYYMMDDhhmmss", timestamp())}"
+  key_name   = "key-lab-raid"
   public_key = tls_private_key.ssh.public_key_openssh
 }
 
@@ -175,21 +175,21 @@ locals {
 }
 
 resource "aws_ebs_volume" "raid_disks" {
-  count             = length(locals.ebs_disks)
+  count             = length(local.ebs_disks)
   availability_zone = aws_instance.vm_raid_host.availability_zone
   size              = var.data_disk_size_gb
   type              = "gp3"
 
   tags = {
-    Name     = locals.ebs_disks[count.index].name
-    Rol      = locals.ebs_disks[count.index].role
+    Name     = local.ebs_disks[count.index].name
+    Rol      = local.ebs_disks[count.index].role
     Proyecto = var.environment_tag
   }
 }
 
 resource "aws_volume_attachment" "raid_disk_attachments" {
-  count       = length(locals.ebs_disks)
-  device_name = locals.ebs_disks[count.index].dev
+  count       = length(local.ebs_disks)
+  device_name = local.ebs_disks[count.index].dev
   volume_id   = aws_ebs_volume.raid_disks[count.index].id
   instance_id = aws_instance.vm_raid_host.id
 }

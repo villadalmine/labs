@@ -142,10 +142,10 @@ if [ ${#POSITIONAL_ARGS[@]} -ge 5 ]; then
     SPARE_2="${POSITIONAL_ARGS[4]}"
     echo -e "${GREEN}[INFO] Utilizando discos proporcionados por parámetro:${RESET}"
 else
-    # Buscar discos EBS no particionados (nvme1n1.. o sdb..)
+    # Buscar discos NVMe EBS de AWS (nvme1n1.. nvme9n1) o xvdf..
     EBS_CANDIDATES=()
-    for d in $(lsblk -d -n -o NAME,TYPE | awk '$2=="disk" && $1!~"nvme0n1|sda" {print "/dev/"$1}'); do
-        if [ "$d" != "/dev/md0" ]; then
+    for d in $(lsblk -d -n -o NAME,TYPE,MOUNTPOINT | awk '$2=="disk" && $3=="" && $1~"^(nvme[1-9]|xvd[f-z])" {print "/dev/"$1}'); do
+        if [ "$d" != "$MD_DEV" ] && [ -b "$d" ]; then
             EBS_CANDIDATES+=("$d")
         fi
     done
@@ -195,6 +195,7 @@ done
 
 echo -e "${CYAN}Creando $MD_DEV con 3 unidades activas + 1 Hot Spare + Bitmap interno:${RESET}"
 run mdadm --create "$MD_DEV" \
+    --auto=yes \
     --run \
     --level=5 \
     --raid-devices=3 \
@@ -202,6 +203,12 @@ run mdadm --create "$MD_DEV" \
     --bitmap=internal \
     --name=raid_prod \
     "$D1" "$D2" "$D3" "$SPARE_1"
+
+# Si el kernel asignó otro número de nodo (ej. /dev/md127), autodetectarlo
+if [ ! -b "$MD_DEV" ]; then
+    MD_ACTIVE=$(grep -E "^md" /proc/mdstat 2>/dev/null | awk '{print "/dev/"$1}' | head -1)
+    [ -n "$MD_ACTIVE" ] && [ -b "$MD_ACTIVE" ] && MD_DEV="$MD_ACTIVE"
+fi
 
 subheader "Esperando sincronización inicial del arreglo:"
 mdadm --wait "$MD_DEV" 2>/dev/null || true
@@ -304,7 +311,8 @@ pause_step "ENTER para sustituir físicamente el disco quemado por uno nuevo ($S
 header "FASE 5: Sustitución Física de Hardware y Reaprovisionamiento de Spare"
 
 subheader "1. Expulsando el disco dañado ($D2):"
-run mdadm "$MD_DEV" --remove "$D2"
+sleep 1
+run mdadm "$MD_DEV" --remove "$D2" 2>/dev/null || (sleep 2; run mdadm "$MD_DEV" --remove "$D2")
 
 subheader "2. Insertando el nuevo disco EBS de reemplazo ($SPARE_2):"
 run mdadm "$MD_DEV" --add "$SPARE_2"
