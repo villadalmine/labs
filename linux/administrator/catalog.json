@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 24,
+  "total_labs": 29,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -932,6 +932,169 @@
       ]
     },
     {
+      "id": "lab-3.10-raid-btrfs",
+      "title": "RAID con Btrfs: Perfiles Data/Metadata, Conversión en Vivo, Self-Healing, Scrub y btrfs replace",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.10",
+      "sections": [
+        "3.10",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "raid",
+        "btrfs",
+        "cow",
+        "self-healing",
+        "bitrot",
+        "checksum",
+        "scrub",
+        "replace",
+        "balance",
+        "subvolumes",
+        "loop-devices"
+      ],
+      "tools": [
+        "btrfs",
+        "mkfs.btrfs",
+        "losetup",
+        "dd",
+        "sha256sum",
+        "sync"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Probado con loop devices sobre archivos sparse. Requiere soporte de kernel para btrfs."
+        }
+      ],
+      "environments": [
+        "WSL2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía técnica avanzada de administración de RAID integrado en el sistema de archivos Btrfs. Explica el modelo Copy-on-Write a nivel de chunks, la separación independiente de perfiles para datos (-d) y metadatos (-m), la tolerancia a discos de tamaños asimétricos en RAID 1, la advertencia del write-hole en RAID 5/6, la detección y auto-reparación silenciosa de bit-rot mediante checksums criptográficos (self-healing), auditorías proactivas con btrfs scrub y la sustitución atómica de discos defectuosos con btrfs replace.",
+      "files": {
+        "guide": "raid/raid_btrfs.md",
+        "script": "raid/demo_raid_btrfs.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.7-raid-teoria-comparativa",
+        "lab-3.8-raid-mdadm",
+        "lab-3.9-raid-lvm"
+      ],
+      "next_recommended_labs": [
+        "lab-3.11-raid-zfs"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash"
+      ]
+    },
+    {
+      "id": "lab-3.11-raid-zfs",
+      "title": "RAID con ZFS (OpenZFS): Pools, RAIDZ sin Write-Hole, ARC/SLOG, Self-Healing y Resilvering",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.11",
+      "sections": [
+        "3.11",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "raid",
+        "zfs",
+        "openzfs",
+        "raidz",
+        "raidz2",
+        "arc",
+        "slog",
+        "zil",
+        "self-healing",
+        "resilver",
+        "scrub",
+        "uberblock",
+        "loop-devices"
+      ],
+      "tools": [
+        "zpool",
+        "zfs",
+        "losetup",
+        "dd",
+        "sha256sum",
+        "sync"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Probado con loop devices sobre Ubuntu 24.04 con paquete zfsutils-linux en VirtualBox / Bare-Metal. En WSL2 requiere kernel custom o ejecutar en VM/EC2."
+        }
+      ],
+      "environments": [
+        "Bare-Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía técnica completa sobre almacenamiento empresarial de alta disponibilidad con OpenZFS. Analiza la arquitectura de Storage Pools y Virtual Devices (vdevs), el funcionamiento matemático de RAIDZ (paridad dinámica que elimina el clásico write-hole mediante franjas de ancho variable), la jerarquía de memoria y cachés multinivel (ARC en RAM, L2ARC en SSD y SLOG/ZIL para escrituras síncronas), la auto-reparación matemática contra corrupción silenciosa (self-healing con checksums Fletcher4 de 256 bits) y el proceso de reconstrucción (resilvering) tras sustituciones de discos en caliente.",
+      "files": {
+        "guide": "raid/raid_zfs.md",
+        "script": "raid/demo_raid_zfs.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.7-raid-teoria-comparativa",
+        "lab-3.8-raid-mdadm",
+        "lab-3.9-raid-lvm",
+        "lab-3.10-raid-btrfs"
+      ],
+      "next_recommended_labs": [
+        "integrador-4.5-resiliencia-raid-metricas-aws"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash"
+      ]
+    },
+    {
       "id": "lab-3.2-lvm2-online-resize",
       "title": "Almacenamiento Lógico LVM2, Redimensionamiento en Caliente y Dispositivos Loop",
       "difficulty_level": 3,
@@ -1354,86 +1517,6 @@
       ]
     },
     {
-      "id": "lab-3.5-backup-borg-systemd-timers",
-      "title": "Backup Automatizado con BorgBackup y Systemd Timers (Directiva EnvironmentFile)",
-      "difficulty_level": 3,
-      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
-      "section": "3.5",
-      "sections": [
-        "3.5",
-        "3"
-      ],
-      "category": "storage",
-      "resource_type": "theoretical_guide",
-      "has_guide": true,
-      "has_interactive_script": false,
-      "has_terraform": false,
-      "execution_mode": "manual_commands",
-      "tags": [
-        "storage",
-        "backup",
-        "borg",
-        "systemd",
-        "timers",
-        "seguridad",
-        "environmentfile"
-      ],
-      "tools": [
-        "borg",
-        "systemctl",
-        "journalctl"
-      ],
-      "prerequisites": [
-        "lab-3.5-borg-backup"
-      ],
-      "requirements": {
-        "root_required": true,
-        "cloud_required": false,
-        "min_ram_mb": 512,
-        "min_disks": 0
-      },
-      "tested_environments": [
-        {
-          "environment": "WSL2",
-          "type": "local",
-          "instance_type": "virtualized",
-          "os": "Ubuntu 24.04 LTS",
-          "kernel": "6.18.54.1-microsoft-standard-WSL2",
-          "status": "PASSED",
-          "test_date": "2026-10-17",
-          "notes": "Configuración de EnvironmentFile con chmod 600 y timers de sistema."
-        },
-        {
-          "environment": "AWS EC2",
-          "type": "cloud",
-          "instance_type": "t3.micro",
-          "os": "Ubuntu 24.04 LTS",
-          "status": "VERIFIED",
-          "test_date": "2026-10-17",
-          "notes": "Totalmente compatible en AWS EC2."
-        }
-      ],
-      "environments": [
-        "WSL2",
-        "AWS EC2"
-      ],
-      "operating_systems": [
-        "Ubuntu 24.04 LTS"
-      ],
-      "status": "PASSED",
-      "rag_summary": "Guía de respaldo automatizado y seguro utilizando BorgBackup y systemd timers. Destaca el uso de la directiva EnvironmentFile para resguardar BORG_PASSPHRASE con permisos 600, impidiendo la filtración de contraseñas en scripts y configurando timers con persistencia de eventos.",
-      "files": {
-        "guide": "backup/borg-con-systemd-timers.md",
-        "script": null,
-        "terraform": null
-      },
-      "mcp_tools": [
-        "linux-labs-tutor",
-        "bash",
-        "filesystem"
-      ]
-    },
-    {
       "id": "lab-3.5-borg-systemd-timers",
       "title": "Automatización de Respaldos BorgBackup con Systemd Timers y Manejo Seguro de Contraseñas",
       "difficulty_level": 3,
@@ -1683,6 +1766,263 @@
         "linux-labs-tutor",
         "bash",
         "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.7-raid-teoria-comparativa",
+      "title": "RAID desde Cero: Niveles, Metadatos, Caché, Checksums y Comparativa mdadm vs LVM vs Btrfs vs ZFS",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.7",
+      "sections": [
+        "3.7",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "raid",
+        "raid0",
+        "raid1",
+        "raid5",
+        "raid6",
+        "raid10",
+        "paridad",
+        "xor",
+        "striping",
+        "mirroring",
+        "metadatos",
+        "write-hole",
+        "bitmap",
+        "cache",
+        "checksum",
+        "mdadm",
+        "lvm",
+        "btrfs",
+        "zfs"
+      ],
+      "tools": [
+        "bash",
+        "losetup",
+        "mdadm",
+        "lsblk"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-05-20",
+          "notes": "Demo de paridad XOR en bash puro, sin root ni discos reales. Corre igual en Docker, VirtualBox o cualquier Linux."
+        }
+      ],
+      "environments": [
+        "WSL2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Laboratorio teórico-práctico de entrada a la serie RAID. Explica qué es RAID, striping, mirroring y paridad XOR, los niveles 0/1/5/6/10, capacidad útil y tolerancia a fallos, metadatos (superbloque), bitmap y write-hole, cachés de escritura y checksums, y compara mdadm, LVM2 RAID, Btrfs y ZFS. Incluye un script en bash que demuestra la reconstrucción por XOR sin necesidad de discos ni root.",
+      "files": {
+        "guide": "raid/raid_teoria.md",
+        "script": "raid/demo_raid_teoria.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems"
+      ],
+      "next_recommended_labs": [
+        "lab-3.8-raid-mdadm"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash"
+      ]
+    },
+    {
+      "id": "lab-3.8-raid-mdadm",
+      "title": "RAID con mdadm: Creación de Arreglos, Metadatos, Bitmaps, Degradación y Recuperación en Caliente",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.8",
+      "sections": [
+        "3.8",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "raid",
+        "mdadm",
+        "raid0",
+        "raid1",
+        "raid5",
+        "raid6",
+        "raid10",
+        "hot-spare",
+        "rebuild",
+        "resync",
+        "scrub",
+        "superbloque",
+        "bitmap",
+        "loop-devices"
+      ],
+      "tools": [
+        "mdadm",
+        "losetup",
+        "lsblk",
+        "mkfs.ext4",
+        "dd",
+        "sha256sum",
+        "cat"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Probado con loop devices sobre archivos sparse. Requiere modprobe md_mod raid1 raid456."
+        }
+      ],
+      "environments": [
+        "WSL2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía práctica completa de administración de RAID por software en Linux con mdadm. Explica la arquitectura del subsistema md en el kernel, formatos de superbloque (1.2), gestión de write-intent bitmaps para evitar resyncs completos, creación de arreglos RAID 0/1/5/6/10, aprovisionamiento de hot spares, inyección de fallas en vivo, reconstrucción de datos transparente con paridad XOR, reemplazo de unidades y auditoría de paridad con scrub manual.",
+      "files": {
+        "guide": "raid/raid_mdadm.md",
+        "script": "raid/demo_raid_mdadm.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.7-raid-teoria-comparativa",
+        "lab-3.1-anatomia-filesystems"
+      ],
+      "next_recommended_labs": [
+        "lab-3.9-raid-lvm"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash"
+      ]
+    },
+    {
+      "id": "lab-3.9-raid-lvm",
+      "title": "RAID con LVM (dm-raid): Espejos, Paridad, Sub-LVs _rmeta, Degradación y lvconvert --repair",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.9",
+      "sections": [
+        "3.9",
+        "3"
+      ],
+      "category": "storage",
+      "tags": [
+        "storage",
+        "raid",
+        "lvm",
+        "dm-raid",
+        "raid0",
+        "raid1",
+        "raid5",
+        "raid6",
+        "raid10",
+        "rmeta",
+        "rimage",
+        "online-resize",
+        "lvextend",
+        "lvconvert",
+        "vgreduce",
+        "loop-devices"
+      ],
+      "tools": [
+        "lvm",
+        "pvcreate",
+        "vgcreate",
+        "lvcreate",
+        "lvconvert",
+        "lvextend",
+        "lvs",
+        "vgs",
+        "mkfs.ext4",
+        "losetup",
+        "dd",
+        "sha256sum"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Probado con loop devices. Requiere dm-mod y dm-raid."
+        }
+      ],
+      "environments": [
+        "WSL2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía exhaustiva sobre la implementación de RAID por software en LVM2 utilizando el target del kernel dm-raid. Detalla la arquitectura de sub-volúmenes lógicos internos (_rmeta para metadatos y write-intent bitmap, _rimage para franjas de datos), el aprovisionamiento de arreglos RAID 0/1/5/6/10, la expansión en caliente del sistema de archivos y el volumen con lvextend -r, la inyección forense de fallas sobre Physical Volumes, la degradación parcial y el flujo de sustitución y autorrecuperación en caliente con lvconvert --repair y vgreduce --removemissing.",
+      "files": {
+        "guide": "raid/raid_lvm.md",
+        "script": "raid/demo_raid_lvm.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.7-raid-teoria-comparativa",
+        "lab-3.8-raid-mdadm",
+        "lab-3.2-lvm2-online-resize"
+      ],
+      "next_recommended_labs": [
+        "lab-3.10-raid-btrfs"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash"
       ]
     },
     {
@@ -2011,6 +2351,92 @@
       "prerequisites": [
         "lab-3.1-anatomia-filesystems",
         "integrador-4.3-btrfs-subvolumes-reflinks-raid1"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "terraform",
+        "aws"
+      ]
+    },
+    {
+      "id": "integrador-4.5-resiliencia-raid-metricas-aws",
+      "title": "Trabajo Integrador 5: Almacenamiento Empresarial RAID en AWS, Inyección de Fallas, Recuperación y Observabilidad con Métricas",
+      "difficulty_level": 4,
+      "difficulty_label": "Nivel 4: Proyectos Integradores en la Nube (AWS Free Tier con Terraform)",
+      "section": "4.5",
+      "sections": [
+        "4.5",
+        "4"
+      ],
+      "category": "cloud-iac",
+      "tags": [
+        "cloud-iac",
+        "storage",
+        "raid",
+        "mdadm",
+        "ebs",
+        "aws",
+        "ec2",
+        "terraform",
+        "prometheus",
+        "node-exporter",
+        "observabilidad",
+        "hot-spare",
+        "rebuild",
+        "resync",
+        "scrub",
+        "chaos-engineering"
+      ],
+      "tools": [
+        "terraform",
+        "mdadm",
+        "prometheus-node-exporter",
+        "curl",
+        "mkfs.ext4",
+        "lsblk",
+        "sha256sum"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": true,
+        "min_ram_mb": 1024,
+        "min_disks": 5,
+        "cloud_provider": "AWS"
+      },
+      "tested_environments": [
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Despliegue en AWS con Terraform (1 EC2 t3.micro, 5 discos EBS gp3, Prometheus Node Exporter con Textfile Collector, script demo_integrador_raid.sh, falla inducida, rebuild con hot spare y reemplazo físico)."
+        }
+      ],
+      "environments": [
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Proyecto integrador capstone de almacenamiento empresarial y observabilidad en AWS desplegado con Terraform. Aprovisiona una instancia EC2 con 5 volúmenes EBS gp3 independientes, configura un arreglo RAID 5 con write-intent bitmap y hot spare automático, expone datos para Nginx, e implementa un pipeline de observabilidad con Prometheus Node Exporter (Textfile Collector) que reporta en tiempo real métricas de salud (raid_healthy, raid_failed_disks, raid_spare_disks). Incluye inyección de caos con fallas de disco en vivo, demostración de tolerancia a desastres sin corte de servicio, reconstrucción automática y sustitución física de hardware.",
+      "files": {
+        "guide": "raid/integrador_aws/trabajo_integrador_raid.md",
+        "script": "raid/integrador_aws/demo_integrador_raid.sh",
+        "terraform": "raid/integrador_aws/terraform"
+      },
+      "resource_type": "cloud_project",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": true,
+      "execution_mode": "terraform_apply",
+      "prerequisites": [
+        "lab-3.7-raid-teoria-comparativa",
+        "lab-3.8-raid-mdadm",
+        "lab-3.6-monitoreo-metricas",
+        "integrador-4.1-servidor-web-raid-luks-borg"
       ],
       "mcp_tools": [
         "linux-labs-tutor",

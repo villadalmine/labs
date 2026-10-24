@@ -35,6 +35,11 @@ Todos los recursos disponen de **enlaces locales directos** (para navegar en tu 
   3.4 Cifrado FUSE a Nivel de Archivos con gocryptfs
   3.5 Respaldos Deduplicados y Cifrados con BorgBackup y Timers
   3.6 Monitoreo Continuo y Métricas en Producción (Node Exporter, Textfile, LVM Mirror, Tráfico y Backups)
+  3.7 RAID desde Cero: Teoría, Niveles, Metadatos, Caché y Comparativa (mdadm vs LVM vs Btrfs vs ZFS)
+  3.8 RAID con mdadm: Creación, Superbloques 1.2, Bitmaps, Hot Spares y Degradación
+  3.9 RAID con LVM (dm-raid): Sub-LVs _rmeta/_rimage, Online Resize y lvconvert --repair
+  3.10 RAID con Btrfs: Perfiles Data/Metadata, Self-Healing por Checksum, Scrub y btrfs replace
+  3.11 RAID con OpenZFS: Pools, RAIDZ sin Write-Hole, ARC/SLOG, Self-Healing y Resilvering
            │
            ▼
 [NIVEL 4: PROYECTOS INTEGRADORES EN LA NUBE (AWS & TERRAFORM)]
@@ -42,6 +47,7 @@ Todos los recursos disponen de **enlaces locales directos** (para navegar en tu 
   4.2 Integrador 2: Docker Engine LVM Hot-Mirror, MySQL RAID 1, WordPress y AWS S3 Cifrado
   4.3 Integrador 3: Almacenamiento Avanzado Btrfs (Subvolúmenes, Reflinks O(1), RAID 1 y Scrub)
   4.4 Integrador 4: ZFS Enterprise HA Activo-Pasivo, Replicación Remota y AWS ALB Failover
+  4.5 Integrador 5: Alta Disponibilidad RAID en AWS, Inyección de Fallas, Recuperación y Métricas Prometheus
 ```
 
 ---
@@ -157,6 +163,11 @@ Facilita la adición, edición o remoción de campos en lote sobre todos los arc
 | **11. Cifrado FUSE (gocryptfs)** | [`gocryptfs/gocryptfs.md`](gocryptfs/gocryptfs.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/gocryptfs/gocryptfs.md) | Guía práctica | Cifrado en espacio de usuario a nivel de archivos/directorios. Comparativa directa vs LUKS (ventajas en nubes y backup granular). |
 | **12. Respaldos y Deduplicación** | [`borg/borg.md`](borg/borg.md) · [GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/borg.md) <br> [`borg-con-systemd-timers.md`](borg/borg-con-systemd-timers.md) · [GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/borg-con-systemd-timers.md) | [`demo_borg.sh`](borg/demo_borg.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/borg/demo_borg.sh) | BorgBackup: inicialización cifrada (repokey), deduplicación por chunking, montaje FUSE (`borg mount`), retención (`prune`) y timers automáticos. |
 | **13. Monitoreo Continuo y Métricas en Producción** | [`monitoreo/monitoreo_metricas.md`](monitoreo/monitoreo_metricas.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/monitoreo/monitoreo_metricas.md) | [`demo_monitoreo.sh`](monitoreo/demo_monitoreo.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/monitoreo/demo_monitoreo.sh) | Diagnóstico puntual vs Monitoreo continuo, modelo PULL vs PUSH, Node Exporter, Textfile Collector, salud de mirrors RAID 1, peticiones HTTP, sesiones SSH y métricas de backup. |
+| **14. RAID desde Cero y Teoría Comparativa** | [`raid/raid_teoria.md`](raid/raid_teoria.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/raid_teoria.md) | [`demo_raid_teoria.sh`](raid/demo_raid_teoria.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/demo_raid_teoria.sh) | Concepto fundamental de RAID, striping, mirroring, paridad XOR con cálculo de bytes reales, superbloques, write-hole, bitmap, cachés (ARC/SLOG/write-through/write-back), bit-rot y comparativa técnica mdadm vs LVM vs Btrfs vs ZFS. |
+| **15. RAID por Software con mdadm** | [`raid/raid_mdadm.md`](raid/raid_mdadm.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/raid_mdadm.md) | [`demo_raid_mdadm.sh`](raid/demo_raid_mdadm.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/demo_raid_mdadm.sh) | Arreglos RAID 0/1/5/6/10, formato de superbloques 1.2, write-intent bitmap interno, hot spares automáticos, simulación de fallas en vivo (`--fail`), recuperación transparente por paridad XOR, reemplazo de unidades (`--remove`/`--add`) y auditoría con scrub (`mismatch_cnt`). |
+| **16. RAID con LVM (dm-raid)** | [`raid/raid_lvm.md`](raid/raid_lvm.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/raid_lvm.md) | [`demo_raid_lvm.sh`](raid/demo_raid_lvm.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/demo_raid_lvm.sh) | Integración dm-raid, sub-volúmenes ocultos de metadatos (`_rmeta`) y datos (`_rimage`), expansión en caliente (`lvextend -r`), degradación parcial de PVs y flujo de autorrecuperación en caliente con `lvconvert --repair` y `vgreduce --removemissing`. |
+| **17. RAID con Btrfs** | [`raid/raid_btrfs.md`](raid/raid_btrfs.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/raid_btrfs.md) | [`demo_raid_btrfs.sh`](raid/demo_raid_btrfs.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/demo_raid_btrfs.sh) | Perfiles independientes para datos (`-d`) y metadatos (`-m`), tolerancia a discos de tamaños asimétricos en RAID 1, advertencia del write-hole en RAID 5/6, auto-reparación silenciosa ante bit-rot por checksums CRC32C/XXHASH (*self-healing*), auditorías proactivas con `btrfs scrub` y reemplazo atómico con `btrfs replace`. |
+| **18. RAID Empresarial con OpenZFS** | [`raid/raid_zfs.md`](raid/raid_zfs.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/raid_zfs.md) | [`demo_raid_zfs.sh`](raid/demo_raid_zfs.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/demo_raid_zfs.sh) | Storage Pools (`zpool`) y VDEVs, eliminación matemática del write-hole en RAIDZ mediante franjas de ancho variable, jerarquía de cachés ARC (RAM), L2ARC (SSD) y SLOG/ZIL para escrituras síncronas, auto-curación (*self-healing*) con checksums Fletcher4 de 256 bits y reconstrucción de bloques usados (*resilvering*). |
 
 ---
 
@@ -171,6 +182,8 @@ Facilita la adición, edición o remoción de campos en lote sobre todos los arc
    [Integrador 3: Filesystem CoW]    --> Btrfs Subvolúmenes + Reflinks O(1) + Rebalance
                   │
    [Integrador 4: Enterprise HA]     --> ZFS Replicación Remota + AWS ALB Failover
+                  │
+   [Integrador 5: RAID & Metrics]    --> Resiliencia RAID 5 + 5 EBS en AWS + Prometheus Node Exporter
 ```
 
 ### 1. [Trabajo Integrador 1: Servidor Web Nginx, LVM vs mdadm RAID 1, LUKS y Borg Remoto](trabajo_integrador/trabajo_integrador.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/trabajo_integrador/trabajo_integrador.md)
@@ -217,6 +230,18 @@ Facilita la adición, edición o remoción de campos en lote sobre todos los arc
   - Simulación de caída del nodo primario y procedimiento de conmutación por error (*Failover*) con promoción de dataset en segundos.
   - Inyección de corrupción de bloques con `dd`, verificación con `zpool scrub` y demostración de auto-curación (*self-healing*).
 
+
+### 5. [Trabajo Integrador 5: Almacenamiento Empresarial RAID en AWS, Inyección de Fallas, Recuperación y Observabilidad con Métricas](raid/integrador_aws/trabajo_integrador_raid.md) · [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/integrador_aws/trabajo_integrador_raid.md)
+* **Infraestructura:** 1 EC2 Ubuntu `t3.micro` + 5 discos EBS de 1 GB (gp3) + Prometheus Node Exporter en puerto 9100 + Servicio Web Nginx.
+* **Archivos:** [`trabajo_integrador_raid.md`](raid/integrador_aws/trabajo_integrador_raid.md) | [`demo_integrador_raid.sh`](raid/integrador_aws/demo_integrador_raid.sh) ([GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/raid/integrador_aws/demo_integrador_raid.sh)) | [Directorio Terraform](raid/integrador_aws/terraform/)
+* **Qué enseña:**
+  - Aprovisionamiento declarativo con Terraform de almacenamiento multi-disco en AWS.
+  - Creación de RAID 5 con 3 discos de datos, 1 Hot Spare automático y Write-Intent Bitmap interno.
+  - Implementación de pipeline de telemetría y observabilidad en tiempo real con Prometheus Node Exporter (Textfile Collector) y Systemd Timer cada 5 segundos (`raid_healthy`, `raid_failed_disks`, `raid_spare_disks`).
+  - Inyección de caos (*Chaos Engineering*) con rotura física simulada en caliente de un volumen EBS.
+  - Demostración de cero pérdida de datos y continuidad del servicio web mediante reconstrucción al vuelo por paridad XOR.
+  - Activación automática del Hot Spare y seguimiento de métricas de resincronización.
+  - Procedimiento formal de reemplazo físico de unidad (*drive swap*) con nuevo volumen EBS y auditoría de paridad (*scrubbing*).
 ---
 
 ## 🛠️ Cómo utilizar los Scripts Educativos en Clase
