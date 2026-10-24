@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 29,
+  "total_labs": 33,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -593,6 +593,100 @@
       ]
     },
     {
+      "id": "lab-1.5-deteccion-hardware",
+      "title": "Detección, Inventario y Auditoría Forense de Hardware en Linux (lspci, lsusb, lshw, hwinfo, dmidecode, lscpu)",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales y Diagnóstico del Kernel",
+      "section": "1.5",
+      "sections": [
+        "1.5",
+        "1"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "hardware",
+        "lspci",
+        "lsusb",
+        "lshw",
+        "hwinfo",
+        "dmidecode",
+        "lscpu",
+        "inventario",
+        "auditoria",
+        "diagnostico",
+        "pci",
+        "usb",
+        "dmi",
+        "smbios",
+        "cpu"
+      ],
+      "tools": [
+        "lspci",
+        "lsusb",
+        "lshw",
+        "hwinfo",
+        "dmidecode",
+        "lscpu"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-24",
+          "notes": "Detección de dispositivos virtuales, arquitectura CPU con lscpu, extracción DMI y auditoría con lshw y hwinfo."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Compatible en instancias virtualizadas Xen y Nitro (KVM) en AWS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio exhaustivo sobre detección, inventario y diagnóstico forense de hardware en servidores Linux. Enseña a interrogar los buses físicos y lógicos mediante lspci y lsusb, analizar la microarquitectura de la CPU con lscpu, extraer metadatos de bajo nivel del firmware BIOS y placa base mediante dmidecode (DMI/SMBIOS) y generar reportes jerárquicos de inventario con lshw y hwinfo.",
+      "files": {
+        "guide": "hardware/deteccion_hardware.md",
+        "script": "hardware/demo_hardware.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.4-tools-stats"
+      ],
+      "next_recommended_labs": [
+        "lab-2.1-systemd-memlogger"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-2.1-systemd-memlogger",
       "title": "Monitoreo de Memoria con Systemd Services y Systemd Timers (Alternativa Moderna a Cron)",
       "difficulty_level": 2,
@@ -1095,6 +1189,200 @@
       ]
     },
     {
+      "id": "lab-3.12-enlaces-hard-soft-links",
+      "title": "Estructura de Enlaces en Filesystems: Hard Links, Symlinks y Operaciones Forenses con find",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.12",
+      "sections": [
+        "3.12",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "filesystems",
+        "enlaces",
+        "hardlinks",
+        "symlinks",
+        "inodos",
+        "ln",
+        "find",
+        "samefile",
+        "xtype",
+        "dentry",
+        "forense"
+      ],
+      "tools": [
+        "ln",
+        "ls",
+        "find",
+        "stat",
+        "rm",
+        "df"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-24",
+          "notes": "Demostración completa de enlaces duros, symlinks, contador nlink, aislamiento entre particiones con loop device y auditoría con find -samefile y -xtype l."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Compatible de manera nativa en cualquier sistema de archivos POSIX en AWS EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio exhaustivo sobre la estructura y semántica de enlaces en sistemas de archivos Linux. Analiza la separación entre entradas de directorio (dentry) e inodos en el VFS, creación de enlaces duros (ln) y su contador de referencias (nlink), creación de enlaces simbólicos (ln -s) relativos y absolutos, demostración práctica de las restricciones entre particiones y operaciones forenses con find (-samefile para enlaces duros y -xtype l para enlaces rotos).",
+      "files": {
+        "guide": "filesystems/enlaces_hard_soft_links.md",
+        "script": "filesystems/demo_enlaces.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems"
+      ],
+      "next_recommended_labs": [
+        "lab-3.13-mantenimiento-volumenes"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.13-mantenimiento-volumenes",
+      "title": "Diagnóstico, Mantenimiento y Reparación de Volúmenes (df, du, tune2fs, fsck, e2fsck, dumpe2fs, XFS Tools, Btrfs y badblocks)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.13",
+      "sections": [
+        "3.13",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "filesystems",
+        "mantenimiento",
+        "df",
+        "du",
+        "tune2fs",
+        "fsck",
+        "e2fsck",
+        "dumpe2fs",
+        "xfs",
+        "xfs_metadump",
+        "xfs_db",
+        "xfs_fsr",
+        "btrfs",
+        "badblocks",
+        "reparacion",
+        "forense"
+      ],
+      "tools": [
+        "df",
+        "du",
+        "tune2fs",
+        "fsck",
+        "e2fsck",
+        "dumpe2fs",
+        "xfs_metadump",
+        "xfs_db",
+        "xfs_fsr",
+        "btrfs",
+        "badblocks",
+        "sort",
+        "head"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-24",
+          "notes": "Ejecución automatizada con demo_mantenimiento_volumenes.sh sobre loop devices. Validados ext4 (tune2fs, e2fsck, dumpe2fs), XFS (metadump, xfs_db frag, fsr), Btrfs (check repair, balance) y badblocks."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Totalmente compatible en volúmenes EBS gp3 y dispositivos de bloque en AWS."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio exhaustivo de diagnóstico, mantenimiento preventivo y reparación forense de volúmenes en Linux. Cubre auditoría de espacio e inodos con df y du (top 10 archivos pesados), parametrización de superbloques ext4 con tune2fs (intervalos de comprobación y medición de particiones no montadas), consistencia con fsck, e2fsck y dumpe2fs, herramientas avanzadas de XFS (xfs_metadump, xfs_db frag, xfs_fsr), mantenimiento de Btrfs (check --repair -p y balance) y análisis de sectores defectuosos con badblocks.",
+      "files": {
+        "guide": "filesystems/mantenimiento_volumenes.md",
+        "script": "filesystems/demo_mantenimiento_volumenes.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.12-enlaces-hard-soft-links"
+      ],
+      "next_recommended_labs": [
+        "lab-3.2-lvm2-online-resize"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-3.2-lvm2-online-resize",
       "title": "Almacenamiento Lógico LVM2, Redimensionamiento en Caliente y Dispositivos Loop",
       "difficulty_level": 3,
@@ -1510,6 +1798,86 @@
       "prerequisites": [
         "lab-3.3-cifrado-luks"
       ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.5-backup-borg-systemd-timers",
+      "title": "Backup Automatizado con BorgBackup y Systemd Timers (Directiva EnvironmentFile)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "storage",
+        "backup",
+        "borg",
+        "systemd",
+        "timers",
+        "seguridad",
+        "environmentfile"
+      ],
+      "tools": [
+        "borg",
+        "systemctl",
+        "journalctl"
+      ],
+      "prerequisites": [
+        "lab-3.5-borg-backup"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-17",
+          "notes": "Configuración de EnvironmentFile con chmod 600 y timers de sistema."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-17",
+          "notes": "Totalmente compatible en AWS EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de respaldo automatizado y seguro utilizando BorgBackup y systemd timers. Destaca el uso de la directiva EnvironmentFile para resguardar BORG_PASSPHRASE con permisos 600, impidiendo la filtración de contraseñas en scripts y configurando timers con persistencia de eventos.",
+      "files": {
+        "guide": "backup/borg-con-systemd-timers.md",
+        "script": null,
+        "terraform": null
+      },
       "mcp_tools": [
         "linux-labs-tutor",
         "bash",

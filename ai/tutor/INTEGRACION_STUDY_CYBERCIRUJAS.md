@@ -1,3 +1,56 @@
+---
+id: ai-tutor-integracion-study-cybercirujas
+title: "Integración del Tutor con study.cybercirujas (RAG + MCP)"
+difficulty_level: 3
+difficulty_label: "Nivel 3: Integración Curricular y Doble Cerebro"
+section: "ai.5"
+sections:
+  - "ai.5"
+  - "ai"
+  - "cybercirujas"
+category: "reference"
+resource_type: "guide"
+has_guide: true
+has_interactive_script: false
+has_terraform: false
+execution_mode: "hybrid"
+tags:
+  - "study-cybercirujas"
+  - "lpic-1"
+  - "cka"
+  - "certificaciones"
+  - "mcp"
+  - "rag"
+  - "corpus"
+tools:
+  - "python"
+  - "git"
+  - "open-webui"
+requirements:
+  root_required: false
+  cloud_required: false
+  min_ram_mb: 2048
+  min_disks: 0
+tested_environments:
+  - environment: "WSL2"
+    type: "local"
+    instance_type: "virtualized"
+    os: "Ubuntu 24.04 LTS"
+    status: "PASSED"
+    test_date: "2026-10-24"
+    notes: "Script prepare_rag_corpus.py e integración con study-cybercirujas validados."
+environments:
+  - "WSL2"
+operating_systems:
+  - "Ubuntu 24.04 LTS"
+status: "PASSED"
+rag_summary: "Guía de integración del Tutor con el repositorio abierto study.cybercirujas. Conecta la teoría oficial de 28 certificaciones internacionales (726+ objetivos) con los 24 laboratorios prácticos de este repo mediante MCP y RAG vectorial."
+files:
+  guide: "ai/tutor/INTEGRACION_STUDY_CYBERCIRUJAS.md"
+  script: "ai/tutor/mcp/prepare_rag_corpus.py"
+  terraform: null
+---
+
 # 🧠 Integración del Tutor con study.cybercirujas (RAG + MCP)
 
 Este documento detalla la arquitectura, el despliegue local y los métodos de integración para conectar el **Tutor de IA de este repositorio (`labs`)** con la base de conocimiento abierta de [**study.cybercirujas**](https://github.com/villadalmine/study-cybercirujas).
