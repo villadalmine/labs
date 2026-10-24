@@ -46,7 +46,7 @@ def get_all_lab_files():
     """Retorna la lista ordenada de archivos Markdown de laboratorio."""
     files = []
     for md in sorted(BASE_DIR.rglob("*.md")):
-        if md.name in ("README.md", "METADATA_SPEC.md"):
+        if md.name in ("README.md", "METADATA_SPEC.md", "GLOSARIO.md"):
             continue
         files.append(md)
     return files

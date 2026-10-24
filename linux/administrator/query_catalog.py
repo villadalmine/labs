@@ -71,7 +71,7 @@ def scan_and_build_catalog():
     labs = []
     for md_file in sorted(BASE_DIR.rglob("*.md")):
         # Evitar el catálogo mismo o READMEs de soporte
-        if md_file.name in ("README.md", "METADATA_SPEC.md"):
+        if md_file.name in ("README.md", "METADATA_SPEC.md", "GLOSARIO.md"):
             continue
 
         meta, _ = extract_frontmatter(md_file)

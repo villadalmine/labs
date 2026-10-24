@@ -193,6 +193,8 @@ sudo mkdir -p /srv/storage_raid
 sudo mount /dev/md0 /srv/storage_raid
 ```
 
+> 📖 **Glosario Técnico:** Para entender exactamente qué hace `--bitmap=internal`, el costo/beneficio en escrituras y por qué acelera la recuperación de desastres tras cortes de energía, consulta [Write-Intent Bitmap en el Glosario](../../GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura).
+
 Se escriben datos críticos (`database.dat`) y se calcula su hash de integridad SHA-256 de referencia.
 
 ### Fase 2: Comprobación de Métricas en Producción

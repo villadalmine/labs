@@ -1,0 +1,10 @@
+# Configuración de variables personalizables para el despliegue
+# Renombrar o copiar a 'terraform.tfvars' según tus credenciales locales
+
+# Perfil de AWS configurado en ~/.aws/credentials (ej: "default", "personal", etc.)
+aws_profile = "personal"
+
+# Región y características de la instancia
+aws_region        = "us-east-1"
+instance_type     = "t3.micro"
+data_disk_size_gb = 1

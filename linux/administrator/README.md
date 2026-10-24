@@ -8,6 +8,18 @@ Todos los recursos disponen de **enlaces locales directos** (para navegar en tu 
 
 ---
 
+## 📖 Glosario Técnico y Base de Conocimientos
+Dispones de un [**Glosario Técnico de Almacenamiento y Resiliencia**](GLOSARIO.md) con el análisis conceptual detallado, analogías didácticas y comparativas tecnológicas de mecanismos clave:
+- [**Write-Intent Bitmap**](GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura) (`mdadm`, `_rmeta`, ZFS, Btrfs)
+- [**Write-Hole (Agujero de Escritura)**](GLOSARIO.md#write-hole-agujero-de-escritura)
+- [**Copy-on-Write (CoW)**](GLOSARIO.md#copy-on-write-cow-copia-en-escritura)
+- [**Dirty Time Logs (DTL) / TXG**](GLOSARIO.md#dirty-time-logs-dtl--transaction-groups-txg)
+- [**ZIL & SLOG**](GLOSARIO.md#zil-zfs-intent-log--slog-separate-intent-log)
+- [**Hot Spare**](GLOSARIO.md#hot-spare-disco-de-reserva-en-caliente)
+- [**Scrubbing y Resilvering**](GLOSARIO.md#scrubbing-y-resilvering)
+
+---
+
 ## 🗺️ Mapa Curricular (Ordenado por Complejidad Ascendente)
 
 ```
