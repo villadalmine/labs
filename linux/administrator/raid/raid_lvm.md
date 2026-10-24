@@ -137,6 +137,8 @@ Cuando creás un Logical Volume RAID 5 con 3 discos, LVM2 no crea un único bloq
 - **`_rmeta_X`:** Un pequeño Logical Volume (típicamente 1 Physical Extent = 4 MiB) dedicado a almacenar la cabecera del superbloque del kernel y el **write-intent bitmap**.
 - **`_rimage_X`:** El Logical Volume que contiene los datos reales o la paridad XOR correspondiente a esa pata del arreglo.
 
+> 📖 **Glosario Técnico:** Para comprender cómo gestiona LVM el mapa de bits dentro de los sub-LVs `_rmeta` y cómo evita resincronizaciones completas, consulta [Write-Intent Bitmap en el Glosario](../GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura).
+
 ---
 
 ## 2. Preparación del Entorno

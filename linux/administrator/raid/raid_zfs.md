@@ -84,6 +84,8 @@ mcp_tools:
 
 **Objetivo:** dominar el estándar de oro del almacenamiento empresarial y la integridad de datos: **OpenZFS**. Aprenderás cómo ZFS revoluciona el concepto de RAID mediante **vdevs**, cómo su diseño Copy-on-Write transaccional **elimina por completo el write-hole** sin requerir bitmaps ni diarios auxiliares, cómo opera la jerarquía de cachés (**ARC, L2ARC y SLOG/ZIL**), cómo auto-repara silenciosamente bloques corruptos (*self-healing*) y cómo gestiona la reconstrucción acelerada (*resilvering*) ante fallos de hardware.
 
+> 📖 **Glosario Técnico:** ¿Por qué ZFS no necesita write-intent bitmaps tradicionales y en qué se diferencia el ZIL? Consulta la comparativa en [Write-Intent Bitmap en el Glosario](../GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura).
+
 **Requisitos:** permisos de root y soporte de OpenZFS (`zfsutils-linux`). Debido a la licencia CDDL de OpenZFS, el módulo no se incluye por defecto en el kernel estándar provisto por Microsoft en WSL2; se recomienda ejecutar en una VM de Ubuntu en VirtualBox, en una instancia EC2 de AWS o en Linux Bare-Metal.
 
 ---

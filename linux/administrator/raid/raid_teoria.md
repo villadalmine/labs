@@ -195,6 +195,8 @@ Soluciones por herramienta:
 | **Copy-on-Write transaccional** (ZFS RAIDZ) | Nunca sobrescribe: franjas de ancho variable y commit atómico → **no tiene write-hole**. |
 | **Btrfs RAID5/6** | ⚠️ Aún con write-hole conocido: **no usar en producción** para RAID5/6. RAID1/10 sí son estables. |
 
+> 📖 **Glosario Técnico:** Para profundizar en el funcionamiento interno del mapa de bits, la analogía de la enciclopedia de 10.000 páginas y la comparativa exhaustiva frente a ZFS y Btrfs, consulta la entrada [Write-Intent Bitmap en el Glosario](../GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura).
+
 ### 3.3 Cachés
 Hay varias capas y conviene no confundirlas:
 

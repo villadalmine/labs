@@ -124,6 +124,8 @@ Cuando se escribe en RAID 1 o RAID 5/6, actualizar el dato y la paridad toma var
 - **Sin bitmap:** El kernel no sabe qué sectores estaban a mitad de escritura. Debe escanear y resincronizar el **100% de la capacidad de todos los discos** (en arreglos de 10 TB, esto puede tardar 20 horas).
 - **Con bitmap (`--bitmap=internal`):** El kernel divide el disco en chunks lógicos (ej. 64 MiB) y mantiene un mapa de bits en el superbloque. Antes de escribir en un chunk, marca su bit en `1`. Al terminar, lo vuelve a `0`. Tras un reinicio forzado, solo resincroniza los chunks marcados con `1` (demora **segundos**).
 
+> 📖 **Glosario Técnico:** Consulta el [análisis detallado del Write-Intent Bitmap en el Glosario](../GLOSARIO.md#write-intent-bitmap-mapa-de-bits-de-intención-de-escritura) para conocer la analogía del "post-it en la enciclopedia", el impacto en rendimiento y su comparativa frente a ZFS y Btrfs.
+
 ---
 
 ## 2. Preparación del Laboratorio (WSL2 / Linux)
