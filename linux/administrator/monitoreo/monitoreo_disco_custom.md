@@ -31,7 +31,9 @@ tools:
 - awk
 - curl
 - node_exporter
+- prometheus
 - grafana
+- apt
 - bash
 requirements:
   root_required: true
@@ -46,21 +48,21 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-24'
-  notes: Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Reutiliza el binario de Node Exporter levantado en lab-3.6 sin necesidad de reinstalar.
+  notes: 'Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Soporta 3 rutas de despliegue: reutilización de lab-3.6, instalación nativa vía APT (Ubuntu/Debian) o binarios portables en /tmp.'
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-24'
-  notes: Probado con volúmenes ext4 y XFS en instancias EC2.
+  notes: Probado con volúmenes ext4 y XFS en instancias EC2 con Grafana local y aprovisionamiento automático de datasources.
 environments:
 - WSL2
 - AWS EC2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y construye paneles y consultas PromQL en Grafana.
+rag_summary: Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Explica tres alternativas de preparación (reutilizar laboratorios previos, instalar nativamente con APT como servicios systemd o usar binarios portables), despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y guía la instalación de Grafana y la construcción de paneles y consultas PromQL.
 files:
   guide: monitoreo/monitoreo_disco_custom.md
   script: monitoreo/scripts/colector_disco.sh
@@ -83,25 +85,73 @@ En el laboratorio de **[Mantenimiento de Volúmenes (Lab 3.13)](../filesystems/m
 En el laboratorio de **[Monitoreo Continuo (Lab 3.6)](monitoreo_metricas.md)** aprendiste a recolectar métricas usando **Prometheus Node Exporter** y su mecanismo de **Textfile Collector**.
 
 Este laboratorio conecta ambos mundos:
-1. Diseña un **recolector en Bash** que extrae el espacio total, usado, libre, tipo de filesystem e inodos.
-2. Formatea los datos según la especificación abierta de **Prometheus / OpenMetrics** usando etiquetas semánticas (`mountpoint`, `fstype`, `device`).
-3. Expone las métricas vía **Node Exporter** en `:9100/metrics` y las audita con `curl`.
-4. Define las consultas **PromQL** y la visualización recomendada en paneles de **Grafana**.
+1. Te da la opción de **reutilizar lo que ya tenés corriendo**, **instalar con APT** como servicios permanentes, o usar **binarios portables**.
+2. Diseña un **recolector en Bash** que extrae el espacio total, usado, libre, tipo de filesystem e inodos.
+3. Formatea los datos según la especificación abierta de **Prometheus / OpenMetrics** usando etiquetas semánticas (`mountpoint`, `fstype`, `device`).
+4. Expone las métricas vía **Node Exporter** en `:9100/metrics` y las audita con `curl`.
+5. Guía la instalación de **Grafana** (con aprovisionamiento automático de Datasource) y define las consultas **PromQL** y paneles recomendados.
 
 ---
 
-> [!TIP]
-> ### 💡 Reutilización del Entorno (No reinstales todo)
-> Si ya ejecutaste el **Lab 3.6** (`demo_monitoreo.sh --keep` o servicio systemd activo):
-> - **Node Exporter ya está corriendo** en el puerto TCP `9100`.
-> - El directorio `/var/lib/node_exporter/textfile_collector` ya está creado.
-> 
-> Podés pasar directamente a ejecutar el colector de disco. Si no está activo, iniciarlo toma solo 10 segundos:
-> ```bash
-> sudo mkdir -p /var/lib/node_exporter/textfile_collector
-> # Si ya tenés el binario descargado de lab-3.6:
-> /tmp/node_exporter-1.8.2.linux-amd64/node_exporter --collector.textfile.directory=/var/lib/node_exporter/textfile_collector &
-> ```
+## ⚙️ 0. Preparación del Entorno: Elige tu Camino
+
+Para no obligarte a reinstalar herramientas si ya las tenés configuradas, podés elegir cualquiera de las siguientes **3 alternativas**:
+
+```
++───────────────────────────────────────────────────────────────────────────────────────────+
+| ¿CÓMO DESEAS PREPARAR TU ENTORNO?                                                         |
+|                                                                                           |
+|  [ RUTA A: Reutilizar Labs Anteriores ]                                                   |
+|   • Si ya ejecutaste el Lab 3.6 (demo_monitoreo.sh --keep)                                |
+|   • Node Exporter ya está activo en :9100 con el directorio textfile listo.               |
+|   ➔ ¡Saltás directo a la Sección 2! No instalás absolutamente nada.                       |
+|                                                                                           |
+|  [ RUTA B: Instalación Nativa con APT (Estándar Servidor / Producción) ]                  |
+|   • Ideal si querés Prometheus y Node Exporter instalados como servicios systemd.         |
+|   • Comandos: sudo apt update && sudo apt install -y prometheus prometheus-node-exporter  |
+|                                                                                           |
+|  [ RUTA C: Binarios Portátiles / Standalone en /tmp (Modo Lab Descartable) ]              |
+|   • Descarga directa de binarios Go oficiales en /tmp.                                    |
+|   • No requiere apt, no deja servicios residentes, ideal para WSL2 o máquinas prestadas. |
++───────────────────────────────────────────────────────────────────────────────────────────+
+```
+
+### Detalle de la Ruta B: Instalación con APT en Ubuntu / Debian
+Si preferís instalar Prometheus y Node Exporter mediante los repositorios oficiales de tu distribución:
+
+```bash
+# 1. Instalar Prometheus y Node Exporter
+sudo apt update
+sudo apt install -y prometheus prometheus-node-exporter
+
+# 2. Configurar el directorio del Textfile Collector en Node Exporter de Ubuntu:
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+sudo chown -R prometheus:prometheus /var/lib/node_exporter/textfile_collector 2>/dev/null || true
+
+# En Ubuntu/Debian, los argumentos se definen en /etc/default/prometheus-node-exporter:
+echo 'ARGS="--collector.textfile.directory=/var/lib/node_exporter/textfile_collector"' | sudo tee -a /etc/default/prometheus-node-exporter
+sudo systemctl restart prometheus-node-exporter
+
+# 3. Comprobar que Prometheus scrapea al puerto 9100:
+# En /etc/prometheus/prometheus.yml ya viene preconfigurado el target localhost:9100
+sudo systemctl restart prometheus
+sudo systemctl status prometheus-node-exporter --no-pager
+```
+
+### Detalle de la Ruta C: Binarios Portátiles en `/tmp`
+Si preferís binarios estáticos ultralivianos sin tocar APT:
+```bash
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+
+# Si no tenés el binario de lab-3.6:
+VER="1.8.2"
+if [ ! -f "/tmp/node_exporter" ]; then
+    curl -sL "https://github.com/prometheus/node_exporter/releases/download/v${VER}/node_exporter-${VER}.linux-amd64.tar.gz" | tar -xz -C /tmp/
+    mv /tmp/node_exporter-${VER}.linux-amd64/node_exporter /tmp/node_exporter
+fi
+
+/tmp/node_exporter --collector.textfile.directory=/var/lib/node_exporter/textfile_collector --web.listen-address=":9100" &
+```
 
 ---
 
@@ -262,11 +312,76 @@ custom_disk_inodes_usage_percent{device="/dev/sda1",mountpoint="/",fstype="ext4"
 
 ---
 
-## 📊 5. Visualización en Grafana
+## 📊 5. Instalación y Visualización en Grafana
 
-Con Prometheus scrapeando a Node Exporter (`http://localhost:9100`), podemos construir un dashboard en Grafana en minutos.
+Para visualizar las métricas en un panel gráfico necesitás Grafana escuchando en el puerto `3000`.
 
-### Panel 1: Gauge de Espacio Ocupado (%)
+### 5.1 Cómo instalar y levantar Grafana (Elige una opción)
+
+#### Opción A: Binario Standalone / Tarball (Recomendada para Labs y WSL2)
+*No requiere permisos permanentes ni repositorios extras. Se ejecuta en `/tmp` y no deja servicios residentes.*
+
+```bash
+cd /tmp
+curl -sL https://dl.grafana.com/oss/release/grafana-11.2.0.linux-amd64.tar.gz | tar -xz
+cd grafana-v11.2.0/bin
+./grafana server &
+```
+
+#### Opción B: Docker en 1 solo comando
+```bash
+docker run -d --name=grafana -p 3000:3000 grafana/grafana-oss:latest
+```
+
+#### Opción C: Instalación con APT oficial en Ubuntu / Debian (Como Servicio Systemd)
+```bash
+sudo apt-get install -y apt-transport-https software-properties-common wget gpg
+sudo mkdir -p /etc/apt/keyrings/
+wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update
+sudo apt-get install -y grafana
+sudo systemctl enable --now grafana-server
+```
+
+---
+
+### 5.2 Tip de Sysadmin: Aprovisionamiento Automático de Datasource
+
+Para no perder tiempo entrando a la interfaz web a conectar Prometheus manualmente, podés dejar creado este archivo YAML de aprovisionamiento:
+
+```bash
+# Si usás APT/Systemd (/etc/grafana):
+sudo mkdir -p /etc/grafana/provisioning/datasources/
+sudo bash -c 'cat <<EOF > /etc/grafana/provisioning/datasources/prometheus.yaml
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://localhost:9090
+    isDefault: true
+EOF'
+
+# Si usás el binario standalone en /tmp:
+# Creá la misma carpeta en: /tmp/grafana-v11.2.0/conf/provisioning/datasources/prometheus.yaml
+```
+
+Cuando Grafana inicie, Prometheus ya estará conectado y listo para usar.
+
+---
+
+### 5.3 Primer Acceso Web
+1. Abrí tu navegador en **`http://localhost:3000`**
+2. **Usuario:** `admin` | **Contraseña inicial:** `admin` *(podés presionar "Skip" para cambiarla luego)*.
+
+---
+
+### 5.4 Construcción de Paneles en Grafana
+
+Hacé clic en **Dashboards ➔ New Dashboard ➔ Add visualization**, seleccioná el origen de datos **Prometheus** y configurá estos 3 paneles:
+
+#### Panel 1: Gauge de Espacio Ocupado (%)
 - **Tipo de Panel:** Gauge
 - **Consulta PromQL:**
   ```promql
@@ -278,7 +393,7 @@ Con Prometheus scrapeando a Node Exporter (`http://localhost:9100`), podemos con
   - Amarillo: 70%
   - Rojo: 85%
 
-### Panel 2: Stat Panel de Inodos Ocupados (%) — Diagnóstico Preventivo
+#### Panel 2: Stat Panel de Inodos Ocupados (%) — Diagnóstico Preventivo
 - **Tipo de Panel:** Stat
 - **Consulta PromQL:**
   ```promql
@@ -286,7 +401,7 @@ Con Prometheus scrapeando a Node Exporter (`http://localhost:9100`), podemos con
   ```
 - **Propósito:** Detectar el problema del Lab 3.13: si este panel marca 95% en rojo pero el Gauge de espacio marca 20%, sabés al instante que el disco colapsará por inodos.
 
-### Panel 3: Tabla General de Filesystems del Sistema
+#### Panel 3: Tabla General de Filesystems del Sistema
 - **Tipo de Panel:** Table
 - **Consulta PromQL:**
   ```promql
@@ -319,7 +434,8 @@ Un timer de systemd ejecutando el script cada 30 segundos sin depender del daemo
 ## 🎯 Conclusión del Laboratorio
 
 Completando este laboratorio lograste:
-1. Traducir la teoría de volúmenes y superbloques (`df -h`, inodos `df -i`, tipos de filesystem) en métricas estándar de producción.
-2. Exponerlas a través del **Textfile Collector** sin sobrecargar el servidor con daemons pesados.
-3. Consultar y auditar la salida cruda con `curl`.
-4. Armar paneles en Grafana para alertar visualmente tanto la falta de espacio como la saturación de inodos.
+1. Conocer las **3 vías de despliegue**: reutilizar el entorno, instalar mediante paquetes de distribución con APT, o usar binarios portables sin instalación.
+2. Traducir la teoría de volúmenes y superbloques (`df -h`, inodos `df -i`, tipos de filesystem) en métricas estándar de producción.
+3. Exponerlas a través del **Textfile Collector** sin sobrecargar el servidor con daemons pesados.
+4. Consultar y auditar la salida cruda con `curl`.
+5. Levantar Grafana con aprovisionamiento automático y armar paneles para alertar visualmente tanto la falta de espacio como la saturación de inodos.

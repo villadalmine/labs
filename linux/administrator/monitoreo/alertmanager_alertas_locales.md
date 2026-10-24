@@ -27,6 +27,7 @@ tools:
 - prometheus
 - python3
 - curl
+- apt
 - bash
 requirements:
   root_required: true
@@ -41,7 +42,7 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-24'
-  notes: Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Simulación exitosa de agotamiento de inodos y resolución automática sin requerir SMTP ni Slack.
+  notes: Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Soporta ejecución con binarios independientes en /tmp o servicios nativos instalados vía APT en Ubuntu/Debian.
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
@@ -55,7 +56,7 @@ environments:
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos (vinculadas al laboratorio de mantenimiento de volúmenes), simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.
+rag_summary: Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Permite usar tanto servicios instalados vía APT como binarios portables, implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos, simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.
 files:
   guide: monitoreo/alertmanager_alertas_locales.md
   script: monitoreo/scripts/webhook_receiver.py
@@ -88,7 +89,8 @@ Además, conecta con los incidentes de almacenamiento vistos en **[Mantenimiento
 > [!TIP]
 > ### 💡 Reutilización del Entorno de Laboratorios Anteriores
 > - Si ya completaste el **Lab 3.6** o el **Lab 3.14**, tu agente **Node Exporter** ya está ejecutándose en el puerto `:9100` y emitiendo las métricas de disco (`custom_disk_inodes_usage_percent` y `custom_disk_usage_percent`).
-> - No necesitás volver a instalar ni configurar Node Exporter. Solo levantaremos Prometheus y Alertmanager.
+> - No necesitás volver a instalar ni configurar Node Exporter.
+> - Podés elegir entre ejecutar Prometheus y Alertmanager con los **binarios en `/tmp`** (rápido, sin instalar nada permanente) o mediante **paquetes APT** (`apt install prometheus prometheus-alertmanager`).
 
 ---
 
@@ -175,18 +177,24 @@ Dejá esa terminal visible para observar la llegada de notificaciones.
 
 ### Paso 2: Iniciar Alertmanager en Terminal 2
 
-Descargá y ejecutá Alertmanager (o usá el binario si ya está instalado):
+Podés elegir entre dos métodos:
 
+#### Opción A: Binario Portable en `/tmp` (Recomendada para pruebas rápidas)
 ```bash
-# Descarga rápida del binario estático oficial (solo una vez):
 VER_AM="0.27.0"
 if [ ! -f "/tmp/alertmanager" ]; then
     curl -sL "https://github.com/prometheus/alertmanager/releases/download/v${VER_AM}/alertmanager-${VER_AM}.linux-amd64.tar.gz" | tar -xz -C /tmp/
     mv /tmp/alertmanager-${VER_AM}.linux-amd64/alertmanager /tmp/alertmanager
 fi
 
-# Lanzar Alertmanager con nuestra configuración local:
 /tmp/alertmanager --config.file=alertmanager.yml --web.listen-address="0.0.0.0:9093"
+```
+
+#### Opción B: Si usás APT (`sudo apt install prometheus-alertmanager`)
+```bash
+sudo apt install -y prometheus-alertmanager
+sudo cp alertmanager.yml /etc/prometheus/alertmanager.yml
+sudo systemctl restart prometheus-alertmanager
 ```
 
 > [!NOTE]
@@ -217,9 +225,8 @@ scrape_configs:
       - targets: ["127.0.0.1:9100"]
 ```
 
-Lanzá Prometheus:
+#### Opción A: Binario Portable en `/tmp`
 ```bash
-# Descarga rápida del binario de Prometheus si no existe:
 VER_PROM="2.54.1"
 if [ ! -f "/tmp/prometheus" ]; then
     curl -sL "https://github.com/prometheus/prometheus/releases/download/v${VER_PROM}/prometheus-${VER_PROM}.linux-amd64.tar.gz" | tar -xz -C /tmp/
@@ -227,6 +234,15 @@ if [ ! -f "/tmp/prometheus" ]; then
 fi
 
 /tmp/prometheus --config.file=prometheus.yml --web.listen-address="0.0.0.0:9090"
+```
+
+#### Opción B: Si usás APT (`sudo apt install prometheus`)
+```bash
+sudo apt install -y prometheus
+sudo cp alert_rules.yml /etc/prometheus/
+# Modificá /etc/prometheus/prometheus.yml para añadir rule_files: ["alert_rules.yml"]
+# y alerting targets: ["127.0.0.1:9093"], luego:
+sudo systemctl restart prometheus
 ```
 
 ---

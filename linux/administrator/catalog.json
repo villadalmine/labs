@@ -1417,7 +1417,9 @@
         "awk",
         "curl",
         "node_exporter",
+        "prometheus",
         "grafana",
+        "apt",
         "bash"
       ],
       "requirements": {
@@ -1435,7 +1437,7 @@
           "kernel": "6.18.54.1-microsoft-standard-WSL2",
           "status": "PASSED",
           "test_date": "2026-10-24",
-          "notes": "Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Reutiliza el binario de Node Exporter levantado en lab-3.6 sin necesidad de reinstalar."
+          "notes": "Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Soporta 3 rutas de despliegue: reutilización de lab-3.6, instalación nativa vía APT (Ubuntu/Debian) o binarios portables en /tmp."
         },
         {
           "environment": "AWS EC2",
@@ -1444,7 +1446,7 @@
           "os": "Ubuntu 24.04 LTS",
           "status": "VERIFIED",
           "test_date": "2026-10-24",
-          "notes": "Probado con volúmenes ext4 y XFS en instancias EC2."
+          "notes": "Probado con volúmenes ext4 y XFS en instancias EC2 con Grafana local y aprovisionamiento automático de datasources."
         }
       ],
       "environments": [
@@ -1455,7 +1457,7 @@
         "Ubuntu 24.04 LTS"
       ],
       "status": "PASSED",
-      "rag_summary": "Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y construye paneles y consultas PromQL en Grafana.",
+      "rag_summary": "Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Explica tres alternativas de preparación (reutilizar laboratorios previos, instalar nativamente con APT como servicios systemd o usar binarios portables), despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y guía la instalación de Grafana y la construcción de paneles y consultas PromQL.",
       "files": {
         "guide": "monitoreo/monitoreo_disco_custom.md",
         "script": "monitoreo/scripts/colector_disco.sh",
@@ -1505,6 +1507,7 @@
         "prometheus",
         "python3",
         "curl",
+        "apt",
         "bash"
       ],
       "requirements": {
@@ -1522,7 +1525,7 @@
           "kernel": "6.18.54.1-microsoft-standard-WSL2",
           "status": "PASSED",
           "test_date": "2026-10-24",
-          "notes": "Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Simulación exitosa de agotamiento de inodos y resolución automática sin requerir SMTP ni Slack."
+          "notes": "Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Soporta ejecución con binarios independientes en /tmp o servicios nativos instalados vía APT en Ubuntu/Debian."
         },
         {
           "environment": "AWS EC2",
@@ -1542,7 +1545,7 @@
         "Ubuntu 24.04 LTS"
       ],
       "status": "PASSED",
-      "rag_summary": "Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos (vinculadas al laboratorio de mantenimiento de volúmenes), simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.",
+      "rag_summary": "Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Permite usar tanto servicios instalados vía APT como binarios portables, implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos, simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.",
       "files": {
         "guide": "monitoreo/alertmanager_alertas_locales.md",
         "script": "monitoreo/scripts/webhook_receiver.py",
