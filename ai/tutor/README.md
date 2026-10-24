@@ -260,6 +260,19 @@ La mayoría de los administradores y desarrolladores escriben sus scripts en un 
 ### 🤔 ¿Qué es esto en palabras sencillas?
 Aquí ocurre el salto conceptual más importante del curso: **comprender qué hace que un modelo de IA pase de ser un "loro que habla" a convertirse en un "Agente que actúa"**, y qué medidas de seguridad se requieren para que un agente no destruya un servidor de producción.
 
+<p align="center">
+  <img src="assets/anatomy_of_an_ai_agent.jpg" alt="Anatomía de un Agente de IA: Del LLM a las Manos" width="720px">
+</p>
+
+> [!NOTE] 🧠 Metáfora Biológica de la Arquitectura de un Agente
+> * **LLM = El Cerebro (*The Brain*):** Lee, escribe y razona. Es el motor fundacional, pero por sí solo no conoce los servidores ni los datos de tu empresa.
+> * **RAG = Cerebro + Biblioteca (*Brain + Library*):** Consulta la documentación y el código antes de responder. Basa sus conclusiones en datos reales verificados, eliminando las alucinaciones.
+> * **MCP = El Sistema Nervioso (*The Nervous System*):** El enchufe estándar de la industria que transporta señales entre el cerebro y tus herramientas o servicios locales.
+> * **Skills = Memoria Muscular (*Muscle Memory*):** Procedimientos, directivas y guías guardadas una sola vez y ejecutadas siempre de forma consistente sin tener que re-explicar la tarea.
+> * **AI Agent = Cerebro + Manos (*Brain + Hands*):** Planifica los pasos necesarios y luego los ejecuta activamente a través de tus herramientas de terminal y APIs.
+
+A continuación, se detalla el flujo de ejecución completo desde que el usuario emite una orden hasta que el comando se evalúa en el arnés de seguridad:
+
 ```mermaid
 flowchart TD
     Usuario["Estudiante / SysAdmin"]
@@ -403,11 +416,21 @@ Gracias a la técnica de **[cuantización](GLOSARIO.md#cuantizacion-quantization
 * Un modelo de 3.2 mil millones de parámetros (`llama3.2:3b`) **pesa únicamente 2.0 GB de memoria RAM**.
 * Gracias a las instrucciones vectoriales de los procesadores modernos ([AVX2 / AVX-512 / ARM NEON](GLOSARIO.md#avx2--avx-512--arm-neon)), corre a velocidades de **30 a 50 palabras por segundo en un procesador Intel o AMD estándar, sin necesidad de tarjeta gráfica dedicada (GPU)**.
 
-### ⚙️ Motores de Inferencia Local
-* **[Ollama](GLOSARIO.md#ollama):** El motor local más amigable. Se instala con un instalador o un comando, descarga modelos (`ollama pull`) y levanta un servidor HTTP local en el puerto `11434`.
-* **[vLLM](GLOSARIO.md#vllm):** Servidor de alto rendimiento para producción empresarial basado en la gestión de memoria **[PagedAttention](GLOSARIO.md#pagedattention)**.
-* **[SGLang](GLOSARIO.md#sglang):** Motor ultrarrápido para grafos de ejecución de modelos y esquemas JSON estructurados.
-* **[AnythingLLM](GLOSARIO.md#anythingllm) y [Open WebUI](GLOSARIO.md#open-webui):** Aplicaciones web completas que se conectan a estos motores para chatear y buscar sobre documentos ([RAG](GLOSARIO.md#rag-retrieval-augmented-generation)).
+### ⚙️ Motores de Inferencia Local: Ollama vs vLLM vs SGLang
+
+Para ejecutar modelos localmente sin depender de la nube, la industria se ha consolidado en torno a tres arquitecturas de referencia según el caso de uso:
+
+<p align="center">
+  <img src="assets/ollama_vs_vllm_vs_sglang.jpg" alt="Comparativa de Motores de Inferencia: Ollama vs vLLM vs SGLang" width="720px">
+</p>
+
+| Motor de Inferencia | Arquitectura y Gestión de Memoria | Mejor Para (*Best For*) | Caso de Uso en este Curso |
+| :--- | :--- | :--- | :--- |
+| **🦙 Ollama** | Cola FIFO simple de peticiones, modelos cuantizados en formato **GGUF** vía `llama.cpp` o MLX en Apple Silicon. | Desarrollo local, prototipado rápido, laptops y computadoras sin GPU dedicada. | **El motor elegido para nuestro Tutor Soberano** en CPU y RAM (Clase 7). |
+| **⚡ vLLM** | *Continuous batching* (agrupamiento continuo de peticiones) y **[PagedAttention](GLOSARIO.md#pagedattention)** (memoria KV Cache paginada estilo SO). | Servir APIs con alta concurrencia de múltiples usuarios simultáneos y máximo rendimiento en clusters de GPUs. | Despliegue corporativo en servidores dedicados de producción con alto tráfico. |
+| **🔀 SGLang** | Enrutador consciente de caché (*Cache-aware router*), **RadixAttention** (reutilización de prefijos compartidos en árbol radix) y salidas JSON forzadas. | Agentes autónomos con bucles de herramientas (*tool loops*), chats multironda y consultas complejas de **RAG**. | Orquestaciones de multi-agentes que comparten prompts de sistema extensos. |
+
+* **[AnythingLLM](GLOSARIO.md#anythingllm) y [Open WebUI](GLOSARIO.md#open-webui):** Aplicaciones web completas que actúan como interfaz gráfica visual conectándose a estos motores locales para chatear y buscar sobre documentos ([RAG](GLOSARIO.md#rag-retrieval-augmented-generation)).
 
 > [!TIP] Guía Detallada de Hardware de Ollama
 > Para aprender a instalarlo en Windows/Linux/Mac, auditar qué componente usa con `ollama ps` o forzar 100% de uso de CPU, consulta la guía especializada: [**`GUIA_OLLAMA_HARDWARE.md`**](GUIA_OLLAMA_HARDWARE.md).
