@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 33,
+  "total_labs": 35,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -1375,6 +1375,185 @@
       ],
       "next_recommended_labs": [
         "lab-3.2-lvm2-online-resize"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.14-monitoreo-disco-custom",
+      "title": "Métricas de Disco, Filesystems e Inodos con Textfile Collector y Grafana",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.14",
+      "sections": [
+        "3.14",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "filesystems",
+        "inodos",
+        "df",
+        "node-exporter",
+        "textfile-collector",
+        "prometheus",
+        "grafana",
+        "observability",
+        "ext4",
+        "xfs",
+        "btrfs"
+      ],
+      "tools": [
+        "df",
+        "awk",
+        "curl",
+        "node_exporter",
+        "grafana",
+        "bash"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-24",
+          "notes": "Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Reutiliza el binario de Node Exporter levantado en lab-3.6 sin necesidad de reinstalar."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Probado con volúmenes ext4 y XFS en instancias EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y construye paneles y consultas PromQL en Grafana.",
+      "files": {
+        "guide": "monitoreo/monitoreo_disco_custom.md",
+        "script": "monitoreo/scripts/colector_disco.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.6-monitoreo-metricas",
+        "lab-3.13-mantenimiento-volumenes"
+      ],
+      "next_recommended_labs": [
+        "lab-3.15-alertmanager-alertas-locales"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.15-alertmanager-alertas-locales",
+      "title": "Gestión y Disparo de Alertas con Prometheus y Alertmanager (Receptor Local en Terminal sin Dependencias Externas)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.15",
+      "sections": [
+        "3.15",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "observability",
+        "prometheus",
+        "alertmanager",
+        "alertas",
+        "webhook",
+        "inodos",
+        "disk-space",
+        "incident-response"
+      ],
+      "tools": [
+        "alertmanager",
+        "prometheus",
+        "python3",
+        "curl",
+        "bash"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-24",
+          "notes": "Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Simulación exitosa de agotamiento de inodos y resolución automática sin requerir SMTP ni Slack."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-24",
+          "notes": "Compatible en instancias EC2 sin requerir apertura de puertos de correo (puerto 25/587 bloqueado por proveedores de nube)."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos (vinculadas al laboratorio de mantenimiento de volúmenes), simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.",
+      "files": {
+        "guide": "monitoreo/alertmanager_alertas_locales.md",
+        "script": "monitoreo/scripts/webhook_receiver.py",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.6-monitoreo-metricas",
+        "lab-3.14-monitoreo-disco-custom"
+      ],
+      "next_recommended_labs": [
+        "integrador-4.5-raid-metrics-prometheus"
       ],
       "mcp_tools": [
         "linux-labs-tutor",

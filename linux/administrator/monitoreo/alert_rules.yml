@@ -1,0 +1,22 @@
+groups:
+  - name: storage_and_filesystem_alerts
+    rules:
+      # Alerta 1: Espacio en disco crítico (>85%)
+      - alert: DiscoEspacioCritico
+        expr: custom_disk_usage_percent > 85
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Espacio crítico en partición {{ $labels.mountpoint }}"
+          description: "El sistema de archivos {{ $labels.mountpoint }} ({{ $labels.fstype }} en {{ $labels.device }}) superó el 85% de uso (actual: {{ $value }}%)."
+
+      # Alerta 2: Inodos agotándose (>80%) — Escenario clave de mantenimiento_volumenes.md
+      - alert: DiscoInodosAgotados
+        expr: custom_disk_inodes_usage_percent > 80
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Inodos casi agotados en {{ $labels.mountpoint }}"
+          description: "El sistema de archivos {{ $labels.mountpoint }} ({{ $labels.fstype }} en {{ $labels.device }}) tiene más del 80% de inodos ocupados (actual: {{ $value }}%). No se podrán crear nuevos archivos a pesar de tener espacio en bloques libre."
