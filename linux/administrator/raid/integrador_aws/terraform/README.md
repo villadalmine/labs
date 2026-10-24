@@ -8,14 +8,30 @@ Este directorio contiene las definiciones de **Terraform** para levantar un ento
   - 1 Disco asignado como **Hot Spare** automático.
   - 1 Disco asignado para reemplazo físico tras contingencias.
 - **Servicio Web Nginx** y **Prometheus Node Exporter** (puerto 9100) preconfigurado con recolector de métricas de telemetría RAID por Systemd Timer.
+- **Perfil AWS:** `personal` por defecto (configurable en `variables.tf`).
 
 ---
 
 ## 🚀 Despliegue Paso a Paso
 
-### 1. Prerrequisitos
+### 1. Prerrequisitos y Configuración de Credenciales AWS
 - Cuenta de AWS activa y credenciales configuradas (`aws configure`).
 - Terraform >= 1.5.0 instalado.
+
+> [!IMPORTANT]
+> **Configuración del perfil de AWS (`aws_profile`)**:
+> El provider de AWS en `providers.tf` utiliza la variable `aws_profile` (con valor por defecto `"personal"`).
+> Si en tu entorno local utilizas el perfil estándar `default` u otro diferente:
+> 1. Modificá `variables.tf` cambiando `default = "default"` en `aws_profile`, o
+> 2. Copiá `terraform.tfvars.example` a `terraform.tfvars` y definí tu perfil:
+>    ```hcl
+>    aws_profile = "default"
+>    ```
+> 3. O bien pásalo como argumento en la ejecución:
+>    ```bash
+>    terraform apply -var="aws_profile=default" -auto-approve
+>    ```
+> Esto evitará errores de autenticación como `InvalidClientTokenId`.
 
 ### 2. Inicializar y Aplicar
 ```bash

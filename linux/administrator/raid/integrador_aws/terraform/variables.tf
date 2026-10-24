@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_profile" {
+  description = "Perfil de AWS CLI configurado en tu máquina (~/.aws/credentials). Modificar por 'default' u otro perfil si no usas 'personal' para evitar errores de autenticación (InvalidClientTokenId)."
+  type        = string
+  default     = "personal"
+}
+
 variable "instance_type" {
   description = "Tipo de instancia EC2 (apta para Free Tier de AWS)"
   type        = string
