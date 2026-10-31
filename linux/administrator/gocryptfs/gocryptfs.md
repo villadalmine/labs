@@ -154,3 +154,13 @@ gocryptfs ~/datos_cifrados ~/datos_visibles
 ```
 
 Y luego trabajas en `~/datos_visibles`.
+
+
+---
+
+## 🔗 Enlaces Oficiales de Referencia
+
+- [Sitio Oficial de gocryptfs](https://nuetzlich.net/gocryptfs/)
+- [Repositorio GitHub Upstream rfjakob/gocryptfs](https://github.com/rfjakob/gocryptfs)
+- [Auditoría de Seguridad y Criptografía de gocryptfs](https://nuetzlich.net/gocryptfs/security/)
+- [Manual de libfuse y FUSE en el Kernel de Linux](https://docs.kernel.org/filesystems/fuse.html)

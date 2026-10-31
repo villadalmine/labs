@@ -1,0 +1,234 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "🛡️ 1. ESTADO CRÍTICO DE ALMACENAMIENTO Y SERVICIO WEB",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Salud del Espejo LVM RAID 1 (/dev/vg_web/lv_html)",
+      "type": "stat",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "lvm_mirror_health{vg=\"vg_web\",lv=\"lv_html\"}",
+          "refId": "A",
+          "legendFormat": "Estado del Espejo"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": { "text": "🟢 SANO (Óptimo)", "color": "green" },
+                "0": { "text": "🔴 DEGRADADO (Falla de Disco)", "color": "red" }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Peticiones Web Servidas (Total Acumulado)",
+      "type": "stat",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "web_requests_total",
+          "refId": "A",
+          "legendFormat": "Peticiones HTTP"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Espacio Libre en Filesystem (/var/www/html_lab)",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "node_filesystem_avail_bytes{mountpoint=\"/var/www/html_lab\"} / 1024 / 1024",
+          "refId": "A",
+          "legendFormat": "Libre (MB)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "min": 0,
+          "max": 250,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 30 },
+              { "color": "green", "value": 60 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 8 },
+      "id": 101,
+      "title": "📈 2. TRÁFICO HTTP EN VIVO Y RENDIMIENTO DE SISTEMA",
+      "type": "row"
+    },
+    {
+      "id": 4,
+      "title": "Tráfico Web en Tiempo Real (Peticiones por Segundo)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(web_requests_total[1m])",
+          "refId": "A",
+          "legendFormat": "req/s recibidas"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "fillOpacity": 20,
+            "lineWidth": 2
+          },
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "I/O de Almacenamiento (Operaciones de Lectura / Escritura por Segundo)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(node_disk_reads_completed_total[1m]))",
+          "refId": "A",
+          "legendFormat": "Lecturas/s"
+        },
+        {
+          "expr": "sum(rate(node_disk_writes_completed_total[1m]))",
+          "refId": "B",
+          "legendFormat": "Escrituras/s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 2
+          },
+          "unit": "iops"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Memoria RAM Libre",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 20, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "node_memory_MemAvailable_bytes / 1024 / 1024",
+          "refId": "A",
+          "legendFormat": "RAM Disponible"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 200 },
+              { "color": "green", "value": 500 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": [
+    "lvm",
+    "raid1",
+    "web",
+    "observability",
+    "taller-integrador"
+  ],
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Taller Integrador: Servidor Web sobre LVM RAID 1 y Telemetría",
+  "uid": "taller-web-lvm-raid1",
+  "version": 1
+}

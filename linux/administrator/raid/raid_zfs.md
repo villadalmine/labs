@@ -76,6 +76,7 @@ next_recommended_labs:
 mcp_tools:
 - linux-labs-tutor
 - bash
+- filesystem
 ---
 
 # Lab 3.11 · RAID con OpenZFS: Pools, RAIDZ sin Write-Hole, Cachés y Resilvering

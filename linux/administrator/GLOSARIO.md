@@ -15,6 +15,7 @@ Este glosario funciona como un **compendio de referencia e índice conceptual cr
 | [**ZIL (ZFS Intent Log) & SLOG**](#zil-zfs-intent-log--slog-separate-intent-log) | OpenZFS, NVMe | [Lab 3.11](raid/raid_zfs.md) |
 | [**Hot Spare**](#hot-spare-disco-de-reserva-en-caliente) | `mdadm`, LVM, ZFS | [Lab 3.8](raid/raid_mdadm.md), [Lab 4.5](raid/integrador_aws/trabajo_integrador_raid.md) |
 | [**Scrubbing y Resilvering**](#scrubbing-y-resilvering) | `mdadm`, Btrfs, ZFS | [Lab 3.8](raid/raid_mdadm.md), [Lab 3.10](raid/raid_btrfs.md), [Lab 3.11](raid/raid_zfs.md), [Lab 4.5](raid/integrador_aws/trabajo_integrador_raid.md) |
+| [**Hard Link vs Soft Link (Enlaces en Filesystems)**](#hard-link-vs-soft-link-enlaces-en-filesystems) | VFS, ext4, XFS, Btrfs, `ln`, `find`, `rsync` | [Lab 3.12](filesystems/enlaces_hard_soft_links.md) |
 
 ---
 
@@ -174,3 +175,74 @@ Si uno de los discos activos experimenta un fallo irrecuperable o es expulsado p
 * **Scrub (Auditoría de Paridad):** Proceso periódico en segundo plano que lee exhaustivamente todos los bloques del arreglo para verificar que los datos coincidan con su paridad o checksum. Si encuentra inconsistencias, las repara automáticamente tomando los bloques válidos del resto de discos.
 * **Resilvering / Rebuild (Reconstrucción):** Proceso de regeneración y copia de datos hacia un disco nuevo que reemplaza a uno averiado. En RAID tradicional (`mdadm`) se reconstruye el espacio completo del dispositivo; en ZFS/Btrfs solo se reconstruyen los bloques asignados y referenciados.
 * 📖 [Ver procedimientos de Scrub en Lab 3.8](raid/raid_mdadm.md#8-scrub-auditoría-de-paridad-en-segundo-plano), [Lab 3.10](raid/raid_btrfs.md) y [Lab 3.11](raid/raid_zfs.md).
+
+---
+
+### Hard Link vs Soft Link (Enlaces en Filesystems)
+
+La arquitectura de archivos en sistemas Unix/Linux implementa una separación estricta entre el **nombre visible** del archivo (`dentry` o entrada de directorio) y la **estructura de almacenamiento real** (`inodo` y bloques de datos).
+
+* **Hard Link (Enlace Duro):** Es una segunda entrada de directorio (`dentry`) que apunta de manera directa y equivalente al **mismo número de inodo** dentro del mismo sistema de archivos. No duplica datos, no consume espacio en disco y está gobernado por el contador `nlink`. Al borrar un archivo con `rm`, el kernel únicamente llama a `unlink()`; los bloques de datos físicos solo se devuelven al bitmap libre cuando `nlink == 0` y ningún proceso en ejecución mantiene el descriptor de archivo abierto.
+  - *Restricciones:* No puede cruzar fronteras de particiones (`EXDEV`) ni apuntar a directorios para prevenir bucles cíclicos en el grafo del VFS.
+* **Soft Link (Enlace Simbólico o Symlink):** Es un archivo independiente de tipo `l` (`S_IFLNK`) con su propio inodo, cuyo contenido de datos es la cadena de texto con la ruta hacia el destino.
+  - *Ventajas y Riesgos:* Puede cruzar cualquier sistema de archivos, montajes remotos y enlazar carpetas completas. Si el destino se borra o renombra, el symlink queda en estado **roto (*dangling*)**, retornando el error `ENOENT`.
+* 💡 **Casos de Producción:** Despliegues **Zero-Downtime** mediante switches atómicos con `ln -sfn`, versionado de bibliotecas dinámicas (`.so` SONAME), y deduplicación masiva en respaldos instantáneos con `rsync --link-dest`.
+* 📖 [Ver guía teórica completa y laboratorio práctico en Lab 3.12](filesystems/enlaces_hard_soft_links.md).
+
+---
+
+### LUKS2 & Argon2id (Cifrado de Bloques)
+
+* **LUKS2 (Linux Unified Key Setup v2):** Estándar de facto moderno para el cifrado de datos en reposo a nivel de bloques (*Full Disk Encryption* o FDE) en el kernel de Linux a través del subsistema `dm-crypt`. A diferencia de LUKS1, incorpora una cabecera basada en JSON extensible, cabeceras redundantes primarias y secundarias con detección de auto-curación (*auto-repair*), y soporte para hasta 32 ranuras de claves (*keyslots*).
+* **Argon2id (KDF):** Función de derivación de claves por defecto en LUKS2, diseñada específicamente para neutralizar ataques masivos de fuerza bruta con clústeres de GPUs y ASICs al ser intensiva en memoria RAM (*memory-hard*).
+* 📖 [Ver guía de cifrado LUKS2 en Lab 3.3](luks/luks.md) y [Comparativa de Arquitecturas de Cifrado](cifrado/cifrado_arquitecturas_comparativa.md).
+
+---
+
+### Keyslots y Desbloqueo Moderno (TPM 2.0 & Clevis/Tang)
+
+* **Keyslots (Ranuras de Claves):** Esquema criptográfico de dos niveles donde una clave maestra aleatoria de 256 bits (que cifra los bloques físicos) se encuentra cifrada de forma independiente en múltiples ranuras. Esto permite revocar o rotar contraseñas de administradores mediante `luksKillSlot` sin necesidad de recifrar los datos del disco.
+* **TPM 2.0 (`systemd-cryptenroll`):** Desbloqueo automático del volumen cifrado durante el arranque mediante el chip de seguridad físico de la placa base, sellado a los registros de configuración de plataforma (PCR 0, 2, 7 para Secure Boot). Si el firmware o el kernel son alterados, el TPM se niega a liberar la clave.
+* **NBDE (Network-Bound Disk Encryption - Clevis/Tang):** Arquitectura para centros de datos donde un oráculo en red (servidor Tang) suministra la clave de desbloqueo al cliente (Clevis) a través de la LAN corporativa. Si el servidor o disco físico es retirado de las instalaciones, el volumen no puede desbloquearse.
+* 📖 [Ver sección de automatización en Lab 3.3](luks/luks.md#5-el-escenario-moderno-automatización-con-tpm-20-y-clevistang).
+
+---
+
+### GnuPG (GPG) y Firmas de Repositorios / Backups Asimétricos
+
+* **Criptografía Asimétrica:** Paradigma criptográfico basado en un par de claves: una **clave pública** (ampliamente distribuida) y una **clave privada** (mantenida bajo estricta custodia).
+* **Subclaves OpenPGP:** Estructura jerárquica donde la clave primaria posee la capacidad de certificación `[C]`, delegando las operaciones diarias en subclaves operativas de firma `[S]` y de cifrado `[E]`.
+* **APT `[signed-by=...]`:** Estándar moderno de repositorios en Debian/Ubuntu que confina la clave binaria desarmada (`gpg --dearmor`) bajo `/etc/apt/keyrings/`, reemplazando el inseguro e histórico `apt-key add` global.
+* **Backups Asimétricos:** Técnica de seguridad donde los servidores de base de datos o web solo almacenan la **clave pública** para cifrar respaldos automáticos en cron. Si el servidor es atacado, el adversario no puede descifrar los backups históricos porque la clave privada no existe en esa máquina.
+* 📖 [Ver laboratorio completo de GPG y backups en Lab 3.4b](gpg/gpg_firmas_repositorios_backups.md).
+
+---
+
+### Estrategias de Backup, Resiliencia y Deduplicación
+
+* **RPO (Recovery Point Objective):** Métrica de negocio que cuantifica la cantidad máxima de datos que la organización tolera perder ante un desastre, expresada en tiempo (ej: 1 hora de transacciones).
+* **RTO (Recovery Time Objective):** Métrica que define el tiempo límite permitido desde que ocurre la catástrofe hasta que el servicio vuelve a estar 100% operativo (tiempo de restauración).
+* **Regla 3-2-1:** Estándar de oro de respaldos: mantener **3** copias de los datos, en **2** medios o tecnologías diferentes, con **1** copia fuera de sitio (*offsite* o en la nube).
+* **Backup Completo (Full):** Respaldo de la totalidad de los archivos o bloques seleccionados en un instante dado. RTO mínimo (extracción directa), pero máximo consumo de espacio y tiempo de generación.
+* **Backup Incremental:** Respaldo exclusivo de los datos creados o modificados desde el **último backup** (sea Full o Incremental). Ahorro masivo de espacio, pero exige restaurar el Full inicial y la cadena completa de incrementales.
+* **Backup Diferencial:** Respaldo acumulativo de todas las modificaciones producidas desde el **último backup completo**. La restauración solo requiere el Full inicial y el último diferencial.
+* **CDP (Continuous Data Protection):** Captura continua de cambios en tiempo real o micro-intervalos (segundos/minutos) mediante eventos del kernel (`inotify`) o replicación de logs de transacciones (WAL/binlog). RPO cercano a cero.
+* **Deduplicación por Hard Links (`rsync --link-dest`):** Técnica clásica en sistemas de archivos POSIX donde `rsync` compara con el backup previo y crea enlaces duros (inodos compartidos con `nlink > 1`) para los archivos idénticos. Cada día aparenta ser un árbol completo pero solo consume los bytes modificados.
+* **Deltas Inversos (`rdiff-backup`):** Paradigma donde el directorio de destino es un espejo exacto del estado más reciente (archivos planos directamente legibles sin descompresión), mientras los deltas matemáticos para retroceder en el tiempo se almacenan hacia atrás en `rdiff-backup-data/`.
+* **Zero-Trust Cloud Backup (`duplicity`):** Respaldo incremental basado en `librsync` pero con cifrado asimétrico GnuPG obligatorio antes de abandonar el host local. Protege los datos y nombres de archivos contra operadores de almacenamiento remoto (SFTP, S3).
+* **Snapshots Copy-on-Write (LVM CoW):** Congelamiento atómico de metadatos en microsegundos a nivel de bloques. Permite respaldar bases de datos y sistemas de archivos activos en producción de forma 100% consistente sin detener el servicio ni incurrir en escrituras corruptas en caliente.
+* 📖 [Ver guía comparativa completa en Lab 3.5.0](backup/backup_arquitecturas_comparativa.md).
+
+
+---
+
+### Monitoreo, Telemetría y Observabilidad
+
+* **Modelo PULL vs PUSH:** En el modelo **PULL** (Prometheus), el servidor central inicia peticiones periódicas HTTP GET hacia `/metrics` de los nodos, garantizando detección instantánea de caídas y control de tráfico de red. En el modelo **PUSH** (Datadog, Telegraf, StatsD), los clientes transmiten proactivamente sus métricas, ideal para Serverless y redes con NAT cerrado.
+* **TSDB (Time Series Database):** Base de datos optimizada exclusivamente para almacenar secuencias de pares `(timestamp, float64)` indexadas por etiquetas multidimensionales clave-valor.
+* **PromQL (Prometheus Query Language):** Lenguaje funcional para filtrar, agregar y calcular tasas de cambio instantáneas (`rate()`, `increase()`, `sum()`) sobre series temporales.
+* **Textfile Collector:** Módulo de Node Exporter que lee archivos con extensión `.prom` generados atómicamente por scripts locales en `/var/lib/node_exporter/textfile_collector/` y los expone en `/metrics` junto a la telemetría del kernel.
+* **OpenMetrics:** Estándar neutral de la Cloud Native Computing Foundation (CNCF) que formaliza la sintaxis de texto plano de métricas de Prometheus (`# HELP`, `# TYPE`, etiquetas y marcas de tiempo).
+* **Distributed Tracing (Trazas Distribuidas):** Seguimiento del ciclo de vida completo de una petición a través de múltiples microservicios mediante identificadores de traza (*TraceID*) y bloques de tiempo (*Spans*), implementado con OpenTelemetry o Jaeger.
+* **Monitoreo Sintético (Sondas / Probes):** Verificación activa de disponibilidad desde el exterior simulando el comportamiento de un usuario final (ej: verificar que una URL devuelva HTTP 200 y que su certificado TLS sea válido con Blackbox Exporter).
+* 📖 [Ver taller integrador con telemetría en Lab 3.16](monitoreo/taller_integrador_web_lvm_monitoreo.md).

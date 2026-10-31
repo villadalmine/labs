@@ -56,13 +56,13 @@ environments:
 operating_systems:
 - Ubuntu 24.04 LTS
 status: VERIFIED
-rag_summary: Guía exhaustiva sobre la implementación de RAID por software en LVM2 utilizando
-  el target del kernel dm-raid. Detalla la arquitectura de sub-volúmenes lógicos
-  internos (_rmeta para metadatos y write-intent bitmap, _rimage para franjas de datos),
-  el aprovisionamiento de arreglos RAID 0/1/5/6/10, la expansión en caliente del sistema
-  de archivos y el volumen con lvextend -r, la inyección forense de fallas sobre Physical
-  Volumes, la degradación parcial y el flujo de sustitución y autorrecuperación en
-  caliente con lvconvert --repair y vgreduce --removemissing.
+rag_summary: Guía exhaustiva sobre la implementación de RAID por software en LVM2
+  utilizando el target del kernel dm-raid. Detalla la arquitectura de sub-volúmenes
+  lógicos internos (_rmeta para metadatos y write-intent bitmap, _rimage para franjas
+  de datos), el aprovisionamiento de arreglos RAID 0/1/5/6/10, la expansión en caliente
+  del sistema de archivos y el volumen con lvextend -r, la inyección forense de fallas
+  sobre Physical Volumes, la degradación parcial y el flujo de sustitución y autorrecuperación
+  en caliente con lvconvert --repair y vgreduce --removemissing.
 files:
   guide: raid/raid_lvm.md
   script: raid/demo_raid_lvm.sh
@@ -81,6 +81,7 @@ next_recommended_labs:
 mcp_tools:
 - linux-labs-tutor
 - bash
+- filesystem
 ---
 
 # Lab 3.9 · RAID con LVM (dm-raid): Sub-LVs, Degradación y Recuperación en Caliente
@@ -337,6 +338,24 @@ Validá nuevamente la integridad del archivo:
 sha256sum /mnt/raidlab_lvm/archivo_critico.dat
 ```
 ¡Recuperación completada al 100% sin una sola desconexión ni corrupción de datos!
+
+### Paso 4: Limpieza del Entorno al Finalizar
+Cuando desees desmontar el laboratorio y eliminar todos los recursos (Volume Group, LVs, PVs, loop devices y archivos en `/tmp/raidlab`), podés ejecutar el script de limpieza automatizado:
+```bash
+sudo ./linux/administrator/raid/limpiar_raid_lvm.sh
+```
+O de forma manual:
+```bash
+sudo umount /mnt/raidlab_lvm 2>/dev/null || true
+sudo lvchange -an vg_raidlab 2>/dev/null || true
+sudo vgremove -f -y vg_raidlab 2>/dev/null || true
+losetup -a | grep '/tmp/raidlab' | cut -d: -f1 | while read -r dev; do
+    sudo pvremove -ff -y "$dev" 2>/dev/null || true
+    sudo wipefs -a "$dev" 2>/dev/null || true
+    sudo losetup -d "$dev" 2>/dev/null || true
+done
+sudo rm -rf /tmp/raidlab /mnt/raidlab_lvm /tmp/sha_lvm.txt
+```
 
 ---
 
