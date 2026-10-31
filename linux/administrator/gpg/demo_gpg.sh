@@ -129,8 +129,8 @@ run_and_show() {
     echo -e "${C_BOLD}${C_BLUE}└───────────────────────────────────────────────────────────────────────────────────┘${C_RESET}"
 }
 
-if command -v clear &>/dev/null; then
-    clea
+if command -v clear &>/dev/null && [ "$AUTO_WAIT" -eq 0 ]; then
+    clear
 fi
 
 echo -e "${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"

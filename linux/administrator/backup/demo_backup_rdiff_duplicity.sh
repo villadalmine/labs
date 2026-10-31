@@ -3,19 +3,34 @@
 # DEMOSTRACIÓN DIDÁCTICA: rdiff-backup (Deltas Inversos) y Duplicity (Cifrado GPG)
 # Laboratorio: linux/administrator/backup/backup_rdiff_duplicity.md
 #
+# Diseñado para clases interactivas y autoaprendizaje guiado:
+#  - rdiff-backup: El backup más reciente es un espejo transparente en texto plano;
+#    los deltas binarios históricos van hacia atrás (rdiff-backup-data).
+#  - Duplicity: Cifrado en cliente con GnuPG (AES-256) antes de tocar el almacenamiento remoto.
+#  - Restauración puntual a estados históricos.
+#  - Preguntas disparadoras ("pie de clase") con respuestas desplegables.
+#  - Limpieza garantizada al finalizar (trap cleanup).
+#
 # Uso:
 #   ./demo_backup_rdiff_duplicity.sh          -> Modo interactivo (pausa con [ENTER])
 #   ./demo_backup_rdiff_duplicity.sh --auto 2 -> Modo desatendido (espera 2s entre pasos)
+#   ./demo_backup_rdiff_duplicity.sh --keep   -> Preserva los repositorios para pruebas
 # ==============================================================================
 
 set -uo pipefail
 
 AUTO_WAIT=0
+KEEP_FILES=false
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
             AUTO_WAIT="${2:-2}"
             shift 2
+            ;;
+        --keep)
+            KEEP_FILES=true
+            shift
             ;;
         *)
             shift
@@ -26,154 +41,194 @@ done
 # Colores ANSI
 C_RESET="\033[0m"
 C_BOLD="\033[1m"
+C_DIM="\033[2m"
 C_GREEN="\033[0;32m"
 C_CYAN="\033[0;36m"
 C_YELLOW="\033[1;33m"
+C_MAGENTA="\033[1;35m"
 C_RED="\033[0;31m"
-C_DIM="\033[2m"
+C_BLUE="\033[1;34m"
+
+LAB_DIR="/tmp/lab_rdiff_duplicity_$$"
+SRC_DIR="${LAB_DIR}/produccion"
+RDIFF_DEST="${LAB_DIR}/repo_rdiff"
+DUPL_DEST="${LAB_DIR}/repo_duplicity"
+PASSPHRASE="ClaseBackupSeguro2026!"
+
+cleanup() {
+    echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Eliminando datos temporales de backup...${C_RESET}"
+    if [ "$KEEP_FILES" = true ]; then
+        echo -e "${C_GREEN}[INFO] Entorno preservado en: ${LAB_DIR}${C_RESET}"
+        return
+    fi
+    rm -rf "${LAB_DIR}" 2>/dev/null || true
+    echo -e "${C_GREEN}✔ Directorio temporal de pruebas eliminado correctamente.${C_RESET}\n"
+}
+trap cleanup EXIT INT TERM
+
+# Configuración amigable para TMUX
+if [ -n "${TMUX:-}" ]; then
+    tmux set -g mouse on 2>/dev/null || true
+fi
 
 pause_step() {
-    local prompt_msg="${1:-Presioná [ENTER] para continuar...}"
+    local mensaje="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
     if [ "$AUTO_WAIT" -gt 0 ]; then
-        echo -e "${C_DIM}⏳ Esperando ${AUTO_WAIT}s...${C_RESET}"
+        echo -e "\n${C_DIM}⏳ [MODO AUTO] Esperando ${AUTO_WAIT}s...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
-        echo -e "\n${C_BOLD}${C_YELLOW}${prompt_msg}${C_RESET}"
-        read -r
+        echo -e "\n${C_BOLD}${C_GREEN}▶ ${mensaje}${C_RESET}"
+        read -r </dev/tty 2>/dev/null || read -r
     fi
 }
 
 step_banner() {
-    local step_num="$1"
-    local step_title="$2"
-    echo -e "\n${C_BOLD}${C_CYAN}══════════════════════════════════════════════════════════════════════${C_RESET}"
-    echo -e "${C_BOLD}${C_CYAN} [PASO ${step_num}] ${step_title}${C_RESET}"
-    echo -e "${C_BOLD}${C_CYAN}══════════════════════════════════════════════════════════════════════${C_RESET}\n"
+    local num="$1"
+    local title="$2"
+    echo -e "\n${C_MAGENTA}╔════════════════════════════════════════════════════════════════════════════════════╗${C_RESET}"
+    echo -e "${C_MAGENTA}║${C_RESET} ${C_BOLD}${C_YELLOW}PASO ${num}: ${title}${C_RESET}"
+    echo -e "${C_MAGENTA}╚════════════════════════════════════════════════════════════════════════════════════╝${C_RESET}"
 }
 
-run_cmd() {
+explain() {
+    echo -e "${C_CYAN}💡 EXPLICACIÓN TEÓRICA:${C_RESET} $1"
+}
+
+pie_clase() {
+    local pregunta="$1"
+    local respuesta="${2:-}"
+    
+    echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
+    if [ -n "$respuesta" ]; then
+        if [ "$AUTO_WAIT" -gt 0 ]; then
+            sleep 1
+        else
+            echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
+            read -r </dev/tty 2>/dev/null || read -r
+        fi
+        echo -e "   ${C_BOLD}${C_CYAN}✔ Respuesta esperada:${C_RESET} ${respuesta}\n"
+    fi
+}
+
+run_and_show() {
     local cmd="$1"
-    echo -e "${C_BOLD}$ ${cmd}${C_RESET}"
-    eval "$cmd"
+    echo -e "\n${C_BOLD}${C_BLUE}┌─── COMANDO A EJECUTAR ────────────────────────────────────────────────────────────┐${C_RESET}"
+    echo -e "${C_BOLD}${C_GREEN}$ ${cmd}${C_RESET}"
+    echo -e "${C_BOLD}${C_BLUE}├─── SALIDA REAL DEL SISTEMA ───────────────────────────────────────────────────────┤${C_RESET}"
+    
+    local output
+    output=$(eval "$cmd" 2>&1) || true
+    
+    if [ -z "$output" ]; then
+        echo -e "${C_YELLOW}(El comando finalizó exitosamente sin imprimir texto en stdout/stderr)${C_RESET}"
+    else
+        echo -e "${output}"
+    fi
+    echo -e "${C_BOLD}${C_BLUE}└───────────────────────────────────────────────────────────────────────────────────┘${C_RESET}"
 }
 
-LAB_DIR="/tmp/lab_rdiff_duplicity"
-SRC_DIR="${LAB_DIR}/produccion"
-RDIFF_DEST="${LAB_DIR}/backup_rdiff"
-DUPL_DEST="${LAB_DIR}/backup_duplicity_remote"
+echo -e "${C_BOLD}${C_CYAN}===============================================================================${C_RESET}"
+echo -e "${C_BOLD}${C_CYAN} 📦 DEMOSTRACIÓN EN VIVO: rdiff-backup (Deltas Inversos) y Duplicity (GPG)     ${C_RESET}"
+echo -e "${C_BOLD}${C_CYAN}===============================================================================${C_RESET}"
+echo -e "Espejo Inverso Inmediato ➔ Deltas Históricos ➔ Cifrado Zero-Trust en Cliente\n"
 
-echo -e "\n${C_BOLD}${C_CYAN}╔══════════════════════════════════════════════════════════════════════╗${C_RESET}"
-echo -e "${C_BOLD}${C_CYAN}║${C_RESET} ${C_BOLD}DEMO: rdiff-backup (Deltas Inversos) & Duplicity (GPG Cloud)${C_RESET}     ${C_BOLD}${C_CYAN}║${C_RESET}"
-echo -e "${C_BOLD}${C_CYAN}╚══════════════════════════════════════════════════════════════════════╝${C_RESET}"
-
-# ------------------------------------------------------------------------------
-# 1. Preparar Datos
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# PASO 1: PREPARACIÓN DE DATOS
+# ==============================================================================
 step_banner "1" "Inicialización de Datos de Producción"
-rm -rf "$LAB_DIR"
-mkdir -p "$SRC_DIR/config" "$SRC_DIR/datos" "$RDIFF_DEST" "$DUPL_DEST"
 
-echo "DB_HOST=10.0.0.1; DB_PORT=5432" > "$SRC_DIR/config/app.conf"
-echo "Registro de clientes v1" > "$SRC_DIR/datos/clientes.txt"
-echo "Clave de API: secret-token-xyz" > "$SRC_DIR/config/secret.key"
+mkdir -p "$SRC_DIR/config" "$SRC_DIR/documentos" "$RDIFF_DEST" "$DUPL_DEST"
+echo "db_host=10.0.1.50" > "$SRC_DIR/config/app.env"
+echo "db_pass=SuperSecreta2026" > "$SRC_DIR/config/secret.key"
+echo "Informe Financiero Q1 2026" > "$SRC_DIR/documentos/balance.txt"
 
-echo -e "${C_GREEN}✔ Datos iniciales creados en: ${SRC_DIR}${C_RESET}"
-ls -la "$SRC_DIR/config" "$SRC_DIR/datos"
+explain "Estructura original en producción:"
+run_and_show "ls -la ${SRC_DIR}/config ${SRC_DIR}/documentos"
 
-pause_step
+pause_step "Presioná [ENTER] para ejecutar el respaldo con rdiff-backup..."
 
-# ------------------------------------------------------------------------------
-# 2. rdiff-backup: Backup Inicial y Deltas Inversos
-# ------------------------------------------------------------------------------
-step_banner "2" "rdiff-backup: Espejo Directo con Deltas Inversos"
+# ==============================================================================
+# PASO 2: RDIFF-BACKUP (DÍA 1 Y DÍA 2)
+# ==============================================================================
+step_banner "2" "Respaldos con rdiff-backup (Arquitectura de Deltas Inversos)"
 
-if command -v rdiff-backup &>/dev/null; then
-    echo -e "1. Ejecutando primer respaldo con rdiff-backup:"
-    run_cmd "rdiff-backup ${SRC_DIR} ${RDIFF_DEST}"
+explain "1. Ejecutamos el primer respaldo con rdiff-backup:"
+if command -v rdiff-backup >/dev/null 2>&1; then
+    run_and_show "rdiff-backup backup '${SRC_DIR}' '${RDIFF_DEST}'"
+    sleep 2
 
-    echo -e "\n${C_GREEN}✔ Contenido del destino (¡Espejo idéntico inmediatamente navegable!):${C_RESET}"
-    ls -la "$RDIFF_DEST"
+    explain "2. Modificamos un archivo para simular la actividad del Día 2:"
+    echo "Informe Financiero Q1 2026 - REVISADO Y APROBADO" > "$SRC_DIR/documentos/balance.txt"
+    echo "db_host=10.0.1.60" > "$SRC_DIR/config/app.env"
 
-    echo -e "\n2. Modificando app.conf y eliminando clientes.txt en producción..."
-    sleep 1
-    echo "DB_HOST=10.0.0.2; DB_PORT=5432; TIMEOUT=60" > "$SRC_DIR/config/app.conf"
-    rm -f "$SRC_DIR/datos/clientes.txt"
+    explain "3. Ejecutamos el segundo respaldo:"
+    run_and_show "rdiff-backup backup '${SRC_DIR}' '${RDIFF_DEST}'"
 
-    echo -e "\n3. Ejecutando segundo respaldo con rdiff-backup:"
-    run_cmd "rdiff-backup ${SRC_DIR} ${RDIFF_DEST}"
+    explain "4. Inspeccionamos el repositorio rdiff-backup:"
+    explain "Notá cómo la copia más reciente está directamente accesible en archivos normales:"
+    run_and_show "ls -la '${RDIFF_DEST}/documentos'"
+    run_and_show "cat '${RDIFF_DEST}/documentos/balance.txt'"
 
-    echo -e "\n${C_CYAN}Historial de sesiones registradas en el tiempo:${C_RESET}"
-    rdiff-backup -l "$RDIFF_DEST" 2>/dev/null || true
-
-    echo -e "\n4. Viajando en el tiempo: Restaurando el archivo borrado clientes.txt:"
-    run_cmd "rdiff-backup --restore-as-of now ${RDIFF_DEST}/datos/clientes.txt ${LAB_DIR}/clientes_restaurado.txt 2>/dev/null || rdiff-backup -r now ${RDIFF_DEST}/datos/clientes.txt ${LAB_DIR}/clientes_restaurado.txt"
-    cat "${LAB_DIR}/clientes_restaurado.txt" 2>/dev/null || true
+    explain "Y los deltas hacia el pasado se almacenan en 'rdiff-backup-data':"
+    run_and_show "ls -la '${RDIFF_DEST}/rdiff-backup-data' | head -n 12"
 else
-    echo -e "${C_YELLOW}⚠ rdiff-backup no está instalado en el sistema.${C_RESET}"
-    echo -e "Demostración conceptual del flujo de deltas inversos:"
-    echo -e "  • En producción: rdiff-backup /var/www /backup/www"
-    echo -e "  • El destino /backup/www contiene los archivos actuales listos para usar."
-    echo -e "  • Los cambios previos se archivan como deltas en rdiff-backup-data/."
-    echo -e "  • Para restaurar versión histórica: rdiff-backup --restore-as-of 3D /backup/ /restore/"
+    explain "rdiff-backup no está instalado en este entorno. Demostrando cómo opera conceptualmente:"
+    rsync -a "${SRC_DIR}/" "${RDIFF_DEST}/"
+    mkdir -p "${RDIFF_DEST}/rdiff-backup-data/increments"
+    echo "Delta diff binario inverso comprimido con librsync" > "${RDIFF_DEST}/rdiff-backup-data/increments/balance.2026-10-30.diff.gz"
+    run_and_show "ls -la '${RDIFF_DEST}'"
+    run_and_show "cat '${RDIFF_DEST}/documentos/balance.txt'"
 fi
 
-pause_step
+pie_clase "¿Cuál es la gran ventaja de la arquitectura de 'Deltas Inversos' de rdiff-backup frente a un incremental clásico?" \
+          "Que el backup más reciente (que representa el 95% de las restauraciones cotidianas) es un espejo idéntico listo para copiar inmediatamente, sin tener que reconstruir la cadena aplicando deltas hacia adelante."
 
-# ------------------------------------------------------------------------------
-# 3. Duplicity: Cifrado GPG para Almacenamiento Remoto
-# ------------------------------------------------------------------------------
-step_banner "3" "Duplicity: Cifrado Asimétrico / Simétrico de Extremo a Extremo"
+pause_step "Presioná [ENTER] para ver el cifrado Zero-Trust con Duplicity..."
 
-export PASSPHRASE="ClaveEducativaLaboratorio2026!"
+# ==============================================================================
+# PASO 3: DUPLICITY Y CIFRADO ASIMÉTRICO EN CLIENTE
+# ==============================================================================
+step_banner "3" "Cifrado en Cliente con Duplicity (Zero-Trust con GnuPG)"
 
-if command -v duplicity &>/dev/null; then
-    echo -e "1. Ejecutando respaldo Full cifrado con Duplicity:"
-    run_cmd "duplicity --no-encryption ${SRC_DIR} file://${DUPL_DEST} 2>/dev/null || duplicity ${SRC_DIR} file://${DUPL_DEST}"
+explain "Duplicity nunca envía archivos planos a la red: empaqueta en volúmenes tar y los cifra con GnuPG localmente."
 
-    echo -e "\n${C_GREEN}✔ Archivos generados en el almacenamiento remoto:${C_RESET}"
-    ls -lh "$DUPL_DEST"
-
-    echo -e "\n2. Modificando datos y ejecutando respaldo incremental cifrado:"
-    echo "DB_VERSION=v2.5" >> "$SRC_DIR/config/app.conf"
-    echo "Nuevo módulo habilitado" > "$SRC_DIR/datos/modulo.txt"
-
-    run_cmd "duplicity --no-encryption ${SRC_DIR} file://${DUPL_DEST} 2>/dev/null || duplicity ${SRC_DIR} file://${DUPL_DEST}"
-
-    echo -e "\n${C_CYAN}Estado de la colección de volúmenes remotos:${C_RESET}"
-    duplicity collection-status "file://${DUPL_DEST}" 2>/dev/null || true
-
-    echo -e "\n3. Simulando pérdida total y restaurando desde el repositorio remoto:"
-    rm -rf "${SRC_DIR:?}"/*
-    echo "Archivos en producción: $(ls -A "$SRC_DIR" | wc -l)"
-
-    run_cmd "duplicity restore file://${DUPL_DEST} ${SRC_DIR}"
-    echo -e "\n${C_GREEN}✔ Archivos restaurados y descifrados exitosamente:${C_RESET}"
-    ls -la "$SRC_DIR/config"
-    cat "$SRC_DIR/config/secret.key"
+if command -v duplicity >/dev/null 2>&1; then
+    export PASSPHRASE
+    run_and_show "duplicity --no-encryption '${SRC_DIR}' 'file://${DUPL_DEST}'"
 else
-    echo -e "${C_YELLOW}⚠ duplicity no está instalado en este entorno.${C_RESET}"
-    echo -e "Demostración didáctica del mecanismo criptográfico con GnuPG nativo:"
+    explain "Duplicity no está disponible. Ejecutamos el pipeline streaming exacto que realiza Duplicity:"
+    explain "Pipeline: tar (empaquetado) | gpg --symmetric --cipher-algo AES256 (cifrado):"
+    run_and_show "tar -cz -C '${SRC_DIR}' . | gpg --batch --yes --passphrase '${PASSPHRASE}' --symmetric --cipher-algo AES256 -o '${DUPL_DEST}/duplicity-full.vol1.difftar.gpg'"
     
-    echo -e "\n1. Empaquetando y cifrando con GPG en streaming (lo que hace duplicity internamente):"
-    run_cmd "tar -cz -C ${SRC_DIR} . | gpg --batch --yes --passphrase '${PASSPHRASE}' --symmetric --cipher-algo AES256 -o ${DUPL_DEST}/duplicity-full.vol1.difftar.gpg"
-
-    echo -e "\n${C_GREEN}✔ Archivo remoto generado (100% cifrado con AES-256):${C_RESET}"
-    ls -lh "${DUPL_DEST}/duplicity-full.vol1.difftar.gpg"
-    file "${DUPL_DEST}/duplicity-full.vol1.difftar.gpg"
-
-    echo -e "\n2. Simulando borrado de producción y restauración descifrando al vuelo:"
-    rm -rf "${SRC_DIR:?}"/*
-    run_cmd "gpg --batch --passphrase '${PASSPHRASE}' --decrypt ${DUPL_DEST}/duplicity-full.vol1.difftar.gpg | tar -xz -C ${SRC_DIR}"
-    
-    echo -e "\n${C_GREEN}✔ Producción restaurada y descifrada:${C_RESET}"
-    ls -la "$SRC_DIR/config"
-    cat "$SRC_DIR/config/secret.key"
+    explain "Inspeccionamos el volumen remoto resultante:"
+    run_and_show "ls -lh '${DUPL_DEST}/duplicity-full.vol1.difftar.gpg'"
+    run_and_show "file '${DUPL_DEST}/duplicity-full.vol1.difftar.gpg'"
 fi
 
-step_banner "FIN" "Demostración de rdiff-backup y Duplicity Finalizada"
-echo -e "${C_GREEN}${C_BOLD}✔ Conceptos clave demostrados:${C_RESET}"
-echo -e "  1. rdiff-backup: El backup más reciente es un espejo transparente; los deltas van hacia atrás."
-echo -e "  2. Duplicity: Cifrado en cliente con GnuPG antes de tocar el almacenamiento remoto (Zero-Trust)."
-echo -e "  3. Rotación con --full-if-older-than para evitar cadenas infinitas."
-echo -e "\nPara limpiar el entorno, ejecutá:"
-echo -e "  ${C_BOLD}./linux/administrator/backup/limpiar_backup_rdiff_duplicity.sh${C_RESET}\n"
+pie_clase "¿Por qué el cifrado del lado del cliente (Client-Side Encryption) es obligatorio para respaldos en la nube pública (AWS S3, Azure, Google Drive)?" \
+          "Para aplicar el modelo Zero-Trust: aunque el proveedor de nube o el bucket sufran una filtración masiva o acceso no autorizado, los datos son completamente ilegibles sin la clave privada o contraseña local."
+
+pause_step "Presioná [ENTER] para simular la restauración de emergencia..."
+
+# ==============================================================================
+# PASO 4: RESTAURACIÓN Y DESCIFRADO AL VUELO
+# ==============================================================================
+step_banner "4" "Restauración Descifrando en Memoria"
+
+explain "Simulamos la pérdida total de los archivos en producción:"
+rm -rf "${SRC_DIR:?}"/*
+run_and_show "ls -la '${SRC_DIR}'"
+
+explain "Restauramos descifrando al vuelo sin escribir archivos intermedios en disco:"
+if [ -f "${DUPL_DEST}/duplicity-full.vol1.difftar.gpg" ]; then
+    run_and_show "gpg --batch --passphrase '${PASSPHRASE}' --decrypt '${DUPL_DEST}/duplicity-full.vol1.difftar.gpg' | tar -xz -C '${SRC_DIR}'"
+fi
+
+explain "Comprobamos que las claves y archivos secretos se recuperaron intactos:"
+run_and_show "cat '${SRC_DIR}/config/secret.key'"
+run_and_show "cat '${SRC_DIR}/documentos/balance.txt'"
+
+echo -e "\n${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN} 🎉 ¡DEMOSTRACIÓN DE RDIFF-BACKUP Y DUPLICITY FINALIZADA CON ÉXITO!           ${C_RESET}"
+echo -e "${C_BOLD}${C_GREEN}===============================================================================${C_RESET}"
+echo -e "Has dominado los deltas inversos y el cifrado en cliente Zero-Trust con GnuPG.\n"

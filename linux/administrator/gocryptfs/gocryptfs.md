@@ -57,11 +57,11 @@ rag_summary: Laboratorio sobre cifrado en espacio de usuario con gocryptfs utili
   ideal para respaldos incrementales en la nube.
 files:
   guide: gocryptfs/gocryptfs.md
-  script: null
+  script: gocryptfs/demo_gocryptfs.sh
   terraform: null
-resource_type: theoretical_guide
+resource_type: practical_lab
 has_guide: true
-has_interactive_script: false
+has_interactive_script: true
 has_terraform: false
 execution_mode: manual_commands
 prerequisites:

@@ -63,7 +63,7 @@ pause_step() {
         sleep "$AUTO_DELAY"
     else
         echo -e "\n${C_BOLD}${C_GREEN}▶ ${mensaje}${C_RESET}"
-        read -r
+        read -r </dev/tty 2>/dev/null || read -r
     fi
 }
 
@@ -85,7 +85,7 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
+        if [ "$AUTO_MODE" = true ] || [ "${AUTO_WAIT:-0}" -gt 0 ]; then
             sleep 1
         else
             echo -en "${C_DIM:-\033[2m}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
