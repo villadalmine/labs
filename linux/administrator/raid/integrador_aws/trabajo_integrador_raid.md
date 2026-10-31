@@ -56,13 +56,13 @@ operating_systems:
 - Ubuntu 24.04 LTS
 status: VERIFIED
 rag_summary: Proyecto integrador capstone de almacenamiento empresarial y observabilidad
-  en AWS desplegado con Terraform. Aprovisiona una instancia EC2 con 5 volúmenes EBS gp3
-  independientes, configura un arreglo RAID 5 con write-intent bitmap y hot spare automático,
-  expone datos para Nginx, e implementa un pipeline de observabilidad con Prometheus
-  Node Exporter (Textfile Collector) que reporta en tiempo real métricas de salud (raid_healthy,
-  raid_failed_disks, raid_spare_disks). Incluye inyección de caos con fallas de disco en vivo,
-  demostración de tolerancia a desastres sin corte de servicio, reconstrucción automática
-  y sustitución física de hardware.
+  en AWS desplegado con Terraform. Aprovisiona una instancia EC2 con 5 volúmenes EBS
+  gp3 independientes, configura un arreglo RAID 5 con write-intent bitmap y hot spare
+  automático, expone datos para Nginx, e implementa un pipeline de observabilidad
+  con Prometheus Node Exporter (Textfile Collector) que reporta en tiempo real métricas
+  de salud (raid_healthy, raid_failed_disks, raid_spare_disks). Incluye inyección
+  de caos con fallas de disco en vivo, demostración de tolerancia a desastres sin
+  corte de servicio, reconstrucción automática y sustitución física de hardware.
 files:
   guide: raid/integrador_aws/trabajo_integrador_raid.md
   script: raid/integrador_aws/demo_integrador_raid.sh

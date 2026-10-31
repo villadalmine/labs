@@ -1,7 +1,7 @@
 ---
 id: lab-3.7-raid-teoria-comparativa
-title: 'RAID desde Cero: Niveles, Metadatos, Caché, Checksums y Comparativa mdadm vs
-  LVM vs Btrfs vs ZFS'
+title: 'RAID desde Cero: Niveles, Metadatos, Caché, Checksums y Comparativa mdadm
+  vs LVM vs Btrfs vs ZFS'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.7'
@@ -46,18 +46,18 @@ tested_environments:
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-05-20'
-  notes: Demo de paridad XOR en bash puro, sin root ni discos reales. Corre igual en
-    Docker, VirtualBox o cualquier Linux.
+  notes: Demo de paridad XOR en bash puro, sin root ni discos reales. Corre igual
+    en Docker, VirtualBox o cualquier Linux.
 environments:
 - WSL2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: VERIFIED
-rag_summary: Laboratorio teórico-práctico de entrada a la serie RAID. Explica qué es
-  RAID, striping, mirroring y paridad XOR, los niveles 0/1/5/6/10, capacidad útil y
-  tolerancia a fallos, metadatos (superbloque), bitmap y write-hole, cachés de escritura
-  y checksums, y compara mdadm, LVM2 RAID, Btrfs y ZFS. Incluye un script en bash que
-  demuestra la reconstrucción por XOR sin necesidad de discos ni root.
+rag_summary: Laboratorio teórico-práctico de entrada a la serie RAID. Explica qué
+  es RAID, striping, mirroring y paridad XOR, los niveles 0/1/5/6/10, capacidad útil
+  y tolerancia a fallos, metadatos (superbloque), bitmap y write-hole, cachés de escritura
+  y checksums, y compara mdadm, LVM2 RAID, Btrfs y ZFS. Incluye un script en bash
+  que demuestra la reconstrucción por XOR sin necesidad de discos ni root.
 files:
   guide: raid/raid_teoria.md
   script: raid/demo_raid_teoria.sh
@@ -74,6 +74,7 @@ next_recommended_labs:
 mcp_tools:
 - linux-labs-tutor
 - bash
+- filesystem
 ---
 
 # Lab 3.7 · RAID desde Cero: la Teoría que Necesitás Antes de Tocar un Disco

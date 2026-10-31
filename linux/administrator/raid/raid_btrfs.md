@@ -1,7 +1,7 @@
 ---
 id: lab-3.10-raid-btrfs
-title: 'RAID con Btrfs: Perfiles Data/Metadata, Conversión en Vivo, Self-Healing, Scrub
-  y btrfs replace'
+title: 'RAID con Btrfs: Perfiles Data/Metadata, Conversión en Vivo, Self-Healing,
+  Scrub y btrfs replace'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.10'
@@ -40,19 +40,20 @@ tested_environments:
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-24'
-  notes: Probado con loop devices sobre archivos sparse. Requiere soporte de kernel para
-    btrfs.
+  notes: Probado con loop devices sobre archivos sparse. Requiere soporte de kernel
+    para btrfs.
 environments:
 - WSL2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: VERIFIED
-rag_summary: Guía técnica avanzada de administración de RAID integrado en el sistema de archivos
-  Btrfs. Explica el modelo Copy-on-Write a nivel de chunks, la separación independiente
-  de perfiles para datos (-d) y metadatos (-m), la tolerancia a discos de tamaños asimétricos
-  en RAID 1, la advertencia del write-hole en RAID 5/6, la detección y auto-reparación
-  silenciosa de bit-rot mediante checksums criptográficos (self-healing), auditorías
-  proactivas con btrfs scrub y la sustitución atómica de discos defectuosos con btrfs replace.
+rag_summary: Guía técnica avanzada de administración de RAID integrado en el sistema
+  de archivos Btrfs. Explica el modelo Copy-on-Write a nivel de chunks, la separación
+  independiente de perfiles para datos (-d) y metadatos (-m), la tolerancia a discos
+  de tamaños asimétricos en RAID 1, la advertencia del write-hole en RAID 5/6, la
+  detección y auto-reparación silenciosa de bit-rot mediante checksums criptográficos
+  (self-healing), auditorías proactivas con btrfs scrub y la sustitución atómica de
+  discos defectuosos con btrfs replace.
 files:
   guide: raid/raid_btrfs.md
   script: raid/demo_raid_btrfs.sh
@@ -71,6 +72,7 @@ next_recommended_labs:
 mcp_tools:
 - linux-labs-tutor
 - bash
+- filesystem
 ---
 
 # Lab 3.10 · RAID con Btrfs: Perfiles, Conversión en Vivo, Self-Healing y Reemplazo

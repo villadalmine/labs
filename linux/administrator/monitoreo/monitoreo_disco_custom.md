@@ -1,6 +1,6 @@
 ---
 id: lab-3.14-monitoreo-disco-custom
-title: 'Métricas de Disco, Filesystems e Inodos con Textfile Collector y Grafana'
+title: Métricas de Disco, Filesystems e Inodos con Textfile Collector y Grafana
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.14'
@@ -48,21 +48,31 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-24'
-  notes: 'Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector. Soporta 3 rutas de despliegue: reutilización de lab-3.6, instalación nativa vía APT (Ubuntu/Debian) o binarios portables en /tmp.'
+  notes: 'Ejecución validada con colector_disco.sh volcando métricas atómicas en /var/lib/node_exporter/textfile_collector.
+    Soporta 3 rutas de despliegue: reutilización de lab-3.6, instalación nativa vía
+    APT (Ubuntu/Debian) o binarios portables en /tmp.'
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-24'
-  notes: Probado con volúmenes ext4 y XFS en instancias EC2 con Grafana local y aprovisionamiento automático de datasources.
+  notes: Probado con volúmenes ext4 y XFS en instancias EC2 con Grafana local y aprovisionamiento
+    automático de datasources.
 environments:
 - WSL2
 - AWS EC2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: Laboratorio de métricas personalizadas de almacenamiento que une los conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs) con la observabilidad continua de Prometheus y Grafana. Explica tres alternativas de preparación (reutilizar laboratorios previos, instalar nativamente con APT como servicios systemd o usar binarios portables), despliega un script colector atómico para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas (device, mountpoint, fstype), valida la ingesta con curl y guía la instalación de Grafana y la construcción de paneles y consultas PromQL.
+rag_summary: Laboratorio de métricas personalizadas de almacenamiento que une los
+  conceptos de mantenimiento de filesystems (df, capacidad, inodos y tipos ext4/xfs/btrfs)
+  con la observabilidad continua de Prometheus y Grafana. Explica tres alternativas
+  de preparación (reutilizar laboratorios previos, instalar nativamente con APT como
+  servicios systemd o usar binarios portables), despliega un script colector atómico
+  para el Textfile Collector de Node Exporter, expone métricas con etiquetas semánticas
+  (device, mountpoint, fstype), valida la ingesta con curl y guía la instalación de
+  Grafana y la construcción de paneles y consultas PromQL.
 files:
   guide: monitoreo/monitoreo_disco_custom.md
   script: monitoreo/scripts/colector_disco.sh
@@ -72,11 +82,13 @@ prerequisites:
 - lab-3.13-mantenimiento-volumenes
 next_recommended_labs:
 - lab-3.15-alertmanager-alertas-locales
+- lab-3.16-integrador-web-lvm-raid-monitoreo
 mcp_tools:
 - linux-labs-tutor
 - bash
 - filesystem
 ---
+
 
 # Laboratorio: Métricas Personalizadas de Almacenamiento, Filesystems e Inodos
 
@@ -209,22 +221,38 @@ Para reflejar fielmente el estado del disco, el recolector genera **8 series tem
 
 ---
 
-## 💻 3. Despliegue del Script Colector (`colector_disco.sh`)
+## ?? 3. Despliegue del Script Colector (`colector_disco.sh`)
 
-El script se encuentra en [`scripts/colector_disco.sh`](scripts/colector_disco.sh).
+Pod?s utilizar el script que ya viene en el repositorio o crearlo directamente en tu m?quina con el siguiente bloque ejecutable:
+
+### Opci?n 1: Crear el archivo con un solo comando copy-paste (Crea el fichero en disco)
 
 ```bash
+# 1. Asegurar la carpeta y crear el script con privilegios de escritura:
+mkdir -p scripts
+cat << 'EOF' > scripts/colector_disco.sh
 #!/usr/bin/env bash
+# ==============================================================================
+# SCRIPT COLECTOR EDUCATIVO: M?tricas de Disco, Filesystem e Inodos
+# Escribe m?tricas en formato est?ndar OpenMetrics para Node Exporter.
+# ==============================================================================
 set -euo pipefail
 
 TEXTFILE_DIR="${TEXTFILE_DIR:-/var/lib/node_exporter/textfile_collector}"
 OUTPUT_FILE="${TEXTFILE_DIR}/custom_disk_health.prom"
 TMP_FILE="${OUTPUT_FILE}.$$"
 
+# Validaci?n de privilegios si se usa el directorio del sistema
+if [ "$EUID" -ne 0 ] && [ "$TEXTFILE_DIR" = "/var/lib/node_exporter/textfile_collector" ]; then
+    echo "? Error: Se requieren permisos de superusuario (root) para escribir en $TEXTFILE_DIR" >&2
+    echo "Ejecut?: sudo $0" >&2
+    exit 1
+fi
+
 mkdir -p "$TEXTFILE_DIR"
 
-# Cabeceras estándar OpenMetrics
-cat << 'EOF' > "$TMP_FILE"
+# 1. Cabeceras OpenMetrics (HELP y TYPE para cada m?trica expuesta)
+cat << 'HEADER_EOF' > "$TMP_FILE"
 # HELP custom_disk_bytes_total Capacidad total del sistema de archivos en bytes
 # TYPE custom_disk_bytes_total gauge
 # HELP custom_disk_bytes_used Espacio en disco actualmente utilizado en bytes
@@ -241,26 +269,26 @@ cat << 'EOF' > "$TMP_FILE"
 # TYPE custom_disk_inodes_free gauge
 # HELP custom_disk_inodes_usage_percent Porcentaje de consumo de inodos (0 a 100)
 # TYPE custom_disk_inodes_usage_percent gauge
-EOF
+HEADER_EOF
 
-# Parsing POSIX portable (-P), bloques en bytes (-B1) y filtrado de no-persistentes
+# 2. Recolecci?n de sistemas de archivos reales (POSIX portable -P, bloques en bytes -B1)
 df -PT -B1 -x tmpfs -x devtmpfs -x squashfs -x overlay 2>/dev/null | tail -n +2 | while read -r dev fstype total used avail pcent mount; do
     [ -z "$mount" ] && continue
     
     pcent_num="${pcent%\%}"
     [[ "$pcent_num" =~ ^[0-9]+$ ]] || pcent_num=0
 
-    # Inodos para este mount específico
+    # Inodos para este mount espec?fico
     read -r itotal iused ifree ipcent < <(df -PTi "$mount" 2>/dev/null | tail -n 1 | awk '{print $3, $4, $5, $6}')
     ipcent_num="${ipcent%\%}"
 
-    # Soporte para filesystems con inodos dinámicos (Btrfs)
+    # Soporte para filesystems con inodos din?micos (Btrfs)
     [[ "$itotal" =~ ^[0-9]+$ ]] || itotal=0
     [[ "$iused" =~ ^[0-9]+$ ]] || iused=0
     [[ "$ifree" =~ ^[0-9]+$ ]] || ifree=0
     [[ "$ipcent_num" =~ ^[0-9]+$ ]] || ipcent_num=0
 
-    cat << EOF >> "$TMP_FILE"
+    cat << DATA_EOF >> "$TMP_FILE"
 custom_disk_bytes_total{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${total}
 custom_disk_bytes_used{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${used}
 custom_disk_bytes_free{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${avail}
@@ -269,18 +297,35 @@ custom_disk_inodes_total{device="${dev}",mountpoint="${mount}",fstype="${fstype}
 custom_disk_inodes_used{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${iused}
 custom_disk_inodes_free{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${ifree}
 custom_disk_inodes_usage_percent{device="${dev}",mountpoint="${mount}",fstype="${fstype}"} ${ipcent_num}
-EOF
+DATA_EOF
 done
 
-# Reemplazo atómico
+# 3. Reemplazo at?mico y permisos
 mv "$TMP_FILE" "$OUTPUT_FILE"
 chmod 644 "$OUTPUT_FILE"
+echo "? M?tricas de disco exportadas exitosamente en: $OUTPUT_FILE"
+EOF
+
+# 2. Asignar permisos de ejecuci?n al script creado:
+chmod +x scripts/colector_disco.sh
 ```
 
+### Opci?n 2: Usar el archivo ya provisto en el repositorio
+
+Si clonaste el repositorio, el archivo ya est? disponible en [`scripts/colector_disco.sh`](scripts/colector_disco.sh).
+
 ### Ejecutar y probar el recolector:
+
+> [!IMPORTANT]
+> Se requiere `sudo` para escribir en `/var/lib/node_exporter/textfile_collector/`. Si lo ejecut?s sin `sudo`, el script te lo advertir? y detendr? la ejecuci?n de forma segura.
+
 ```bash
-sudo chmod +x scripts/colector_disco.sh
 sudo ./scripts/colector_disco.sh
+```
+
+**Salida esperada:**
+```text
+? M?tricas de disco exportadas exitosamente en: /var/lib/node_exporter/textfile_collector/custom_disk_health.prom
 ```
 
 ---
@@ -428,6 +473,86 @@ sudo crontab -e
 
 ### Opción B: Systemd Timer (Recomendado según Lab 2.1)
 Un timer de systemd ejecutando el script cada 30 segundos sin depender del daemon de cron.
+
+---
+
+## ?? 7. Limpieza del Entorno al Finalizar
+
+Al concluir la pr?ctica, ten?s dos alternativas para desmantelar todos los servicios, procesos en segundo plano y archivos de m?tricas:
+
+### Alternativa A: Limpieza Automatizada con Script (Recomendado)
+
+Ejecut? el script de limpieza provisto en el repositorio:
+
+```bash
+sudo ./linux/administrator/monitoreo/limpiar_monitoreo_disco_custom.sh
+```
+
+**Opciones avanzadas:**
+- `--keep-node`: Conserva Node Exporter activo en el puerto 9100 si vas a continuar con el siguiente laboratorio (`Lab 3.15` o `Lab 3.16`).
+  ```bash
+  sudo ./linux/administrator/monitoreo/limpiar_monitoreo_disco_custom.sh --keep-node
+  ```
+- `--purge-packages`: Si instalaste Grafana o Prometheus mediante APT y quer?s desinstalarlos completamente del sistema operativo.
+  ```bash
+  sudo ./linux/administrator/monitoreo/limpiar_monitoreo_disco_custom.sh --purge-packages
+  ```
+
+---
+
+### Alternativa B: Procedimiento Manual Paso a Paso
+
+Si prefer?s realizar el desmantelamiento de forma manual:
+
+#### 1. Detener Grafana (:3000)
+```bash
+# Si usaste el binario en /tmp:
+sudo pkill -f "grafana.*server" || true
+sudo rm -rf /tmp/grafana* /tmp/grafana-*.tar.gz
+
+# Si usaste Docker:
+docker rm -f grafana 2>/dev/null || true
+
+# Si instalaste con APT:
+sudo systemctl stop grafana-server && sudo systemctl disable grafana-server
+sudo rm -f /etc/grafana/provisioning/datasources/prometheus.yaml
+sudo rm -f /etc/apt/sources.list.d/grafana.list /etc/apt/keyrings/grafana.gpg
+```
+
+#### 2. Detener Prometheus (:9090)
+```bash
+sudo pkill -f "prometheus.*--config.file" || true
+sudo systemctl stop prometheus 2>/dev/null || true
+sudo rm -rf /tmp/prometheus*
+```
+
+#### 3. Detener Node Exporter (:9100) y restaurar configuraci?n
+```bash
+sudo pkill -f "node_exporter" || true
+sudo systemctl stop prometheus-node-exporter 2>/dev/null || true
+sudo sed -i '/--collector.textfile.directory/d' /etc/default/prometheus-node-exporter 2>/dev/null || true
+sudo rm -rf /tmp/node_exporter*
+```
+
+#### 4. Purgar automatizaci?n (Cron y Systemd Timers)
+```bash
+sudo crontab -l 2>/dev/null | grep -v -E 'colector_disco|custom_disk' | sudo crontab -
+sudo systemctl stop colector-disco.timer 2>/dev/null || true
+sudo rm -f /etc/systemd/system/colector-disco.*
+sudo systemctl daemon-reload
+```
+
+#### 5. Purgar archivos de m?tricas y colector
+```bash
+sudo rm -f /var/lib/node_exporter/textfile_collector/custom_disk_health.prom*
+sudo rmdir /var/lib/node_exporter/textfile_collector 2>/dev/null || true
+sudo rm -f /usr/local/bin/colector_disco.sh
+```
+
+#### 6. Comprobaci?n final de puertos libres
+```bash
+sudo ss -tlpn | grep -E ':(3000|9090|9100)\s' || echo "? Puertos 3000, 9090 y 9100 completamente liberados."
+```
 
 ---
 

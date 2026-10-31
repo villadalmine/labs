@@ -1,6 +1,7 @@
 ---
 id: lab-3.8-raid-mdadm
-title: 'RAID con mdadm: Creación de Arreglos, Metadatos, Bitmaps, Degradación y Recuperación en Caliente'
+title: 'RAID con mdadm: Creación de Arreglos, Metadatos, Bitmaps, Degradación y Recuperación
+  en Caliente'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.8'
@@ -43,18 +44,19 @@ tested_environments:
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-24'
-  notes: Probado con loop devices sobre archivos sparse. Requiere modprobe md_mod raid1 raid456.
+  notes: Probado con loop devices sobre archivos sparse. Requiere modprobe md_mod
+    raid1 raid456.
 environments:
 - WSL2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: VERIFIED
-rag_summary: Guía práctica completa de administración de RAID por software en Linux con mdadm.
-  Explica la arquitectura del subsistema md en el kernel, formatos de superbloque (1.2),
-  gestión de write-intent bitmaps para evitar resyncs completos, creación de arreglos
-  RAID 0/1/5/6/10, aprovisionamiento de hot spares, inyección de fallas en vivo,
-  reconstrucción de datos transparente con paridad XOR, reemplazo de unidades y
-  auditoría de paridad con scrub manual.
+rag_summary: Guía práctica completa de administración de RAID por software en Linux
+  con mdadm. Explica la arquitectura del subsistema md en el kernel, formatos de superbloque
+  (1.2), gestión de write-intent bitmaps para evitar resyncs completos, creación de
+  arreglos RAID 0/1/5/6/10, aprovisionamiento de hot spares, inyección de fallas en
+  vivo, reconstrucción de datos transparente con paridad XOR, reemplazo de unidades
+  y auditoría de paridad con scrub manual.
 files:
   guide: raid/raid_mdadm.md
   script: raid/demo_raid_mdadm.sh
@@ -72,6 +74,7 @@ next_recommended_labs:
 mcp_tools:
 - linux-labs-tutor
 - bash
+- filesystem
 ---
 
 # Lab 3.8 · RAID con mdadm: Arreglos, Metadatos, Bitmaps y Recuperación en Caliente

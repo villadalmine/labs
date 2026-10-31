@@ -1,6 +1,7 @@
 ---
 id: lab-3.13-mantenimiento-volumenes
-title: 'Diagnóstico, Mantenimiento y Reparación de Volúmenes (df, du, tune2fs, fsck, e2fsck, dumpe2fs, XFS Tools, Btrfs y badblocks)'
+title: Diagnóstico, Mantenimiento y Reparación de Volúmenes (df, du, tune2fs, fsck,
+  e2fsck, dumpe2fs, XFS Tools, Btrfs y badblocks)
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.13'
@@ -58,7 +59,9 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-24'
-  notes: Ejecución automatizada con demo_mantenimiento_volumenes.sh sobre loop devices. Validados ext4 (tune2fs, e2fsck, dumpe2fs), XFS (metadump, xfs_db frag, fsr), Btrfs (check repair, balance) y badblocks.
+  notes: Ejecución automatizada con demo_mantenimiento_volumenes.sh sobre loop devices.
+    Validados ext4 (tune2fs, e2fsck, dumpe2fs), XFS (metadump, xfs_db frag, fsr),
+    Btrfs (check repair, balance) y badblocks.
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
@@ -72,7 +75,13 @@ environments:
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: Laboratorio exhaustivo de diagnóstico, mantenimiento preventivo y reparación forense de volúmenes en Linux. Cubre auditoría de espacio e inodos con df y du (top 10 archivos pesados), parametrización de superbloques ext4 con tune2fs (intervalos de comprobación y medición de particiones no montadas), consistencia con fsck, e2fsck y dumpe2fs, herramientas avanzadas de XFS (xfs_metadump, xfs_db frag, xfs_fsr), mantenimiento de Btrfs (check --repair -p y balance) y análisis de sectores defectuosos con badblocks.
+rag_summary: Laboratorio exhaustivo de diagnóstico, mantenimiento preventivo y reparación
+  forense de volúmenes en Linux. Cubre auditoría de espacio e inodos con df y du (top
+  10 archivos pesados), parametrización de superbloques ext4 con tune2fs (intervalos
+  de comprobación y medición de particiones no montadas), consistencia con fsck, e2fsck
+  y dumpe2fs, herramientas avanzadas de XFS (xfs_metadump, xfs_db frag, xfs_fsr),
+  mantenimiento de Btrfs (check --repair -p y balance) y análisis de sectores defectuosos
+  con badblocks.
 files:
   guide: filesystems/mantenimiento_volumenes.md
   script: filesystems/demo_mantenimiento_volumenes.sh

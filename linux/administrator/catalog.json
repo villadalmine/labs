@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 35,
+  "total_labs": 43,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -623,7 +623,8 @@
         "usb",
         "dmi",
         "smbios",
-        "cpu"
+        "cpu",
+        "troubleshooting"
       ],
       "tools": [
         "lspci",
@@ -644,11 +645,11 @@
           "environment": "WSL2",
           "type": "local",
           "instance_type": "virtualized",
-          "os": "Ubuntu 24.04 LTS",
+          "os": "Rocky Linux 10.2 / Ubuntu 24.04 LTS",
           "kernel": "6.18.54.1-microsoft-standard-WSL2",
           "status": "PASSED",
-          "test_date": "2026-10-24",
-          "notes": "Detección de dispositivos virtuales, arquitectura CPU con lscpu, extracción DMI y auditoría con lshw y hwinfo."
+          "test_date": "2026-10-30",
+          "notes": "Detección completa de dispositivos PCI virtuales, arquitectura de CPU con lscpu, extracción DMI/SMBIOS con dmidecode y auditoría con lshw y hwinfo."
         },
         {
           "environment": "AWS EC2",
@@ -656,7 +657,7 @@
           "instance_type": "t3.micro",
           "os": "Ubuntu 24.04 LTS",
           "status": "VERIFIED",
-          "test_date": "2026-10-24",
+          "test_date": "2026-10-30",
           "notes": "Compatible en instancias virtualizadas Xen y Nitro (KVM) en AWS."
         }
       ],
@@ -665,10 +666,11 @@
         "AWS EC2"
       ],
       "operating_systems": [
-        "Ubuntu 24.04 LTS"
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2"
       ],
       "status": "PASSED",
-      "rag_summary": "Laboratorio exhaustivo sobre detección, inventario y diagnóstico forense de hardware en servidores Linux. Enseña a interrogar los buses físicos y lógicos mediante lspci y lsusb, analizar la microarquitectura de la CPU con lscpu, extraer metadatos de bajo nivel del firmware BIOS y placa base mediante dmidecode (DMI/SMBIOS) y generar reportes jerárquicos de inventario con lshw y hwinfo.",
+      "rag_summary": "Laboratorio integral y guía de autoaprendizaje sobre detección, inventario y diagnóstico forense de hardware en Linux. Basado en el temario oficial de administración de sistemas, enseña a interrogar los buses físicos y lógicos mediante lspci y lsusb, analizar la microarquitectura de la CPU con lscpu, extraer metadatos de firmware BIOS y placa base mediante dmidecode (DMI/SMBIOS) y generar reportes jerárquicos de inventario con lshw y hwinfo. Cubre los cinco grandes escenarios operativos de producción: resolución de problemas (troubleshooting de red y drivers), compatibilidad de software (flags AVX/VT-x), actualizaciones de controladores (Vendor:Device IDs), planificación de mejoras (slots DIMM libres sin abrir el chasis) y auditoría corporativa automatizada en JSON/HTML para CMDB.",
       "files": {
         "guide": "hardware/deteccion_hardware.md",
         "script": "hardware/demo_hardware.sh",
@@ -1102,7 +1104,8 @@
       ],
       "mcp_tools": [
         "linux-labs-tutor",
-        "bash"
+        "bash",
+        "filesystem"
       ]
     },
     {
@@ -1185,7 +1188,8 @@
       ],
       "mcp_tools": [
         "linux-labs-tutor",
-        "bash"
+        "bash",
+        "filesystem"
       ]
     },
     {
@@ -1216,7 +1220,11 @@
         "samefile",
         "xtype",
         "dentry",
-        "forense"
+        "forense",
+        "zero-downtime",
+        "rsync",
+        "soname",
+        "lsof"
       ],
       "tools": [
         "ln",
@@ -1224,7 +1232,9 @@
         "find",
         "stat",
         "rm",
-        "df"
+        "df",
+        "rsync",
+        "lsof"
       ],
       "requirements": {
         "root_required": true,
@@ -1240,8 +1250,8 @@
           "os": "Ubuntu 24.04 LTS",
           "kernel": "6.18.54.1-microsoft-standard-WSL2",
           "status": "PASSED",
-          "test_date": "2026-10-24",
-          "notes": "Demostración completa de enlaces duros, symlinks, contador nlink, aislamiento entre particiones con loop device y auditoría con find -samefile y -xtype l."
+          "test_date": "2026-10-30",
+          "notes": "Demostración completa de enlaces duros, symlinks, contador nlink, aislamiento entre particiones con loop device, auditoría forense con find (-type l -exec, -samefile, -xtype l) y simulación de casos reales (deploy atómico, rsync --link-dest y archivos abiertos unlinked con lsof)."
         },
         {
           "environment": "AWS EC2",
@@ -1249,8 +1259,8 @@
           "instance_type": "t3.micro",
           "os": "Ubuntu 24.04 LTS",
           "status": "VERIFIED",
-          "test_date": "2026-10-24",
-          "notes": "Compatible de manera nativa en cualquier sistema de archivos POSIX en AWS EC2."
+          "test_date": "2026-10-30",
+          "notes": "Compatible de manera nativa en cualquier sistema de archivos POSIX en AWS EC2 (EBS gp3)."
         }
       ],
       "environments": [
@@ -1261,7 +1271,7 @@
         "Ubuntu 24.04 LTS"
       ],
       "status": "PASSED",
-      "rag_summary": "Laboratorio exhaustivo sobre la estructura y semántica de enlaces en sistemas de archivos Linux. Analiza la separación entre entradas de directorio (dentry) e inodos en el VFS, creación de enlaces duros (ln) y su contador de referencias (nlink), creación de enlaces simbólicos (ln -s) relativos y absolutos, demostración práctica de las restricciones entre particiones y operaciones forenses con find (-samefile para enlaces duros y -xtype l para enlaces rotos).",
+      "rag_summary": "Guía y laboratorio exhaustivo de autoaprendizaje sobre la arquitectura de enlaces en sistemas de archivos Linux. Analiza la separación fundamental del VFS entre entradas de directorio (dentry) e inodos, la semántica de la llamada al sistema unlink(), la creación de enlaces duros (ln) y su contador nlink, los enlaces simbólicos (ln -s) relativos y absolutos con fast symlinks, y las restricciones físicas entre particiones (EXDEV) y directorios. Desarrolla a fondo comandos forenses con find (-type l -exec ls -l {} \\;, -ls, -samefile, -inum, -xtype l y -delete) y cuatro casos reales de producción: despliegues atómicos zero-downtime con ln -sfn, versionado dinámico de bibliotecas compartidas (.so SONAME), deduplicación instantánea de backups con rsync --link-dest, y resolución de crisis de espacio en disco por archivos eliminados retenidos por procesos (lsof +L1).",
       "files": {
         "guide": "filesystems/enlaces_hard_soft_links.md",
         "script": "filesystems/demo_enlaces.sh",
@@ -1468,7 +1478,8 @@
         "lab-3.13-mantenimiento-volumenes"
       ],
       "next_recommended_labs": [
-        "lab-3.15-alertmanager-alertas-locales"
+        "lab-3.15-alertmanager-alertas-locales",
+        "lab-3.16-integrador-web-lvm-raid-monitoreo"
       ],
       "mcp_tools": [
         "linux-labs-tutor",
@@ -1556,7 +1567,126 @@
         "lab-3.14-monitoreo-disco-custom"
       ],
       "next_recommended_labs": [
+        "lab-3.16-integrador-web-lvm-raid-monitoreo",
         "integrador-4.5-raid-metrics-prometheus"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.16-integrador-web-lvm-raid-monitoreo",
+      "title": "Taller Integrador: Servidor Web sobre LVM RAID 1, Telemetría PULL (Node Exporter), Falla en Vivo, TUI y Grafana",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.16",
+      "sections": [
+        "3.16",
+        "3"
+      ],
+      "category": "observability",
+      "tags": [
+        "observability",
+        "storage",
+        "lvm",
+        "raid",
+        "raid1",
+        "dm-raid",
+        "node-exporter",
+        "prometheus",
+        "grafana",
+        "tui",
+        "web-server",
+        "zero-downtime",
+        "fallas-en-vivo",
+        "online-repair"
+      ],
+      "tools": [
+        "node_exporter",
+        "curl",
+        "lvcreate",
+        "lvconvert",
+        "vgcreate",
+        "pvcreate",
+        "losetup",
+        "dd",
+        "lvs",
+        "vgs",
+        "mkfs.ext4",
+        "python3",
+        "prometheus",
+        "grafana",
+        "wall",
+        "mail"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Ejecución de punta a punta con demo_taller_integrador.sh, servidor web en puerto 8080 sobre LVM RAID 1, destrucción con dd, zero downtime comprobado y recuperación en caliente con lvconvert --repair."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Probado en Ubuntu 24.04 con loop devices, lvm2, Node Exporter, TUI y Grafana standalone."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-31",
+          "notes": "Compatible con volúmenes EBS y loop devices en cualquier distribución Linux moderna."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Rocky Linux 10.2",
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Taller integrador de administración de sistemas y observabilidad diseñado para clases en vivo. Comienza explicando la evolución desde el diagnóstico reactivo tradicional (uptime, vmstat, df) hacia el modelo PULL moderno con Prometheus Node Exporter. Despliega un servicio web productivo montado sobre almacenamiento resiliente con LVM RAID 1 (dm-raid), genera tráfico HTTP, destruye un disco físico en caliente con dd demostrando cero tiempo de caída (zero downtime), recupera la salud del arreglo en caliente con lvconvert --repair y visualiza la telemetría del sistema a través de un panel gráfico en terminal (TUI) y el circuito completo con Prometheus y Grafana.",
+      "files": {
+        "guide": "monitoreo/taller_integrador_web_lvm_monitoreo.md",
+        "script": "monitoreo/demo_taller_integrador.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-1.4-tools-stats",
+        "lab-3.2-lvm2-online-resize",
+        "lab-3.9-raid-lvm",
+        "lab-3.6-monitoreo-metricas"
+      ],
+      "next_recommended_labs": [
+        "lab-3.14-monitoreo-disco-custom",
+        "integrador-4.1-web-raid-luks-borg"
       ],
       "mcp_tools": [
         "linux-labs-tutor",
@@ -1822,8 +1952,99 @@
       ]
     },
     {
+      "id": "lab-3.3.0-cifrado-arquitecturas-comparativa",
+      "title": "Arquitecturas de Cifrado en Linux: Bloques (LUKS2), Filesystems (gocryptfs) y Aplicación (GPG/age)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.3",
+      "sections": [
+        "3.3",
+        "3"
+      ],
+      "category": "security",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "security",
+        "cifrado",
+        "luks",
+        "gocryptfs",
+        "gpg",
+        "age",
+        "fde",
+        "dm-crypt",
+        "comparativa",
+        "arquitectura"
+      ],
+      "tools": [
+        "cryptsetup",
+        "gocryptfs",
+        "gpg",
+        "lsblk",
+        "df"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-30",
+          "notes": "Comparativa y validación conceptual de capas de cifrado en Linux sobre discos loop y espacio de usuario."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-30",
+          "notes": "Compatible con volúmenes EBS gp3 y almacenamiento S3."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía introductoria y comparativa sobre las arquitecturas de cifrado de datos en reposo en Linux. Analiza y contrasta los tres niveles fundamentales de protección criptográfica: cifrado de bloques o disco completo (FDE con LUKS2 y dm-crypt), cifrado a nivel de sistema de archivos en espacio de usuario (gocryptfs vía FUSE) y cifrado a nivel de archivo o aplicación (GnuPG y age). Evalúa vectores de ataque, filtración de metadatos (nombres, tamaños, estructura de directorios y timestamps), impacto de rendimiento con aceleración por hardware AES-NI, requerimientos de privilegios root y compatibilidad con sincronización en la nube (S3, Dropbox) y respaldos incrementales.",
+      "files": {
+        "guide": "cifrado/cifrado_arquitecturas_comparativa.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems"
+      ],
+      "next_recommended_labs": [
+        "lab-3.3-cifrado-luks",
+        "lab-3.4-cifrado-fuse-gocryptfs",
+        "lab-3.4b-gpg-firmas-repositorios-backups"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-3.3-cifrado-luks",
-      "title": "Cifrado de Bloques en Reposo con LUKS (dm-crypt, Key Management e Inspección Forense)",
+      "title": "Cifrado de Bloques en Reposo con LUKS2 (dm-crypt, Keyslots, TPM2 y Clevis/Tang)",
       "difficulty_level": 3,
       "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
       "section": "3.3",
@@ -1836,8 +2057,12 @@
         "security",
         "cifrado",
         "luks",
+        "luks2",
         "dm-crypt",
         "cryptsetup",
+        "tpm2",
+        "systemd-cryptenroll",
+        "clevis-tang",
         "forense",
         "loop-device",
         "dev-mapper"
@@ -1848,7 +2073,8 @@
         "strings",
         "dd",
         "mkfs.ext4",
-        "lsblk"
+        "lsblk",
+        "systemd-cryptenroll"
       ],
       "requirements": {
         "root_required": true,
@@ -1861,11 +2087,11 @@
           "environment": "WSL2",
           "type": "local",
           "instance_type": "virtualized",
-          "os": "Ubuntu 24.04 LTS",
+          "os": "Rocky Linux 10.2 / Ubuntu 24.04 LTS",
           "kernel": "6.18.54.1-microsoft-standard-WSL2",
           "status": "PASSED",
-          "test_date": "2026-10-17",
-          "notes": "Ejecución de demo_luks.sh sobre /dev/loop30, formateo luksFormat, apertura en /dev/mapper/datos_seguros e inspección de entropía forense con strings."
+          "test_date": "2026-10-30",
+          "notes": "Ejecución de demo_luks.sh con LUKS2, formateo luksFormat con Argon2id, luksDump de keyslots, apertura en /dev/mapper/ y verificación forense con strings."
         },
         {
           "environment": "AWS EC2",
@@ -1873,8 +2099,8 @@
           "instance_type": "t3.micro",
           "os": "Ubuntu 24.04 LTS",
           "status": "VERIFIED",
-          "test_date": "2026-10-17",
-          "notes": "Cifrado de bloques en volúmenes EBS en AWS."
+          "test_date": "2026-10-30",
+          "notes": "Cifrado de bloques en volúmenes EBS en AWS con persistencia en /etc/crypttab."
         }
       ],
       "environments": [
@@ -1882,10 +2108,11 @@
         "AWS EC2"
       ],
       "operating_systems": [
+        "Rocky Linux 10.2",
         "Ubuntu 24.04 LTS"
       ],
       "status": "PASSED",
-      "rag_summary": "Laboratorio de seguridad y cifrado de datos en reposo con Linux Unified Key Setup (LUKS) y el módulo del kernel dm-crypt. Demuestra cómo inicializar un dispositivo cifrado con cryptsetup, mapearlo en /dev/mapper, montar un filesystem ext4 seguro y realizar un análisis forense con strings para verificar que los datos resultan completamente ilegibles e indistinguibles de ruido aleatorio cuando el contenedor está cerrado.",
+      "rag_summary": "Guía profesional de cifrado de almacenamiento en reposo con LUKS2 y dm-crypt. Cubre el ciclo de vida completo: luksFormat con Argon2id, inspección con luksDump, mapeo con luksOpen/luksClose, gestión de múltiples claves (luksAddKey, luksChangeKey, luksKillSlot), respaldo de cabeceras críticas (luksHeaderBackup), desbloqueo moderno sin intervención manual mediante TPM 2.0 (systemd-cryptenroll) y Clevis/Tang (NBDE), junto con optimizaciones SSD/NVMe (--allow-discards) y cripto-destrucción forense (crypto-shredding).",
       "files": {
         "guide": "luks/luks.md",
         "script": "luks/demo_luks.sh",
@@ -1979,6 +2206,457 @@
       "execution_mode": "manual_commands",
       "prerequisites": [
         "lab-3.3-cifrado-luks"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.4b-gpg-firmas-repositorios-backups",
+      "title": "Criptografía Asimétrica con GnuPG (GPG): Firmas de Repositorios (APT/RPM) y Backups Asimétricos",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.4",
+      "sections": [
+        "3.4",
+        "3"
+      ],
+      "category": "security",
+      "tags": [
+        "security",
+        "cifrado",
+        "gpg",
+        "gnupg",
+        "asimetrico",
+        "firmas-digitales",
+        "apt-keyrings",
+        "rpm-checksig",
+        "backups-asimetricos",
+        "git-commit-signing",
+        "sops",
+        "age"
+      ],
+      "tools": [
+        "gpg",
+        "gpgv",
+        "rpm",
+        "gzip",
+        "tar",
+        "sha256sum"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Rocky Linux 10.2 / Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-30",
+          "notes": "Generación no interactiva de claves en batch, firmas detached/clearsign, verificación con gpg --verify, pipeline de backup comprimido asimétrico y prueba de dearmor para APT."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-30",
+          "notes": "Pipeline de backup a S3 con clave pública exclusiva en la instancia EC2."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Rocky Linux 10.2",
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio integral de criptografía asimétrica moderna con GnuPG (GPG). Explica la arquitectura interna de claves públicas, claves privadas, subclaves [SC] y [E], y huellas digitales (fingerprints). Cubre el set completo de comandos clásicos (--gen-key, --list-keys, --export, --import, --sign, --verify, --encrypt, --decrypt) y se enfoca en casos reales de producción: firma y verificación de repositorios (APT con /etc/apt/keyrings y RPM checksig), tuberías automatizadas de backup asimétrico sin clave privada en el servidor, firma de commits en Git para CI/CD y comparativa con herramientas modernas como age y SOPS.",
+      "files": {
+        "guide": "gpg/gpg_firmas_repositorios_backups.md",
+        "script": "gpg/demo_gpg.sh",
+        "terraform": null
+      },
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "prerequisites": [
+        "lab-3.3.0-cifrado-arquitecturas-comparativa"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.5.0-backup-arquitecturas-comparativa",
+      "title": "Arquitecturas de Respaldo en Linux: Estrategias (Full, Incremental, Diferencial, CDP), Deduplicación y Matriz de Herramientas",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "reading_only",
+      "tags": [
+        "storage",
+        "backup",
+        "restore",
+        "rpo",
+        "rto",
+        "full-backup",
+        "incremental",
+        "diferencial",
+        "cdp",
+        "deduplicacion",
+        "tar",
+        "rsync",
+        "rdiff-backup",
+        "duplicity",
+        "borg",
+        "restic",
+        "bacula",
+        "lvm-snapshots",
+        "arquitectura",
+        "comparativa"
+      ],
+      "tools": [
+        "tar",
+        "rsync",
+        "rdiff-backup",
+        "duplicity",
+        "borg",
+        "dd",
+        "lvs",
+        "lvcreate",
+        "sha256sum"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Guía teórica y matriz taxonómica completa validada frente al temario de Linux SysAdmin Módulo 6 (Backups)."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "Bare Metal",
+        "Cloud VMs"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de arquitectura y taxonomía exhaustiva sobre copias de seguridad en Linux. Define y contrasta las estrategias fundamentales (Backup Completo, Incremental, Diferencial y Continuo CDP), las métricas RPO y RTO, la Regla 3-2-1 y los procedimientos de verificación y prueba de restauración. Clasifica el ecosistema de herramientas en 6 niveles: archivadores clásicos de streaming (tar, cpio, dd), sincronización y deltas a nivel de filesystem (rsync con hard links, rdiff-backup), copias cifradas remotas (duplicity, rclone), motores modernos con chunking CDC (Borg, restic), suites enterprise cliente-servidor (Bacula, Bareos) y snapshots Copy-on-Write (LVM, Btrfs, ZFS). Incluye matriz comparativa de decisiones, anti-patrones de producción y hoja de ruta pedagógica hacia laboratorios prácticos.",
+      "files": {
+        "guide": "backup/backup_arquitecturas_comparativa.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems",
+        "lab-3.2-enlaces-hard-soft-links"
+      ],
+      "next_recommended_labs": [
+        "lab-3.5.1-backup-tar-rsync-incremental",
+        "lab-3.5.2-backup-rdiff-duplicity",
+        "lab-3.5.3-backup-dd-imagenes-lvm-snapshots",
+        "lab-3.5-borg-backup"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.5.3-backup-dd-imagenes-lvm-snapshots",
+      "title": "Respaldos a Nivel de Bloque Crudo (Imágenes de Disco con dd) y Copias Atómicas Consistentes con Snapshots LVM",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "backup",
+        "dd",
+        "lvm",
+        "snapshots",
+        "cow",
+        "raw-image",
+        "mbr",
+        "gpt",
+        "zero-downtime",
+        "consistencia"
+      ],
+      "tools": [
+        "dd",
+        "lvcreate",
+        "lvremove",
+        "lvs",
+        "losetup",
+        "mkfs.ext4",
+        "mount",
+        "umount",
+        "e2fsck",
+        "gzip"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Probado de punta a punta en WSL2 con dispositivos loop, snapshot LVM CoW, extracción consistente en streaming y restauración íntegra."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "Bare Metal",
+        "Cloud VMs"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico interactivo sobre copias de seguridad de bajo nivel a nivel de bloques (Raw Disk Imaging) y respaldos consistentes en caliente mediante Snapshots LVM Copy-on-Write. Demuestra el uso forense de dd para clonar sectores de arranque MBR/GPT y particiones completas con compresión en streaming (gzip/zstd), buffers optimizados (bs=4M) y banderas de tolerancia a fallos (conv=noerror,sync). Expone el dilema de la corrupción transaccional al realizar copias crudas sobre sistemas de archivos activos en producción y enseña la solución empresarial estándar: congelar atómicamente el estado mediante un snapshot LVM CoW (lvcreate --snapshot), extraer el respaldo sin suspender las operaciones del servicio y destruir el snapshot para liberar espacio.",
+      "files": {
+        "guide": "backup/backup_dd_imagenes_raw_lvm_snapshots.md",
+        "script": "backup/demo_backup_dd_snapshots.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems",
+        "lab-3.5.0-backup-arquitecturas-comparativa"
+      ],
+      "next_recommended_labs": [
+        "lab-3.5-borg-backup",
+        "lab-3.16-integrador-web-lvm-raid-monitoreo"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.5.2-backup-rdiff-duplicity",
+      "title": "Respaldos Incrementales Basados en Deltas con rdiff-backup y Copias Cifradas con GPG hacia Almacenamiento Remoto con Duplicity",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "backup",
+        "rdiff-backup",
+        "duplicity",
+        "gpg",
+        "deltas",
+        "incremental",
+        "cloud-backup",
+        "librsync",
+        "restore"
+      ],
+      "tools": [
+        "rdiff-backup",
+        "duplicity",
+        "gpg",
+        "ls",
+        "du",
+        "sha256sum"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Ejecución y pruebas completadas con demo_backup_rdiff_duplicity.sh, validando deltas inversos y cifrado GPG asimétrico."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "Bare Metal",
+        "Cloud VMs"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico interactivo sobre tecnologías de respaldo incremental basadas en deltas y cifrado para almacenamiento remoto. Profundiza en rdiff-backup (arquitectura de espejo transparente donde el backup actual es directamente navegable sin comandos especiales, combinada con un historial de deltas inversos en rdiff-backup-data para viajar en el tiempo con --restore-as-of) y en Duplicity (respaldos incrementales basados en el algoritmo librsync cifrados de extremo a extremo con GnuPG y comprimidos, diseñados para targets remotos como SFTP, S3 o servidores externos no confiables). Incluye políticas de rotación periódica (--full-if-older-than 1M), poda de historiales antiguos, restauración granular y verificación de integridad.",
+      "files": {
+        "guide": "backup/backup_rdiff_duplicity.md",
+        "script": "backup/demo_backup_rdiff_duplicity.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.4b-gpg-firmas-repositorios-backups",
+        "lab-3.5.0-backup-arquitecturas-comparativa",
+        "lab-3.5.1-backup-tar-rsync-incremental"
+      ],
+      "next_recommended_labs": [
+        "lab-3.5.3-backup-dd-imagenes-lvm-snapshots",
+        "lab-3.5-borg-backup"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.5.1-backup-tar-rsync-incremental",
+      "title": "Respaldos Clásicos en Linux: Empaquetado con tar (Full e Incremental con SNAR) y Deduplicación Inteligente con rsync (--link-dest)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.5",
+      "sections": [
+        "3.5",
+        "3"
+      ],
+      "category": "storage",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "storage",
+        "backup",
+        "tar",
+        "rsync",
+        "link-dest",
+        "hard-links",
+        "deduplicacion",
+        "incremental",
+        "restore",
+        "sha256sum"
+      ],
+      "tools": [
+        "tar",
+        "rsync",
+        "ls",
+        "stat",
+        "du",
+        "sha256sum",
+        "rm"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Ejecución exitosa con demo_backup_tar_rsync.sh, comprobación de inodos compartidos con stat y restauración íntegra."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "Bare Metal",
+        "Cloud VMs"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico interactivo sobre copias de seguridad clásicas y deduplicación inteligente en Linux. Explora el empaquetado y compresión con GNU tar (flags -cvpzf, preservación estricta de permisos numéricos y exclusiones), el mecanismo de snapshots incrementales con tar --listed-incremental (.snar) y la técnica avanzada de deduplicación a nivel de inodo con rsync --link-dest (utilizada por herramientas como Time Machine y rsnapshot). Demuestra con comandos stat y recuentos de nlink cómo múltiples respaldos completos aparentes consumen únicamente los deltas modificados en disco físico. Incluye pruebas de verificación criptográfica con sha256sum, simulacro de recuperación ante pérdidas catastróficas y script de limpieza total.",
+      "files": {
+        "guide": "backup/backup_tar_rsync_incremental.md",
+        "script": "backup/demo_backup_tar_rsync.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.2-enlaces-hard-soft-links",
+        "lab-3.5.0-backup-arquitecturas-comparativa"
+      ],
+      "next_recommended_labs": [
+        "lab-3.5.2-backup-rdiff-duplicity",
+        "lab-3.5-borg-backup"
       ],
       "mcp_tools": [
         "linux-labs-tutor",
@@ -2229,6 +2907,114 @@
       ]
     },
     {
+      "id": "lab-3.6.0-monitoreo-arquitecturas-comparativa",
+      "title": "Arquitecturas de Monitoreo y Observabilidad en Linux: Paradigmas (Pull vs Push), los 4 Pilares y Matriz Comparativa",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.6",
+      "sections": [
+        "3.6",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "reading_only",
+      "tags": [
+        "observability",
+        "monitoreo",
+        "monitoring",
+        "metricas",
+        "logs",
+        "trazas",
+        "probes",
+        "pull-push",
+        "prometheus",
+        "victoriametrics",
+        "datadog",
+        "graphite",
+        "nagios",
+        "zabbix",
+        "loki",
+        "elk",
+        "opentelemetry",
+        "blackbox",
+        "comparativa",
+        "arquitectura"
+      ],
+      "tools": [
+        "curl",
+        "systemctl",
+        "prometheus",
+        "node_exporter",
+        "grafana",
+        "zabbix_agent",
+        "telegraf",
+        "promql",
+        "logql"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Guía teórica y matriz taxonómica completa validada para observabilidad y monitoreo en Linux."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-31",
+          "notes": "Validación conceptual de arquitecturas Pull vs Push en entornos de nube."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2",
+        "Bare Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía de arquitectura y taxonomía exhaustiva sobre monitoreo y observabilidad en Linux. Analiza la evolución desde la supervisión reactiva clásica (Nagios, Cacti, Zabbix) hacia la observabilidad multidimensional moderna basada en Time-Series Databases (TSDB) y los cuatro pilares fundamentales: Métricas (valores numéricos agregables), Registros/Logs (contexto de eventos forenses), Trazas Distribuidas/APM (recorrido de peticiones entre microservicios) y Pruebas Sintéticas/Probes (monitoreo de caja negra de disponibilidad externa). Detalla el gran debate arquitectural entre modelos PULL (scraping periódico centralizado tipo Prometheus/VictoriaMetrics) y PUSH (agentes transmitiendo activamente tipo Datadog/Graphite/Telegraf), evaluando implicaciones en traversals de firewalls, descubrimiento dinámico de servicios, detección de nodos caídos y sobrecarga de red. Incluye una matriz comparativa definitiva de 10 plataformas y stacks, análisis de formatos OpenMetrics y OTLP, árboles de decisión operativa, anti-patrones de producción (explosión de cardinalidad, fatiga de alertas) y glosario técnico normalizado.",
+      "files": {
+        "guide": "monitoreo/monitoreo_arquitecturas_comparativa.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.1-anatomia-filesystems"
+      ],
+      "next_recommended_labs": [
+        "lab-3.6-monitoreo-metricas",
+        "lab-3.6.1-monitoreo-disco-custom",
+        "lab-3.6.2-alertmanager-alertas-locales",
+        "lab-3.16-taller-integrador-web-lvm-monitoreo"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-3.6-monitoreo-metricas",
       "title": "Monitoreo Continuo y Métricas en Producción (Node Exporter, Textfile Collector, LVM Mirror y Backups)",
       "difficulty_level": 3,
@@ -2316,6 +3102,10 @@
         "linux-labs-tutor",
         "bash",
         "filesystem"
+      ],
+      "next_recommended_labs": [
+        "lab-3.14-monitoreo-disco-custom",
+        "lab-3.16-integrador-web-lvm-raid-monitoreo"
       ]
     },
     {
@@ -2399,7 +3189,8 @@
       ],
       "mcp_tools": [
         "linux-labs-tutor",
-        "bash"
+        "bash",
+        "filesystem"
       ]
     },
     {
@@ -2482,7 +3273,8 @@
       ],
       "mcp_tools": [
         "linux-labs-tutor",
-        "bash"
+        "bash",
+        "filesystem"
       ]
     },
     {
@@ -2572,7 +3364,8 @@
       ],
       "mcp_tools": [
         "linux-labs-tutor",
-        "bash"
+        "bash",
+        "filesystem"
       ]
     },
     {

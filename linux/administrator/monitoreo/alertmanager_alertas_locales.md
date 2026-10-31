@@ -1,6 +1,7 @@
 ---
 id: lab-3.15-alertmanager-alertas-locales
-title: 'Gestión y Disparo de Alertas con Prometheus y Alertmanager (Receptor Local en Terminal sin Dependencias Externas)'
+title: Gestión y Disparo de Alertas con Prometheus y Alertmanager (Receptor Local
+  en Terminal sin Dependencias Externas)
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.15'
@@ -42,21 +43,31 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-24'
-  notes: Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus v2.54. Soporta ejecución con binarios independientes en /tmp o servicios nativos instalados vía APT en Ubuntu/Debian.
+  notes: Probado de punta a punta con webhook_receiver.py, Alertmanager v0.27 y Prometheus
+    v2.54. Soporta ejecución con binarios independientes en /tmp o servicios nativos
+    instalados vía APT en Ubuntu/Debian.
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-24'
-  notes: Compatible en instancias EC2 sin requerir apertura de puertos de correo (puerto 25/587 bloqueado por proveedores de nube).
+  notes: Compatible en instancias EC2 sin requerir apertura de puertos de correo (puerto
+    25/587 bloqueado por proveedores de nube).
 environments:
 - WSL2
 - AWS EC2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager diseñado para entornos de práctica y estudio sin dependencias externas como SMTP o tokens de Slack. Permite usar tanto servicios instalados vía APT como binarios portables, implementa un receptor webhook local ultraliviano en Python estándar que imprime alertas formateadas en consola, define reglas de alerta para saturación de espacio e inodos, simula un incidente de almacenamiento en caliente y explica la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a canales productivos.
+rag_summary: Laboratorio de configuración y disparo de alertas con Prometheus Alertmanager
+  diseñado para entornos de práctica y estudio sin dependencias externas como SMTP
+  o tokens de Slack. Permite usar tanto servicios instalados vía APT como binarios
+  portables, implementa un receptor webhook local ultraliviano en Python estándar
+  que imprime alertas formateadas en consola, define reglas de alerta para saturación
+  de espacio e inodos, simula un incidente de almacenamiento en caliente y explica
+  la transición de estados (Inactive, Pending, Firing, Resolved) y la migración a
+  canales productivos.
 files:
   guide: monitoreo/alertmanager_alertas_locales.md
   script: monitoreo/scripts/webhook_receiver.py
@@ -65,12 +76,14 @@ prerequisites:
 - lab-3.6-monitoreo-metricas
 - lab-3.14-monitoreo-disco-custom
 next_recommended_labs:
+- lab-3.16-integrador-web-lvm-raid-monitoreo
 - integrador-4.5-raid-metrics-prometheus
 mcp_tools:
 - linux-labs-tutor
 - bash
 - filesystem
 ---
+
 
 # Laboratorio: Prometheus Alertmanager (Alertas Locales en Terminal sin Email ni Slack)
 

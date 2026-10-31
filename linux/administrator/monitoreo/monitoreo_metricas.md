@@ -80,7 +80,11 @@ mcp_tools:
 - linux-labs-tutor
 - bash
 - filesystem
+next_recommended_labs:
+- lab-3.14-monitoreo-disco-custom
+- lab-3.16-integrador-web-lvm-raid-monitoreo
 ---
+
 
 # Laboratorio: Monitoreo y Métricas en Linux (De Cero a Producción)
 
@@ -150,6 +154,173 @@ sequenceDiagram
     Exporter->>Exporter: Lee métricas del sistema (/proc/stat, /proc/meminfo)
     Exporter-->>Monitor: Retorna texto plano con todas las métricas y etiquetas
 ```
+
+---
+
+## ⏱️ Guía Rápida Paso a Paso (Punta a Punta en 10 Minutos)
+
+Si querés ejecutar el laboratorio completo directamente sin navegar la teoría extensa, seguí estos pasos secuenciales:
+
+### Paso 1: Instalar y levantar Node Exporter
+```bash
+# 1. Crear el directorio obligatorio del Textfile Collector
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+sudo chmod 775 /var/lib/node_exporter/textfile_collector
+
+# 2. Instalar el servicio:
+# En Debian / Ubuntu:
+if command -v apt-get &>/dev/null; then
+    sudo apt update && sudo apt install -y prometheus-node-exporter
+    echo 'ARGS="--collector.textfile.directory=/var/lib/node_exporter/textfile_collector"' | sudo tee /etc/default/prometheus-node-exporter
+    sudo systemctl restart prometheus-node-exporter
+    sudo systemctl enable prometheus-node-exporter
+else
+    # En RHEL / Rocky Linux / Arch / WSL (binario Go oficial <15MB):
+    VER="1.8.2"
+    curl -sL "https://github.com/prometheus/node_exporter/releases/download/v${VER}/node_exporter-${VER}.linux-amd64.tar.gz" | tar -xz -C /tmp/
+    sudo cp /tmp/node_exporter-${VER}.linux-amd64/node_exporter /usr/local/bin/
+    sudo /usr/local/bin/node_exporter --collector.textfile.directory=/var/lib/node_exporter/textfile_collector --web.listen-address=":9100" &>/tmp/node_exporter.log &
+fi
+
+# 3. Comprobar que expone métricas en el puerto 9100
+curl -s http://localhost:9100/metrics | head -n 5
+```
+
+### Paso 2: Crear el Colector de Almacenamiento (Espejo LVM RAID 1)
+```bash
+sudo tee /usr/local/bin/colector_mirror.sh << 'EOF'
+#!/usr/bin/env bash
+OUTPUT_FILE="/var/lib/node_exporter/textfile_collector/storage_mirror.prom"
+HEALTH=1
+if lvs --noheadings -o health_status vg_mysql/lv_mysql 2>/dev/null | grep -q -i "partial\|fail"; then
+    HEALTH=0
+fi
+echo "lvm_mirror_health{vg=\"vg_mysql\",lv=\"lv_mysql\"} $HEALTH" > "${OUTPUT_FILE}.$$"
+mv "${OUTPUT_FILE}.$$" "$OUTPUT_FILE"
+EOF
+
+sudo chmod +x /usr/local/bin/colector_mirror.sh
+sudo /usr/local/bin/colector_mirror.sh
+
+# Verificar métrica publicada:
+curl -s http://localhost:9100/metrics | grep lvm_mirror_health
+```
+
+### Paso 3: Crear el Colector de Tráfico Web y Sesiones SSH
+```bash
+sudo tee /usr/local/bin/colector_sistema_lab.sh << 'EOF'
+#!/usr/bin/env bash
+OUTPUT_FILE="/var/lib/node_exporter/textfile_collector/sistema_lab.prom"
+SSH_CONEXIONES=$(ss -tn state established '( dport = :22 or sport = :22 )' | grep -v Recv-Q | wc -l)
+CONEXIONES_HTTP=$(ss -tn state established '( dport = :80 or sport = :80 )' | grep -v Recv-Q | wc -l)
+cat <<METRICS > "${OUTPUT_FILE}.$$"
+# HELP server_active_ssh_sessions Conexiones SSH activas en este momento
+# TYPE server_active_ssh_sessions gauge
+server_active_ssh_sessions $SSH_CONEXIONES
+# HELP http_active_connections Conexiones HTTP concurrentes en puerto 80
+# TYPE http_active_connections gauge
+http_active_connections $CONEXIONES_HTTP
+METRICS
+mv "${OUTPUT_FILE}.$$" "$OUTPUT_FILE"
+EOF
+
+sudo chmod +x /usr/local/bin/colector_sistema_lab.sh
+sudo /usr/local/bin/colector_sistema_lab.sh
+
+# Verificar métricas publicadas:
+curl -s http://localhost:9100/metrics | grep server_active_ssh_sessions
+```
+
+### Paso 4: Crear la Tarea de Respaldo con Emisión PUSH
+```bash
+sudo tee /usr/local/bin/backup_simulado.sh << 'EOF'
+#!/usr/bin/env bash
+METRICS_FILE="/var/lib/node_exporter/textfile_collector/backup_status.prom"
+TARGET_DIR="/var/backups/lab"
+sudo mkdir -p "$TARGET_DIR"
+INICIO=$(date +%s)
+DESTINO="$TARGET_DIR/backup_data_$(date +%Y%m%d_%H%M%S).tar.gz"
+
+if tar -czf "$DESTINO" /etc 2>/dev/null; then
+    EXIT_STATUS=1
+    TAMANO_BYTES=$(stat -c%s "$DESTINO" 2>/dev/null || echo 0)
+else
+    EXIT_STATUS=0
+    TAMANO_BYTES=0
+fi
+FIN=$(date +%s)
+DURACION=$(( FIN - INICIO ))
+
+cat <<METRICS > "${METRICS_FILE}.$$"
+# HELP backup_last_run_timestamp_seconds Fecha unix del ultimo backup
+# TYPE backup_last_run_timestamp_seconds gauge
+backup_last_run_timestamp_seconds{job="sistema_etc"} $FIN
+# HELP backup_last_status Resultado del ultimo backup (1=OK, 0=Error)
+# TYPE backup_last_status gauge
+backup_last_status{job="sistema_etc"} $EXIT_STATUS
+# HELP backup_last_size_bytes Tamano en bytes del backup
+# TYPE backup_last_size_bytes gauge
+backup_last_size_bytes{job="sistema_etc"} $TAMANO_BYTES
+# HELP backup_duration_seconds Duracion en segundos
+# TYPE backup_duration_seconds gauge
+backup_duration_seconds{job="sistema_etc"} $DURACION
+METRICS
+mv "${METRICS_FILE}.$$" "$METRICS_FILE"
+EOF
+
+sudo chmod +x /usr/local/bin/backup_simulado.sh
+sudo /usr/local/bin/backup_simulado.sh
+
+# Verificar métricas de backup:
+curl -s http://localhost:9100/metrics | grep backup_last
+```
+
+### Paso 5: Automatización con Systemd Timers (cada 10 segundos)
+```bash
+# 1. Crear servicio one-shot
+sudo tee /etc/systemd/system/lab-metrics.service << 'EOF'
+[Unit]
+Description=Generador de Metricas Custom para Node Exporter
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/local/bin/colector_mirror.sh && /usr/local/bin/colector_sistema_lab.sh"
+EOF
+
+# 2. Crear timer recurrente
+sudo tee /etc/systemd/system/lab-metrics.timer << 'EOF'
+[Unit]
+Description=Ejecutar colector de metricas cada 10 segundos
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=10s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# 3. Habilitar e iniciar
+sudo systemctl daemon-reload
+sudo systemctl enable --now lab-metrics.timer
+sudo systemctl list-timers | grep lab-metrics
+```
+
+### Paso 6: Visualizar las Métricas en Vivo y Simular Fallas
+```bash
+# Monitoreo continuo en terminal (ejecutar en una ventana):
+watch -n 1 -d 'curl -s http://localhost:9100/metrics | grep -E "(lvm_mirror_health|server_active_ssh_sessions|backup_last_status|backup_last_size_bytes)" | grep -v "^#"'
+```
+
+### Paso 7: Limpieza del Entorno al Finalizar
+Cuando desees desmantelar el laboratorio, detener Node Exporter, deshabilitar los timers de systemd y purgar los scripts colectores y métricas generadas, ejecutá el script de limpieza automatizado:
+```bash
+sudo ./linux/administrator/monitoreo/limpiar_monitoreo.sh
+```
+
+> 💡 **Opción automatizada para clases:** También podés ejecutar todo de forma interactiva con el script del repositorio: `sudo ./linux/administrator/monitoreo/demo_monitoreo.sh`
 
 ---
 

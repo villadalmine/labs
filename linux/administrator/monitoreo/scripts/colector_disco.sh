@@ -25,6 +25,13 @@ TEXTFILE_DIR="${TEXTFILE_DIR:-/var/lib/node_exporter/textfile_collector}"
 OUTPUT_FILE="${TEXTFILE_DIR}/custom_disk_health.prom"
 TMP_FILE="${OUTPUT_FILE}.$$"
 
+# Validación de privilegios si se usa el directorio del sistema
+if [ "$EUID" -ne 0 ] && [ "$TEXTFILE_DIR" = "/var/lib/node_exporter/textfile_collector" ]; then
+    echo "❌ Error: Se requieren permisos de superusuario (root) para escribir en $TEXTFILE_DIR" >&2
+    echo "Ejecutá: sudo $0" >&2
+    exit 1
+fi
+
 mkdir -p "$TEXTFILE_DIR"
 
 # 1. Cabeceras OpenMetrics (HELP y TYPE para cada métrica expuesta)
@@ -59,7 +66,6 @@ df -PT -B1 -x tmpfs -x devtmpfs -x squashfs -x overlay 2>/dev/null | tail -n +2 
     [[ "$pcent_num" =~ ^[0-9]+$ ]] || pcent_num=0
 
     # 3. Recolección de Inodos para este punto de montaje específico (-i)
-    # Salida esperada de df -PTi: Filesystem Type Inodes IUsed IFree IUse% Mounted
     read -r itotal iused ifree ipcent < <(df -PTi "$mount" 2>/dev/null | tail -n 1 | awk '{print $3, $4, $5, $6}')
     ipcent_num="${ipcent%\%}"
 
@@ -82,6 +88,8 @@ custom_disk_inodes_usage_percent{device="${dev}",mountpoint="${mount}",fstype="$
 EOF
 done
 
-# 5. Reemplazo atómico: garantiza que Prometheus nunca lea un archivo incompleto durante el scrape
+# 5. Reemplazo atómico y permisos para lectura de Node Exporter
 mv "$TMP_FILE" "$OUTPUT_FILE"
 chmod 644 "$OUTPUT_FILE"
+
+echo "✔ Métricas de disco exportadas exitosamente en: $OUTPUT_FILE"
