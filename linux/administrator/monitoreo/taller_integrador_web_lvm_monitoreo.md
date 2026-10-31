@@ -1,123 +1,128 @@
 ---
 id: lab-3.16-integrador-web-lvm-raid-monitoreo
-title: 'Taller Integrador: Servidor Web sobre LVM RAID 1, Telemetría PULL (Node Exporter), Falla en Vivo, TUI y Grafana'
+title: 'Taller Integrador: Servidor Web sobre LVM RAID 1, Telemetría PULL (Node Exporter),
+  Falla en Vivo, TUI y Grafana'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.16'
 sections:
-  - '3.16'
-  - '3'
+- '3.16'
+- '3'
 category: observability
 tags:
-  - observability
-  - storage
-  - lvm
-  - raid
-  - raid1
-  - dm-raid
-  - node-exporter
-  - prometheus
-  - grafana
-  - tui
-  - web-server
-  - zero-downtime
-  - fallas-en-vivo
-  - online-repair
+- observability
+- storage
+- lvm
+- raid
+- raid1
+- dm-raid
+- node-exporter
+- prometheus
+- grafana
+- tui
+- web-server
+- zero-downtime
+- fallas-en-vivo
+- online-repair
 tools:
-  - node_exporter
-  - curl
-  - lvcreate
-  - lvconvert
-  - vgcreate
-  - pvcreate
-  - losetup
-  - dd
-  - lvs
-  - vgs
-  - mkfs.ext4
-  - python3
-  - prometheus
-  - grafana
-  - wall
-  - mail
+- node_exporter
+- curl
+- lvcreate
+- lvconvert
+- vgcreate
+- pvcreate
+- losetup
+- dd
+- lvs
+- vgs
+- mkfs.ext4
+- python3
+- prometheus
+- grafana
+- wall
+- mail
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 1024
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Ejecución de punta a punta con demo_taller_integrador.sh, servidor web en puerto 8080 sobre LVM RAID 1, destrucción con dd, zero downtime comprobado y recuperación en caliente con lvconvert --repair.'
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Probado en Ubuntu 24.04 con loop devices, lvm2, Node Exporter, TUI y Grafana standalone.'
-  - environment: AWS EC2
-    type: cloud
-    instance_type: t3.micro
-    os: Ubuntu 24.04 LTS
-    status: VERIFIED
-    test_date: '2026-10-31'
-    notes: 'Compatible con volúmenes EBS y loop devices en cualquier distribución Linux moderna.'
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Ejecución de punta a punta con demo_taller_integrador.sh, servidor web en
+    puerto 8080 sobre LVM RAID 1, destrucción con dd, zero downtime comprobado y recuperación
+    en caliente con lvconvert --repair.
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Probado en Ubuntu 24.04 con loop devices, lvm2, Node Exporter, TUI y Grafana
+    standalone.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-31'
+  notes: Compatible con volúmenes EBS y loop devices en cualquier distribución Linux
+    moderna.
 environments:
-  - WSL2
-  - AWS EC2
+- WSL2
+- AWS EC2
 operating_systems:
-  - Rocky Linux 10.2
-  - Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: >-
-  Taller integrador de administración de sistemas y observabilidad diseñado para clases
-  en vivo. Comienza explicando la evolución desde el diagnóstico reactivo tradicional
-  (uptime, vmstat, df) hacia el modelo PULL moderno con Prometheus Node Exporter.
-  Despliega un servicio web productivo montado sobre almacenamiento resiliente con
-  LVM RAID 1 (dm-raid), genera tráfico HTTP, destruye un disco físico en caliente
-  con dd demostrando cero tiempo de caída (zero downtime), recupera la salud del
-  arreglo en caliente con lvconvert --repair y visualiza la telemetría del sistema
-  a través de un panel gráfico en terminal (TUI) y el circuito completo con Prometheus y Grafana.
+rag_summary: Taller integrador de administración de sistemas y observabilidad para
+  entornos de alta disponibilidad. Comienza explicando la evolución desde el diagnóstico
+  reactivo tradicional (uptime, vmstat, df) hacia el modelo PULL moderno con Prometheus
+  Node Exporter. Despliega un servicio web productivo montado sobre almacenamiento
+  resiliente con LVM RAID 1 (dm-raid), genera tráfico HTTP, destruye un disco físico
+  en caliente con dd demostrando cero tiempo de caída (zero downtime), recupera la
+  salud del arreglo en caliente con lvconvert --repair y visualiza la telemetría del
+  sistema a través de un panel gráfico en terminal (TUI) y el circuito completo con
+  Prometheus y Grafana.
 files:
   guide: monitoreo/taller_integrador_web_lvm_monitoreo.md
   script: monitoreo/demo_taller_integrador.sh
-  terraform: null
-resource_type: interactive_lab
+  terraform: monitoreo/terraform
+resource_type: cloud_project
 has_guide: true
 has_interactive_script: true
-has_terraform: false
-execution_mode: cli_interactive
+has_terraform: true
+execution_mode: terraform_apply
 prerequisites:
-  - lab-1.4-tools-stats
-  - lab-3.2-lvm2-online-resize
-  - lab-3.9-raid-lvm
-  - lab-3.6-monitoreo-metricas
+- lab-1.4-tools-stats
+- lab-3.2-lvm2-online-resize
+- lab-3.9-raid-lvm
+- lab-3.6-monitoreo-metricas
 next_recommended_labs:
-  - lab-3.14-monitoreo-disco-custom
-  - integrador-4.1-web-raid-luks-borg
+- lab-3.14-monitoreo-disco-custom
+- integrador-4.1-web-raid-luks-borg
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Taller Integrador: Servidor Web sobre LVM RAID 1, Telemetría PULL, Resiliencia en Vivo, TUI y Grafana
 
 > [!NOTE]
-> Este taller fue diseñado especialmente para **clases en vivo y laboratorios guiados**. Integra en una sola práctica coherente:
+> Este taller integrador aborda la arquitectura completa de alta disponibilidad y observabilidad de sistemas en producción:
 > 1. Cómo evolucionó el monitoreo desde los comandos de terminal de los 90 hacia el modelo **PULL** moderno.
 > 2. **Node Exporter "pelado"** (sin complejidades) para entender qué es una métrica en crudo.
 > 3. Un **servicio real** (página web corporativa) montado sobre almacenamiento empresarial con **LVM RAID 1**.
 > 4. La **destrucción intencional de un disco físico en caliente**, demostrando que la web **no se cae** (*Zero Downtime*).
 > 5. La **sustitución y reconstrucción en caliente** del disco dañado con `lvconvert --repair`.
-> 6. Un **dashboard TUI en terminal** para proyectar en el aula sin entorno gráfico.
+> 6. Un **dashboard TUI en terminal** para inspección operativa directa sin entorno gráfico.
 > 7. La instalación y despliegue completo de **Prometheus y Grafana** con aprovisionamiento automático y consultas PromQL.
 
 ---
@@ -128,7 +133,7 @@ mcp_tools:
 # 1. Ejecutar la demo de clase interactiva guiada (avanza paso a paso con ENTER):
 sudo ./linux/administrator/monitoreo/demo_taller_integrador.sh
 
-# 2. En una segunda terminal, abrir el dashboard visual TUI para el aula:
+# 2. En una segunda terminal, abrir el dashboard visual TUI en tiempo real:
 ./linux/administrator/monitoreo/tui_monitoreo.sh
 
 # 3. Limpiar absolutamente todo al terminar la clase:
@@ -183,8 +188,8 @@ iostat -xz 1 3 2>/dev/null || echo "iostat no instalado (sysstat)"
 df -h
 ```
 
-### 💬 Pie de Clase para el Docente:
-> *"Pregunta para los alumnos: Si un servidor colapsa a las 03:14 AM porque un proceso saturó el disco y el kernel lo reinició a las 03:16 AM... ¿qué información nos dan `uptime` o `df -h` cuando nos conectamos a las 09:00 AM? **Ninguna**. Son fotos del instante presente. Para saber qué ocurrió en el pasado necesitamos **telemetría continua almacenada en series temporales**."*
+### 💬 Análisis Operativo de Diagnóstico:
+> *"Pregunta de análisis técnico: Si un servidor colapsa a las 03:14 AM porque un proceso saturó el disco y el kernel lo reinició a las 03:16 AM... ¿qué información nos dan `uptime` o `df -h` cuando nos conectamos a las 09:00 AM? **Ninguna**. Son fotos del instante presente. Para saber qué ocurrió en el pasado necesitamos **telemetría continua almacenada en series temporales**."*
 
 ---
 
@@ -463,7 +468,7 @@ Salida:
 
 ## 9. Acto 7: TUI (Terminal User Interface) de Monitoreo
 
-Para dar una clase en vivo sin instalar herramientas gráficas pesadas ni configurar puertos web adicionales, este taller incluye un **Dashboard TUI en terminal** que podés proyectar en el aula o compartir por pantalla.
+Para inspeccionar la telemetría y el estado del almacenamiento en tiempo real sin requerir interfaces web pesadas ni abrir puertos adicionales, este taller incluye un **Dashboard TUI en terminal**.
 
 ---
 
@@ -585,13 +590,13 @@ chmod +x tui_monitoreo.sh
 
 ---
 
-### 🖥️ 2. ¿Dónde Tocar y Cómo Preparar la Pantalla para la Clase?
+### 🖥️ 2. Preparación Operativa: Monitoreo en Paralelo con Split de Terminal
 
-Para que los alumnos aprecien la magia de la tolerancia a fallos en tiempo real, lo ideal es **dividir la pantalla en dos terminales** (por ejemplo, con `tmux split-window -h` o abriendo dos pestañas/ventanas una al lado de la otra):
+Para visualizar la tolerancia a fallos y la respuesta del sistema en tiempo real, se recomienda **dividir la sesión en dos terminales** (por ejemplo, con `tmux split-window -h` o dos consolas adyacentes):
 
 ```text
 ┌───────────────────────────────────────┬───────────────────────────────────────┐
-│ TERMINAL 1 (IZQUIERDA - PROYECTOR)    │ TERMINAL 2 (DERECHA - DOCENTE / SSH)  │
+│ TERMINAL 1 (MONITOR TUI EN VIVO)      │ TERMINAL 2 (OPERACIONES / SSH)        │
 │                                       │                                       │
 │  $ ./tui_monitoreo.sh                 │  $ sudo dd if=/dev/zero ... (Falla)   │
 │                                       │  $ curl http://localhost:8080 (200 OK)│
@@ -599,7 +604,7 @@ Para que los alumnos aprecien la magia de la tolerancia a fallos en tiempo real,
 └───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
-#### Paso 1: En la Terminal 1 (Izquierda / Proyector)
+#### Paso 1: En la Terminal 1 (Monitor TUI)
 Ejecutá el monitor TUI para dejarlo en pantalla completa:
 ```bash
 # Refresco automático cada 1 segundo:
@@ -658,7 +663,7 @@ Acá es donde ejecutás los comandos de los Actos anteriores sin cerrar el monit
 
 ## 10. Acto 8: El Circuito Completo con Prometheus y Grafana
 
-Una vez demostrado el funcionamiento con el TUI en terminal, explicá a los alumnos cómo se monta la infraestructura gráfica profesional con **Prometheus** (almacenamiento de series de tiempo) y **Grafana** (visualización y dashboards).
+Una vez verificado el comportamiento local con el TUI en terminal, se despliega la infraestructura de observabilidad estándar con **Prometheus** (almacenamiento de series temporales) y **Grafana** (dashboards y alertas visuales).
 
 ```mermaid
 flowchart LR
@@ -672,7 +677,35 @@ flowchart LR
 
 ---
 
-### 🚀 1. Cómo Instalar y Levantar Prometheus en 1 Minuto
+### 🚀 1. Instalación Rápida de Prometheus y Grafana
+
+#### Método Recomendado: Gestor de Paquetes APT (Debian / Ubuntu / WSL2)
+En sistemas basados en Debian/Ubuntu, instalar desde los repositorios oficiales de paquetes es la alternativa más rápida, limpia y recomendada (sin descargas manuales con `wget` o `curl`):
+
+```bash
+# 1. Instalar Prometheus y Node Exporter vía APT:
+sudo apt-get update -qq
+sudo apt-get install -y -qq prometheus prometheus-node-exporter
+
+# 2. Configurar el scrape job hacia el servidor local en /etc/prometheus/prometheus.yml:
+# (Prometheus ya viene preconfigurado con localhost:9090 y localhost:9100)
+sudo systemctl enable --now prometheus
+sudo systemctl enable --now prometheus-node-exporter
+
+# 3. Instalar Grafana vía repositorio APT oficial:
+sudo apt-get install -y -qq apt-transport-https software-properties-common wget
+sudo mkdir -p /etc/apt/keyrings/
+wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update -qq
+sudo apt-get install -y -qq grafana
+sudo systemctl enable --now grafana-server
+```
+
+#### Método Alternativo: Binarios Portables en `/tmp` (Sin alterar el sistema)
+Si preferís no instalar paquetes a nivel de sistema operativo:
+
+##### Despliegue portable de Prometheus:
 
 Prometheus es el motor central que realiza las peticiones PULL hacia `:9100/metrics` y almacena el histórico en su base de datos de series temporales (TSDB).
 
@@ -846,7 +879,7 @@ EOF
 
 ### 🔍 5. Las Consultas PromQL Clave del Dashboard
 
-| Métrica | Expresión PromQL | Tipo de Panel | Utilidad en la Clase |
+| Métrica | Expresión PromQL | Tipo de Panel | Utilidad Operativa / SRE |
 | :--- | :--- | :--- | :--- |
 | **Salud del Espejo LVM** | `lvm_mirror_health{vg="vg_web",lv="lv_html"}` | Stat (Verde/Rojo) | Pasa a **ROJO (0)** al romper el disco y a **VERDE (1)** tras el reemplazo. |
 | **Peticiones Totales** | `web_requests_total` | Stat (Contador) | Muestra el total de solicitudes servidas desde el inicio. |
@@ -897,7 +930,7 @@ sudo dd if=/dev/zero of=/tmp/taller_integrador/disk1.img bs=1M count=50 conv=not
 El centinela detecta que el volumen lógico `/dev/vg_web/lv_html` entró en estado degradado (atributo `p` en LVM) y ejecuta **dos acciones simultáneas**:
 
 #### Acción 1: Notificación Inmediata en Todas las Terminales con `wall`
-En todas las consolas abiertas y sesiones de alumnos aparece instantáneamente este banner:
+En todas las consolas abiertas y sesiones SSH activas del servidor se difunde instantáneamente este banner:
 
 ```text
 Broadcast message from root@servidor (pts/1) (Sat Oct 31 01:47:00 2026):
@@ -1027,10 +1060,48 @@ flowchart LR
 
 ---
 
-## 12. Script de Demostración y Limpieza
+---
 
-### Ejecución de la Clase Automatizada:
-El script interactivo realiza todo este recorrido paso a paso con pausas y preguntas disparadoras para los alumnos:
+## 🌐 12. Despliegue en AWS con Terraform (Cloud IaC)
+
+Para desplegar este taller directamente sobre infraestructura real de **AWS** (elegible para Free Tier con EC2 `t3.micro` y volúmenes EBS gp3):
+
+```bash
+# Navegar al directorio de Terraform del laboratorio:
+cd linux/administrator/monitoreo/terraform
+
+# 1. Inicializar providers (AWS, TLS, Local):
+terraform init
+
+# 2. Planificar la infraestructura:
+terraform plan
+
+# 3. Desplegar servidor y volúmenes EBS:
+terraform apply -auto-approve
+
+# 4. Conectarse por SSH a la instancia:
+# (La clave SSH privada id_ed25519 se genera automáticamente en la carpeta)
+ssh -i id_ed25519 -o StrictHostKeyChecking=no ubuntu@<IP_PUBLICA>
+```
+
+### Puertos Expuestos en el Security Group:
+* **`22` (SSH):** Acceso administrativo.
+* **`8080` (HTTP):** Servidor Web corporativo sobre LVM RAID 1.
+* **`9100` (Node Exporter):** Endpoint PULL de telemetría del sistema operativo y LVM.
+* **`9090` (Prometheus):** Interfaz web y consultas PromQL.
+* **`3000` (Grafana):** Paneles y dashboards visuales (usuario por defecto `admin`/`admin`).
+
+Al terminar la sesión, eliminá todos los recursos con:
+```bash
+terraform destroy -auto-approve
+```
+
+---
+
+## 13. Script de Demostración y Limpieza
+
+### Ejecución de Demostración Guiada:
+El script interactivo realiza todo este recorrido paso a paso con pausas y análisis técnico guiado:
 ```bash
 sudo ./linux/administrator/monitoreo/demo_taller_integrador.sh
 ```
@@ -1044,7 +1115,7 @@ sudo ./linux/administrator/monitoreo/limpiar_taller_integrador_web_lvm_monitoreo
 
 ---
 
-## 13. Autoevaluación
+## 14. Autoevaluación
 
 <details>
 <summary><strong>1. ¿Por qué el servidor web no sufrió ninguna interrupción cuando destruimos el disco 1 con dd?</strong></summary>

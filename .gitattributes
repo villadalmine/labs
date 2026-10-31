@@ -1,0 +1,8 @@
+# Forzar finales de línea LF para scripts de shell y archivos Linux
+*.sh text eol=lf
+*.py text eol=lf
+*.md text
+*.json text
+*.yml text
+*.yaml text
+*.tf text

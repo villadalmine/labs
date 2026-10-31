@@ -446,6 +446,8 @@ override.tf.json
 terraform.rc
 *.pem
 *.key
+id_rsa*
+id_ed25519*
 id_rsa_lab.pem
 
 # RAG exports temporales

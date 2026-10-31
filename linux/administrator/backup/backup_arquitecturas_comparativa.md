@@ -6,85 +6,95 @@ difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.5'
 sections:
-  - '3.5'
-  - '3'
+- '3.5'
+- '3'
 category: storage
 resource_type: theoretical_guide
 has_guide: true
 has_interactive_script: false
 has_terraform: false
-execution_mode: reading_only
+execution_mode: manual_commands
 tags:
-  - storage
-  - backup
-  - restore
-  - rpo
-  - rto
-  - full-backup
-  - incremental
-  - diferencial
-  - cdp
-  - deduplicacion
-  - tar
-  - rsync
-  - rdiff-backup
-  - duplicity
-  - borg
-  - restic
-  - bacula
-  - lvm-snapshots
-  - arquitectura
-  - comparativa
+- storage
+- backup
+- restore
+- rpo
+- rto
+- full-backup
+- incremental
+- diferencial
+- cdp
+- deduplicacion
+- tar
+- rsync
+- rdiff-backup
+- duplicity
+- borg
+- restic
+- bacula
+- lvm-snapshots
+- arquitectura
+- comparativa
 tools:
-  - tar
-  - rsync
-  - rdiff-backup
-  - duplicity
-  - borg
-  - dd
-  - lvs
-  - lvcreate
-  - sha256sum
+- tar
+- rsync
+- rdiff-backup
+- duplicity
+- borg
+- dd
+- lvs
+- lvcreate
+- sha256sum
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Guía teórica y matriz taxonómica completa validada frente al temario de Linux SysAdmin Módulo 6 (Backups).'
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Guía teórica y matriz taxonómica completa validada frente al temario de Linux
+    SysAdmin Módulo 6 (Backups).
 environments:
-  - WSL2
-  - Bare Metal
-  - Cloud VMs
+- WSL2
+- Bare Metal
+- Cloud VMs
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Guía de arquitectura y taxonomía exhaustiva sobre copias de seguridad en Linux. Define y contrasta las estrategias fundamentales (Backup Completo, Incremental, Diferencial y Continuo CDP), las métricas RPO y RTO, la Regla 3-2-1 y los procedimientos de verificación y prueba de restauración. Clasifica el ecosistema de herramientas en 6 niveles: archivadores clásicos de streaming (tar, cpio, dd), sincronización y deltas a nivel de filesystem (rsync con hard links, rdiff-backup), copias cifradas remotas (duplicity, rclone), motores modernos con chunking CDC (Borg, restic), suites enterprise cliente-servidor (Bacula, Bareos) y snapshots Copy-on-Write (LVM, Btrfs, ZFS). Incluye matriz comparativa de decisiones, anti-patrones de producción y hoja de ruta pedagógica hacia laboratorios prácticos.'
+rag_summary: 'Guía de arquitectura y taxonomía exhaustiva sobre copias de seguridad
+  en Linux. Define y contrasta las estrategias fundamentales (Backup Completo, Incremental,
+  Diferencial y Continuo CDP), las métricas RPO y RTO, la Regla 3-2-1 y los procedimientos
+  de verificación y prueba de restauración. Clasifica el ecosistema de herramientas
+  en 6 niveles: archivadores clásicos de streaming (tar, cpio, dd), sincronización
+  y deltas a nivel de filesystem (rsync con hard links, rdiff-backup), copias cifradas
+  remotas (duplicity, rclone), motores modernos con chunking CDC (Borg, restic), suites
+  enterprise cliente-servidor (Bacula, Bareos) y snapshots Copy-on-Write (LVM, Btrfs,
+  ZFS). Incluye matriz comparativa de decisiones, anti-patrones de producción y hoja
+  de ruta pedagógica hacia laboratorios prácticos.'
 files:
   guide: backup/backup_arquitecturas_comparativa.md
   script: null
   terraform: null
 prerequisites:
-  - lab-3.1-anatomia-filesystems
-  - lab-3.2-enlaces-hard-soft-links
+- lab-3.1-anatomia-filesystems
+- lab-3.2-enlaces-hard-soft-links
 next_recommended_labs:
-  - lab-3.5.1-backup-tar-rsync-incremental
-  - lab-3.5.2-backup-rdiff-duplicity
-  - lab-3.5.3-backup-dd-imagenes-lvm-snapshots
-  - lab-3.5-borg-backup
+- lab-3.5.1-backup-tar-rsync-incremental
+- lab-3.5.2-backup-rdiff-duplicity
+- lab-3.5.3-backup-dd-imagenes-lvm-snapshots
+- lab-3.5-borg-backup
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Arquitecturas de Respaldo en Linux: Estrategias, Deduplicación y Matriz de Herramientas

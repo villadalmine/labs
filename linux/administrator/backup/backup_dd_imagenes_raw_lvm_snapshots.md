@@ -1,13 +1,13 @@
 ---
 id: lab-3.5.3-backup-dd-imagenes-lvm-snapshots
-title: 'Respaldos a Nivel de Bloque Crudo (Imágenes de Disco con dd) y Copias Atómicas
-  Consistentes con Snapshots LVM'
+title: Respaldos a Nivel de Bloque Crudo (Imágenes de Disco con dd) y Copias Atómicas
+  Consistentes con Snapshots LVM
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.5'
 sections:
-  - '3.5'
-  - '3'
+- '3.5'
+- '3'
 category: storage
 resource_type: interactive_lab
 has_guide: true
@@ -15,66 +15,76 @@ has_interactive_script: true
 has_terraform: false
 execution_mode: cli_interactive
 tags:
-  - storage
-  - backup
-  - dd
-  - lvm
-  - snapshots
-  - cow
-  - raw-image
-  - mbr
-  - gpt
-  - zero-downtime
-  - consistencia
+- storage
+- backup
+- dd
+- lvm
+- snapshots
+- cow
+- raw-image
+- mbr
+- gpt
+- zero-downtime
+- consistencia
 tools:
-  - dd
-  - lvcreate
-  - lvremove
-  - lvs
-  - losetup
-  - mkfs.ext4
-  - mount
-  - umount
-  - e2fsck
-  - gzip
+- dd
+- lvcreate
+- lvremove
+- lvs
+- losetup
+- mkfs.ext4
+- mount
+- umount
+- e2fsck
+- gzip
 requirements:
   root_required: true
   cloud_required: false
   min_ram_mb: 1024
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Probado de punta a punta en WSL2 con dispositivos loop, snapshot LVM CoW, extracción consistente en streaming y restauración íntegra.'
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Probado de punta a punta en WSL2 con dispositivos loop, snapshot LVM CoW,
+    extracción consistente en streaming y restauración íntegra.
 environments:
-  - WSL2
-  - Bare Metal
-  - Cloud VMs
+- WSL2
+- Bare Metal
+- Cloud VMs
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Laboratorio práctico interactivo sobre copias de seguridad de bajo nivel a nivel de bloques (Raw Disk Imaging) y respaldos consistentes en caliente mediante Snapshots LVM Copy-on-Write. Demuestra el uso forense de dd para clonar sectores de arranque MBR/GPT y particiones completas con compresión en streaming (gzip/zstd), buffers optimizados (bs=4M) y banderas de tolerancia a fallos (conv=noerror,sync). Expone el dilema de la corrupción transaccional al realizar copias crudas sobre sistemas de archivos activos en producción y enseña la solución empresarial estándar: congelar atómicamente el estado mediante un snapshot LVM CoW (lvcreate --snapshot), extraer el respaldo sin suspender las operaciones del servicio y destruir el snapshot para liberar espacio.'
+rag_summary: 'Laboratorio práctico interactivo sobre copias de seguridad de bajo nivel
+  a nivel de bloques (Raw Disk Imaging) y respaldos consistentes en caliente mediante
+  Snapshots LVM Copy-on-Write. Demuestra el uso forense de dd para clonar sectores
+  de arranque MBR/GPT y particiones completas con compresión en streaming (gzip/zstd),
+  buffers optimizados (bs=4M) y banderas de tolerancia a fallos (conv=noerror,sync).
+  Expone el dilema de la corrupción transaccional al realizar copias crudas sobre
+  sistemas de archivos activos en producción y enseña la solución empresarial estándar:
+  congelar atómicamente el estado mediante un snapshot LVM CoW (lvcreate --snapshot),
+  extraer el respaldo sin suspender las operaciones del servicio y destruir el snapshot
+  para liberar espacio.'
 files:
   guide: backup/backup_dd_imagenes_raw_lvm_snapshots.md
   script: backup/demo_backup_dd_snapshots.sh
   terraform: null
 prerequisites:
-  - lab-3.1-anatomia-filesystems
-  - lab-3.5.0-backup-arquitecturas-comparativa
+- lab-3.1-anatomia-filesystems
+- lab-3.5.0-backup-arquitecturas-comparativa
 next_recommended_labs:
-  - lab-3.5-borg-backup
-  - lab-3.16-integrador-web-lvm-raid-monitoreo
+- lab-3.5-borg-backup
+- lab-3.16-integrador-web-lvm-raid-monitoreo
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Respaldos a Nivel de Bloque Crudo (dd) y Copias Atómicas con Snapshots LVM

@@ -1,13 +1,13 @@
 ---
 id: lab-3.5.2-backup-rdiff-duplicity
-title: 'Respaldos Incrementales Basados en Deltas con rdiff-backup y Copias Cifradas
-  con GPG hacia Almacenamiento Remoto con Duplicity'
+title: Respaldos Incrementales Basados en Deltas con rdiff-backup y Copias Cifradas
+  con GPG hacia Almacenamiento Remoto con Duplicity
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.5'
 sections:
-  - '3.5'
-  - '3'
+- '3.5'
+- '3'
 category: storage
 resource_type: interactive_lab
 has_guide: true
@@ -15,62 +15,71 @@ has_interactive_script: true
 has_terraform: false
 execution_mode: cli_interactive
 tags:
-  - storage
-  - backup
-  - rdiff-backup
-  - duplicity
-  - gpg
-  - deltas
-  - incremental
-  - cloud-backup
-  - librsync
-  - restore
+- storage
+- backup
+- rdiff-backup
+- duplicity
+- gpg
+- deltas
+- incremental
+- cloud-backup
+- librsync
+- restore
 tools:
-  - rdiff-backup
-  - duplicity
-  - gpg
-  - ls
-  - du
-  - sha256sum
+- rdiff-backup
+- duplicity
+- gpg
+- ls
+- du
+- sha256sum
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Ejecución y pruebas completadas con demo_backup_rdiff_duplicity.sh, validando deltas inversos y cifrado GPG asimétrico.'
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Ejecución y pruebas completadas con demo_backup_rdiff_duplicity.sh, validando
+    deltas inversos y cifrado GPG asimétrico.
 environments:
-  - WSL2
-  - Bare Metal
-  - Cloud VMs
+- WSL2
+- Bare Metal
+- Cloud VMs
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Laboratorio práctico interactivo sobre tecnologías de respaldo incremental basadas en deltas y cifrado para almacenamiento remoto. Profundiza en rdiff-backup (arquitectura de espejo transparente donde el backup actual es directamente navegable sin comandos especiales, combinada con un historial de deltas inversos en rdiff-backup-data para viajar en el tiempo con --restore-as-of) y en Duplicity (respaldos incrementales basados en el algoritmo librsync cifrados de extremo a extremo con GnuPG y comprimidos, diseñados para targets remotos como SFTP, S3 o servidores externos no confiables). Incluye políticas de rotación periódica (--full-if-older-than 1M), poda de historiales antiguos, restauración granular y verificación de integridad.'
+rag_summary: Laboratorio práctico interactivo sobre tecnologías de respaldo incremental
+  basadas en deltas y cifrado para almacenamiento remoto. Profundiza en rdiff-backup
+  (arquitectura de espejo transparente donde el backup actual es directamente navegable
+  sin comandos especiales, combinada con un historial de deltas inversos en rdiff-backup-data
+  para viajar en el tiempo con --restore-as-of) y en Duplicity (respaldos incrementales
+  basados en el algoritmo librsync cifrados de extremo a extremo con GnuPG y comprimidos,
+  diseñados para targets remotos como SFTP, S3 o servidores externos no confiables).
+  Incluye políticas de rotación periódica (--full-if-older-than 1M), poda de historiales
+  antiguos, restauración granular y verificación de integridad.
 files:
   guide: backup/backup_rdiff_duplicity.md
   script: backup/demo_backup_rdiff_duplicity.sh
   terraform: null
 prerequisites:
-  - lab-3.4b-gpg-firmas-repositorios-backups
-  - lab-3.5.0-backup-arquitecturas-comparativa
-  - lab-3.5.1-backup-tar-rsync-incremental
+- lab-3.4b-gpg-firmas-repositorios-backups
+- lab-3.5.0-backup-arquitecturas-comparativa
+- lab-3.5.1-backup-tar-rsync-incremental
 next_recommended_labs:
-  - lab-3.5.3-backup-dd-imagenes-lvm-snapshots
-  - lab-3.5-borg-backup
+- lab-3.5.3-backup-dd-imagenes-lvm-snapshots
+- lab-3.5-borg-backup
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Respaldos Incrementales Basados en Deltas (rdiff-backup) y Copias Cifradas Remotas (Duplicity)

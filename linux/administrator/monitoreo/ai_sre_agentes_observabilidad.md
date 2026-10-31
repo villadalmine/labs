@@ -1,12 +1,13 @@
 ---
 id: lab-3.6.3-ai-sre-agentes-observabilidad
-title: 'AI SRE y Agentes Autónomos: Diagnóstico Inteligente, Protocolo MCP y Remediación en Linux'
+title: 'AI SRE y Agentes Autónomos: Diagnóstico Inteligente, Protocolo MCP y Remediación
+  en Linux'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.6'
 sections:
-  - '3.6'
-  - '3'
+- '3.6'
+- '3'
 category: observability
 resource_type: interactive_lab
 has_guide: true
@@ -14,71 +15,82 @@ has_interactive_script: true
 has_terraform: false
 execution_mode: cli_interactive
 tags:
-  - observability
-  - monitoring
-  - ai-sre
-  - agentes
-  - mcp
-  - react
-  - self-healing
-  - remediacion
-  - guardrails
-  - prometheus
-  - node-exporter
-  - python
-  - cli
+- observability
+- monitoring
+- ai-sre
+- agentes
+- mcp
+- react
+- self-healing
+- remediacion
+- guardrails
+- prometheus
+- node-exporter
+- python
+- cli
 tools:
-  - python3
-  - curl
-  - systemctl
-  - journalctl
-  - df
-  - node_exporter
-  - bash
+- python3
+- curl
+- systemctl
+- journalctl
+- df
+- node_exporter
+- bash
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: Laboratorio interactivo probado con script demo_ai_sre.sh y motor CLI en Python.
-  - environment: AWS EC2
-    type: cloud
-    instance_type: t3.micro
-    os: Ubuntu 24.04 LTS
-    status: VERIFIED
-    test_date: '2026-10-31'
-    notes: Compatible con instancias Linux cloud y colectores Prometheus.
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Laboratorio interactivo probado con script demo_ai_sre.sh y motor CLI en
+    Python.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-31'
+  notes: Compatible con instancias Linux cloud y colectores Prometheus.
 environments:
-  - WSL2
-  - AWS EC2
-  - Bare Metal
+- WSL2
+- AWS EC2
+- Bare Metal
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Laboratorio práctico y marco conceptual de ingeniería de confiabilidad de sitios asistida por inteligencia artificial (AI SRE). Explica cómo conectar la telemetría moderna de Prometheus y Node Exporter con agentes autónomos basados en el patrón cognitivo ReAct (Thought, Action, Observation) y el estándar Model Context Protocol (MCP). Detalla los guardrails de contención indispensables para producción (blast radius, lista blanca de remediaciones, validación humana previa o Human-in-the-Loop) para evitar comandos destructivos no deseados. Incluye la implementación y ejecución paso a paso de un agente CLI en Python funcional (ai_sre_agent.py) capaz de detectar caídas de servicio, investigar el estado con herramientas del sistema operativo, proponer un plan acotado, aplicar autorremediación segura (self-healing) y certificar el restablecimiento del SLO mediante re-evaluación de métricas.'
+rag_summary: Laboratorio práctico y marco conceptual de ingeniería de confiabilidad
+  de sitios asistida por inteligencia artificial (AI SRE). Explica cómo conectar la
+  telemetría moderna de Prometheus y Node Exporter con agentes autónomos basados en
+  el patrón cognitivo ReAct (Thought, Action, Observation) y el estándar Model Context
+  Protocol (MCP). Detalla los guardrails de contención indispensables para producción
+  (blast radius, lista blanca de remediaciones, validación humana previa o Human-in-the-Loop)
+  para evitar comandos destructivos no deseados. Incluye la implementación y ejecución
+  paso a paso de un agente CLI en Python funcional (ai_sre_agent.py) capaz de detectar
+  caídas de servicio, investigar el estado con herramientas del sistema operativo,
+  proponer un plan acotado, aplicar autorremediación segura (self-healing) y certificar
+  el restablecimiento del SLO mediante re-evaluación de métricas.
 files:
   guide: monitoreo/ai_sre_agentes_observabilidad.md
   script: monitoreo/demo_ai_sre.sh
   terraform: null
 prerequisites:
-  - lab-3.6-monitoreo-metricas
-  - lab-3.6.0-monitoreo-arquitecturas-comparativa
+- lab-3.6-monitoreo-metricas
+- lab-3.6.0-monitoreo-arquitecturas-comparativa
 next_recommended_labs:
-  - lab-3.16-taller-integrador-web-lvm-monitoreo
+- lab-3.16-taller-integrador-web-lvm-monitoreo
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # AI SRE y Agentes Autónomos: Diagnóstico Inteligente, Protocolo MCP y Remediación en Linux
