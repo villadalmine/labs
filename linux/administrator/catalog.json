@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 46,
+  "total_labs": 47,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -2132,6 +2132,101 @@
         "lab-3.1-anatomia-filesystems"
       ],
       "next_recommended_labs": [
+        "lab-3.3-cifrado-luks",
+        "lab-3.4-cifrado-fuse-gocryptfs",
+        "lab-3.4b-gpg-firmas-repositorios-backups"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.3-fundamentos-criptografia-llaves",
+      "title": "Fundamentos de Criptografía, Llaves y Certificados en Linux: Simétrica vs Asimétrica, Autenticación vs Cifrado (SSH, AWS EC2, OpenVPN, TLS, LUKS, GPG)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.3",
+      "sections": [
+        "3.3",
+        "3"
+      ],
+      "category": "security",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "security",
+        "criptografia",
+        "llaves",
+        "simetrica",
+        "asimetrica",
+        "ssh",
+        "ec2",
+        "openvpn",
+        "tls",
+        "luks",
+        "gocryptfs",
+        "gpg",
+        "certificados"
+      ],
+      "tools": [
+        "openssl",
+        "ssh-keygen",
+        "sha256sum",
+        "cryptsetup",
+        "gocryptfs",
+        "gpg"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Demostración interactiva probada de punta a punta con demo_criptografia_llaves.sh (simétrica, asimétrica, challenge-response SSH y firmas)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-31",
+          "notes": "Validación de autenticación por llave pública en SSH/cloud-init y comparación con claves en reposo (LUKS/gocryptfs)."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía pedagógica maestra y laboratorio práctico sobre los fundamentos de criptografía en Linux y la resolución de la confusión sobre el término llaves (keys). Diferencia con rigor los tres objetivos de seguridad: Confidencialidad (cifrado), Autenticación (identidad) e Integridad/No Repudio (firma digital). Analiza la distinción matemática y de rendimiento entre Criptografía Simétrica (AES, ChaCha20) y Criptografía Asimétrica (RSA, Ed25519, Curve25519), explicando por qué los protocolos modernos (SSH, HTTPS/TLS, OpenVPN, WireGuard) son de naturaleza Híbrida. Contiene una matriz comparativa exhaustiva de 10 tecnologías donde se utiliza el concepto de llave (SSH, AWS EC2 Key Pairs, HTTPS, OpenVPN PKI/PSK, LUKS2, gocryptfs, GPG, API Keys), diagramas de secuencia del mecanismo Challenge-Response y un script interactivo para experimentar en terminal cada flujo criptográfico.",
+      "files": {
+        "guide": "cifrado/fundamentos_criptografia_llaves_certificados.md",
+        "script": "cifrado/demo_criptografia_llaves.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.1-jobs-multiplexores"
+      ],
+      "next_recommended_labs": [
+        "lab-3.3.0-cifrado-arquitecturas-comparativa",
         "lab-3.3-cifrado-luks",
         "lab-3.4-cifrado-fuse-gocryptfs",
         "lab-3.4b-gpg-firmas-repositorios-backups"
