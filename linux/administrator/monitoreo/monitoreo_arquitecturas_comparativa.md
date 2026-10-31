@@ -243,20 +243,45 @@ flowchart TD
 
 ## ⚖️ 5. Tabla Comparativa Definitiva de Arquitecturas de Monitoreo
 
-A continuación se contrastan las 10 tecnologías y arquitecturas de observabilidad más relevantes del ecosistema Linux:
+A continuación se contrastan las 14 tecnologías y plataformas de observabilidad más relevantes del ecosistema Linux en dos matrices complementarias:
+
+### Matriz 1: Taxonomía, Modelo de Datos y Caso de Uso en Producción
 
 | Herramienta / Stack | Paradigma Principal | Tipo de Telemetría | Enfoque Histórico | Motor de Datos / Storage | Lenguaje de Consulta | Costo / Licencia | Caso de Uso Óptimo en Producción |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Prometheus + Node Exporter** | **PULL** (Scrape HTTP) | Métricas | Moderno (Cloud Native) | TSDB local en bloques de chunks (compresión Gorilla) | **PromQL** | Código Abierto (Apache 2.0) | Estándar de la industria en servidores Linux, Docker y clústeres Kubernetes. |
-| **VictoriaMetrics / Thanos** | **PULL / PUSH** híbrido | Métricas | Moderno (High Scale) | TSDB optimizada / Almacenamiento en Objetos (S3/GCS) | **MetricsQL / PromQL** | Open Source / Enterprise | Almacenamiento a largo plazo (años de retención) de métricas Prometheus a escala masiva. |
-| **Datadog / New Relic** | **PUSH** (Agente HTTPS) | Métricas, Logs y Trazas (Todo en uno) | Moderno (SaaS Enterprise) | Propietario en la nube del proveedor SaaS | Sintaxis propietaria / Dashboards GUI | **SaaS Comercial** (Facturación por host y volumen) | Corporaciones que buscan una solución llave en mano sin administrar servidores de monitoreo. |
-| **Graphite + StatsD** | **PUSH** (UDP / TCP) | Métricas numéricas | Clásico intermedio | Whisper (.wsp) jerárquico de tamaño fijo | Funciones jerárquicas | Open Source | Métricas de aplicación muy simples en infraestructuras heredadas (*legacy*). |
+| **Prometheus + Node Exporter** | **PULL** (Scrape HTTP) | Métricas numéricas | Moderno (Cloud Native) | TSDB local en bloques de chunks (compresión Gorilla) | **PromQL** | Código Abierto (Apache 2.0) | Estándar indiscutido para servidores Linux, contenedores Docker y clústeres Kubernetes. |
+| **VictoriaMetrics** | **PULL / PUSH** híbrido | Métricas numéricas | Moderno (High Scale) | TSDB de compresión ultra-alta / Integración Object Storage | **MetricsQL / PromQL** | Open Source (Apache 2.0) | Reemplazo directo o almacenamiento a largo plazo de Prometheus con menor consumo de RAM/disco. |
+| **Grafana Mimir / Thanos** | **PULL** federado | Métricas numéricas | Moderno (Distributed) | Chunks inmutables en AWS S3, GCS o Azure Blob | **PromQL** | AGPLv3 (Mimir) / Apache 2.0 (Thanos) | Infraestructuras multi-región o multi-tenant a escala global con retención indefinida. |
+| **Datadog / New Relic** | **PUSH** (Agente HTTPS) | Métricas, Logs, Trazas y Sintéticos | Moderno (SaaS All-in-One) | Propietario en nube SaaS | Sintaxis propietaria / Dashboards GUI | **SaaS Comercial** (Facturación mensual por nodo/volumen) | Corporaciones que priorizan rapidez de despliegue y cero administración de servidores de telemetría. |
+| **InfluxDB + Telegraf (TICK)** | **PUSH** (Streaming) | Métricas y Eventos | Moderno intermedio | TSDB TSM / InfluxDB 3.0 (Apache Arrow & Parquet) | **InfluxQL / Flux / SQL** | MIT / InfluxData Core | Cargas IoT, sensores industriales, telemetría temporal de alta frecuencia y devops. |
+| **Netdata** | **PULL / PUSH** híbrido | Métricas en tiempo real | Moderno de borde (*Edge*) | Base de datos circular en memoria de alta velocidad | Dashboards web automáticos | GPLv3 / Cloud Freemium | Diagnóstico granular segundo a segundo de un servidor Linux individual sin configuración previa. |
+| **Graphite + StatsD** | **PUSH** (UDP / TCP) | Métricas numéricas | Clásico intermedio | Whisper (.wsp) jerárquico de tamaño fijo | Funciones jerárquicas | Open Source | Métricas simples de aplicación (*counters/timers*) en infraestructuras y monolitos heredados. |
 | **Nagios Core / Cacti** | **PULL** (Polling de scripts) | Estados discretos (OK/WARN/CRIT) | Clásico (Años 90/2000) | Archivos RRD / Base relacional | Chequeos binarios (exit codes 0, 1, 2) | Open Source (GPL) | Servidores legacy estáticos con necesidades básicas de notificación por ping/puerto. |
 | **Zabbix** | **PULL / PUSH** híbrido | Métricas y Estados | Clásico evolucionado | Base de datos relacional (PostgreSQL / MySQL) | Expresiones Zabbix SQL | Open Source (GPL / AGPL) | Datacenters con equipamiento de red SNMP y servidores físicos centralizados. |
-| **Grafana Loki** | **PUSH** (Promtail / Fluentd) | **Logs** | Moderno | Almacenamiento en objetos (S3/GCS) sin indexar texto completo | **LogQL** | Open Source (AGPLv3) | Recolección de logs correlacionada con las mismas etiquetas que Prometheus. |
-| **Elastic Stack (ELK)** | **PUSH** (Filebeat / Logstash) | **Logs y Eventos** | Moderno / Enterprise | Elasticsearch (Índices invertidos Lucene en disco) | **KQL / Lucene** | Elastic License / SSPL | Búsqueda forense profunda de texto completo y análisis masivo de seguridad (SIEM). |
-| **OpenTelemetry + Jaeger** | **PUSH** (OTLP gRPC/HTTP) | **Trazas (APM)** y Métricas | Vanguardia estándar | Backends desacoplados (Tempo, Jaeger, ClickHouse) | TraceQL / Jaeger UI | Open Source (CNCF) | Diagnóstico de latencia y dependencias en arquitecturas complejas de microservicios. |
-| **Blackbox Exporter** | **PULL** (Sondas externas) | **Pruebas Sintéticas** | Moderno | Expone métricas en formato Prometheus | PromQL | Open Source (Apache 2.0) | Vigilancia externa de certificados SSL, respuestas HTTP 200, DNS y disponibilidad ICMP. |
+| **Checkmk** | **PULL** (Agente ligero/SSH) | Métricas y Estados | Clásico evolucionado | Motor RRD optimizado / Livestatus | Livestatus / GUI | Open Source (GPL) / Commercial | Grandes infraestructuras híbridas que buscan la simplicidad de Nagios pero con escala moderna. |
+| **Grafana Loki** | **PUSH** (Promtail / Fluent Bit) | **Logs y Eventos** | Moderno | Almacenamiento en objetos (S3/GCS) indexando solo etiquetas | **LogQL** | Open Source (AGPLv3) | Recolección masiva de logs correlacionada con las mismas etiquetas dimensionales de Prometheus. |
+| **Elastic Stack (ELK / OpenSearch)** | **PUSH** (Filebeat / Logstash) | **Logs, Métricas y Eventos** | Moderno / Enterprise | Índices invertidos Lucene en disco | **KQL / Lucene / SQL** | Elastic License / Apache 2.0 (OpenSearch) | Búsqueda forense profunda de texto completo, auditoría de seguridad y análisis SIEM/SOC. |
+| **OpenTelemetry + Jaeger / Tempo** | **PUSH** (OTLP gRPC/HTTP) | **Trazas (APM)** y Métricas | Vanguardia estándar | Backends desacoplados (Tempo, Jaeger, ClickHouse) | **TraceQL / Jaeger UI** | Open Source (CNCF) | Diagnóstico de latencia distribuida y mapa de microservicios sin acoplarse a un proveedor propietario. |
+| **Blackbox Exporter** | **PULL** (Sondas externas) | **Pruebas Sintéticas** | Moderno | Expone métricas en formato Prometheus | **PromQL** | Open Source (Apache 2.0) | Vigilancia perimetral externa de certificados SSL/TLS, códigos HTTP 200, resolución DNS e ICMP. |
+
+---
+
+### Matriz 2: Requerimientos Operativos, Protocolos y Resiliencia de Red
+
+| Herramienta / Agente | Protocolo de Red / Wire Protocol | Overhead en Agente (CPU/RAM) | Tolerancia a Fallas de Red (Buffer Local) | Resistencia a Alta Cardinalidad | Motor de Alertas Nativo | Curva de Aprendizaje |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Prometheus / Node Exporter** | HTTP GET (OpenMetrics texto plano / Protobuf) | **Mínimo** (~15 MB RAM, <0.5% CPU) | ❌ Nula (el scrape simplemente falla si se cae la red) | Media (requiere dimensionamiento de RAM) | **Alertmanager** (Deduplicación, Silencios, Routing) | Media (aprender PromQL) |
+| **VictoriaMetrics** | HTTP GET / POST (Prometheus format, Influx line) | **Bajo** (~30 MB RAM) |  Buffer en vmagent con cola en disco opcional | **Alta** (maneja decenas de millones de series) | vmalert (compatible con reglas Prometheus) | Baja-Media (compatible con PromQL) |
+| **Datadog Agent** | HTTPS POST (Payload JSON comprimido) | Medio-Alto (~150-300 MB RAM) |  Buffer en memoria y cola local en disco | Alta (manejada en nube SaaS) | Datadog Monitors (Alertas inteligentes por ML) | Baja (interfaz web gráfica) |
+| **Telegraf / InfluxDB** | TCP/UDP/HTTP (Influx Line Protocol) | Bajo-Medio (~40 MB RAM) |  Buffer configurable en RAM y disco | Media-Baja (TSM sensible a tags de alta cardinalidad) | Kapacitor / InfluxDB Tasks | Media |
+| **Netdata Agent** | HTTP Streaming / Websockets | Bajo (~50-80 MB RAM) |  Buffer circular local en RAM | Media | Motor de salud integrado (alertas de kernel/sistema) | **Muy Baja** (cero configuración inicial) |
+| **StatsD / Carbon** | UDP no fiable (texto plano delimitado) | **Ultraligero** (<10 MB RAM) | ❌ Ninguna (UDP descarta paquetes perdidos) | ❌ Pésima (cada variación crea un archivo .wsp en disco) | Requiere herramientas externas (Seyren, Grafana) | Baja |
+| **Nagios / NRPE** | TCP binario propietario (NRPE puerto 5666) | Ligero en reposo / Picos en forks de bash | ❌ Nula (falla el check por timeout) | No aplica (no maneja series temporales) | Motor de notificaciones interno por scripts | Media (sintaxis de configuración engorrosa) |
+| **Zabbix Agent 2** | TCP persistente (JSON binario comprimido) | Bajo (~25 MB RAM en Go) |  Cola local en modo activo | Media | Motor integrado de triggers y acciones | Media-Alta |
+| **Promtail / Fluent Bit (Loki)** | HTTP POST (Protobuf OTLP / Snappy) | **Bajo** (~20-40 MB RAM) |  Positions file y buffer en memoria/disco | **Muy Alta** (no indexa valores de log, solo labels) | Grafana Alerting / Ruler | Media |
+| **Filebeat (Elasticsearch)** | TCP con TLS / Lumbarjack Protocol | Medio (~40-80 MB RAM) |  Registro de registry y spool local | Alta (requiere clústeres elásticos con suficiente RAM) | Kibana Alerting / Watcher | Media-Alta |
+| **OpenTelemetry Collector** | OTLP sobre gRPC (HTTP/2) o HTTP Protobuf | Configurable según pipelines (30-100 MB) |  Memory / File Storage Queue extensions | Muy Alta | Delegado al backend de observabilidad | Media-Alta |
+| **Blackbox Exporter** | HTTP / TCP / ICMP / DNS / TLS probe | Mínimo (~15 MB RAM) | No aplica (sonda puntual externa) | No aplica | Alertmanager | Baja |
 
 ---
 
