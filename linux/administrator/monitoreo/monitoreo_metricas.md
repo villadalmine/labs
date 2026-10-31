@@ -85,7 +85,6 @@ next_recommended_labs:
 - lab-3.16-integrador-web-lvm-raid-monitoreo
 ---
 
-
 # Laboratorio: Monitoreo y Métricas en Linux (De Cero a Producción)
 
 Este laboratorio está diseñado para enseñar los fundamentos de **métricas y monitoreo continuo en servidores Linux** para estudiantes y administradores que recién comienzan. 

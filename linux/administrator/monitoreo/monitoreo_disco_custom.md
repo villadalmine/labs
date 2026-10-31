@@ -89,7 +89,6 @@ mcp_tools:
 - filesystem
 ---
 
-
 # Laboratorio: Métricas Personalizadas de Almacenamiento, Filesystems e Inodos
 
 En el laboratorio de **[Mantenimiento de Volúmenes (Lab 3.13)](../filesystems/mantenimiento_volumenes.md)** aprendiste a diagnosticar la salud de tus discos mediante comandos forenses puntuales como `df -h`, `df -i`, `df -T` y `tune2fs`. Allí descubriste un concepto crítico: **un filesystem puede colapsar por falta de inodos aunque tenga cientos de Gigabytes libres**.

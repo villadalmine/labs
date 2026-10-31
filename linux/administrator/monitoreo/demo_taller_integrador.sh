@@ -3,13 +3,13 @@
 # DEMOSTRACIÓN INTEGRADA: Servidor Web sobre LVM RAID 1, Node Exporter,
 # Falla de Disco en Vivo, Reemplazo en Caliente y TUI de Observabilidad
 #
-# Diseñado para clases magistrales:
-#  - Muestra cómo se monitoreaba antes (diagnóstico reactivo) vs hoy (PULL continuo).
-#  - Despliega un servicio real (Servidor Web) sobre almacenamiento resiliente (LVM RAID 1).
-#  - Simula la destrucción física de un disco en caliente con dd.
-#  - Demuestra que la web NO se cae gracias a la paridad/espejo del kernel.
-#  - Reemplaza y reconstruye el espejo en vivo con lvconvert --repair.
-#  - Muestra la telemetría en un panel gráfico TUI de terminal y explica Prometheus/Grafana.
+# Arquitectura y Objetivos Operativos:
+#  - Demostración de transición: diagnóstico reactivo vs telemetría PULL continua.
+#  - Despliegue de servicio web productivo sobre LVM RAID 1 (dm-raid).
+#  - Inyección de falla catastrófica de hardware con dd sobre disco físico.
+#  - Validación de tolerancia a fallos y Zero Downtime a nivel de kernel.
+#  - Reemplazo y sincronización en caliente con lvconvert --repair.
+#  - Visualización en tiempo real mediante panel TUI y exportación a Prometheus/Grafana.
 #
 # Uso:
 #   sudo ./demo_taller_integrador.sh          -> Modo interactivo (pausa con [ENTER])
@@ -131,19 +131,19 @@ explain() {
     echo -e "${C_CYAN}💡 EXPLICACIÓN DIDÁCTICA:${C_RESET} $1"
 }
 
-pie_clase() {
+analisis_tecnico() {
     local pregunta="$1"
     local respuesta="${2:-}"
     
-    echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase: ${pregunta}${C_RESET}"
+    echo -e "\n${C_BOLD}${C_YELLOW}❓ Análisis Operativo: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
         if [ "$AUTO_WAIT" -gt 0 ]; then
             sleep 1
         else
-            echo -en "${C_DIM}   [Presioná ENTER para revelar la respuesta...]${C_RESET} "
+            echo -en "${C_DIM}   [Presioná ENTER para ver el fundamento técnico...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -
         fi
-        echo -e "   ${C_BOLD}${C_CYAN}✔ Respuesta esperada:${C_RESET} ${respuesta}\n"
+        echo -e "   ${C_BOLD}${C_CYAN}✔ Fundamento técnico:${C_RESET} ${respuesta}\n"
     fi
 }
 
@@ -194,22 +194,38 @@ run_and_show "uptime"
 run_and_show "vmstat 1 2"
 run_and_show "df -h /"
 
-pie_clase "¿Cuál es la falla fatal del diagnóstico puntual con df -h o top en producción?" \
-          "Es reactivo y humano. Si el disco se llena o se quema a las 3 AM cuando nadie está en la consola, el servidor colapsa sin aviso."
+analisis_tecnico "¿Cuál es la limitación crítica del diagnóstico puntual con df -h o top en producción?" \
+                 "Es reactivo e instantáneo. Si el almacenamiento colapsa o un disco falla a las 3 AM sin una sesión activa por SSH, el servidor cae sin registro forense previo."
 
 pause_step "Presioná [ENTER] para dar el salto al monitoreo moderno con Node Exporter..."
 
 # ------------------------------------------------------------------------------
-# 2. El Salto Moderno: Node Exporter "Pelado" (Modelo PULL)
+# 2. El Salto Moderno: Node Exporter Puro (Modelo PULL al Desnudo)
 # ------------------------------------------------------------------------------
 step_banner "2" "El Estándar Moderno: Node Exporter Puro (Modelo PULL al Desnudo)"
 
-explain "En lugar de revisar a mano, dejamos un agente estandarizado y ultraliviano (<15 MB RAM)."
+explain "En lugar de diagnósticos aislados, se despliega un recolector de telemetría ultraliviano (<15 MB RAM)."
 mkdir -p "$WORK_DIR"
 
+# Priorizar paquetes nativos del gestor de paquetes (APT en Debian/Ubuntu, DNF en RHEL/Rocky)
+BIN_NODE=""
 if command -v node_exporter &>/dev/null; then
     BIN_NODE=$(command -v node_exporter)
-else
+elif command -v prometheus-node-exporter &>/dev/null; then
+    BIN_NODE=$(command -v prometheus-node-exporter)
+elif command -v apt-get &>/dev/null; then
+    explain "Instalando Node Exporter vía paquetes APT (rápido y nativo del sistema):"
+    apt-get update -qq && apt-get install -y -qq prometheus-node-exporter
+    BIN_NODE=$(command -v prometheus-node-exporter || command -v node_exporter)
+elif command -v dnf &>/dev/null; then
+    explain "Buscando Node Exporter en repositorios RPM/DNF:"
+    dnf install -y golang-github-prometheus-node-exporter 2>/dev/null || true
+    BIN_NODE=$(command -v node_exporter || command -v prometheus-node-exporter || echo "")
+fi
+
+# Fallback a descarga oficial si no está en repositorios
+if [ -z "${BIN_NODE:-}" ] || [ ! -x "$BIN_NODE" ]; then
+    explain "Descargando release oficial de Node Exporter vía GitHub releases:"
     VER="1.8.2"
     TAR_FILE="/tmp/node_exporter-${VER}.linux-amd64.tar.gz"
     if [ ! -f "$TAR_FILE" ]; then
@@ -223,7 +239,15 @@ fi
 TEXTFILE_DIR="/var/lib/node_exporter/textfile_collector"
 mkdir -p "$TEXTFILE_DIR"
 
-explain "Levantamos Node Exporter en el puerto TCP :9100:"
+# Si el puerto 9100 ya está en uso por el servicio systemd nativo, lo liberamos temporalmente para el lab
+if ss -tulpn 2>/dev/null | grep -q ":${NODE_PORT}\b"; then
+    explain "Liberando puerto :${NODE_PORT} para asignar textfile_collector personalizado del laboratorio:"
+    systemctl stop prometheus-node-exporter 2>/dev/null || true
+    pkill -f "node_exporter" 2>/dev/null || true
+    sleep 1
+fi
+
+explain "Levantamos Node Exporter en el puerto TCP :${NODE_PORT}:"
 "$BIN_NODE" --collector.textfile.directory="$TEXTFILE_DIR" --web.listen-address=":${NODE_PORT}" &>/tmp/node_exporter_taller.log &
 NODE_PID=$!
 sleep 1
@@ -231,8 +255,8 @@ sleep 1
 explain "Hacemos una consulta HTTP GET PULL con curl (lo mismo que hace un servidor central):"
 run_and_show "curl -s http://localhost:${NODE_PORT}/metrics | grep -E '(node_cpu_seconds_total|node_memory_MemAvailable_bytes)' | head -n 6"
 
-pie_clase "¿Por qué se llama modelo PULL y no PUSH?" \
-          "Porque el servidor de monitoreo inicia la conexión y 'raspa' (scrapes) las métricas cuando él quiere. Si el host no responde al GET, se sabe que cayó al instante."
+analisis_tecnico "¿Por qué se llama modelo PULL y no PUSH?" \
+                 "Porque el servidor de monitoreo inicia la conexión y 'raspa' (scrapes) las métricas periódicamente. Si el host no responde al GET, se detecta la indisponibilidad al instante."
 
 pause_step "Presioná [ENTER] para construir el almacenamiento tolerante a fallas con LVM RAID 1..."
 
@@ -344,8 +368,8 @@ echo -e "\n${C_BOLD}${C_RED}🚨 ALERTA DE DISCO DEGRADADO DETECTADA:${C_RESET}"
 echo -e " • health_status: ${C_BOLD}degraded${C_RESET}"
 echo -e " • Atributo noveno: ${C_BOLD}p (partial)${C_RESET} -> Falta un disco en el arreglo."
 
-pie_clase "¿Se cayó el servicio web corporativo al romperse el disco físico?" \
-          "¡NO! El kernel sigue sirviendo lecturas transparentemente desde la segunda pata del espejo."
+analisis_tecnico "¿Se interrumpió el servicio web al fallar el disco físico?" \
+                 "No. El módulo dm-raid del kernel conmuta automáticamente las operaciones de lectura al disco sano del espejo sin degradar el servicio HTTP ni generar caídas."
 
 pause_step "Presioná [ENTER] para comprobar que la página web sigue en línea al 100%..."
 

@@ -84,7 +84,6 @@ mcp_tools:
 - filesystem
 ---
 
-
 # Laboratorio: Prometheus Alertmanager (Alertas Locales en Terminal sin Email ni Slack)
 
 Uno de los mayores dolores de cabeza al estudiar o probar **Alertmanager** por primera vez es la configuración de canales de notificación externos:

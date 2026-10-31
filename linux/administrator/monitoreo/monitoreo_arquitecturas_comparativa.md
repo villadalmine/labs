@@ -1,95 +1,110 @@
 ---
 id: lab-3.6.0-monitoreo-arquitecturas-comparativa
-title: 'Arquitecturas de Monitoreo y Observabilidad en Linux: Paradigmas (Pull vs Push), los 4 Pilares y Matriz Comparativa'
+title: 'Arquitecturas de Monitoreo y Observabilidad en Linux: Paradigmas (Pull vs
+  Push), los 4 Pilares y Matriz Comparativa'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.6'
 sections:
-  - '3.6'
-  - '3'
+- '3.6'
+- '3'
 category: observability
 resource_type: theoretical_guide
 has_guide: true
 has_interactive_script: false
 has_terraform: false
-execution_mode: reading_only
+execution_mode: manual_commands
 tags:
-  - observability
-  - monitoreo
-  - monitoring
-  - metricas
-  - logs
-  - trazas
-  - probes
-  - pull-push
-  - prometheus
-  - victoriametrics
-  - datadog
-  - graphite
-  - nagios
-  - zabbix
-  - loki
-  - elk
-  - opentelemetry
-  - blackbox
-  - comparativa
-  - arquitectura
+- observability
+- monitoreo
+- monitoring
+- metricas
+- logs
+- trazas
+- probes
+- pull-push
+- prometheus
+- victoriametrics
+- datadog
+- graphite
+- nagios
+- zabbix
+- loki
+- elk
+- opentelemetry
+- blackbox
+- comparativa
+- arquitectura
 tools:
-  - curl
-  - systemctl
-  - prometheus
-  - node_exporter
-  - grafana
-  - zabbix_agent
-  - telegraf
-  - promql
-  - logql
+- curl
+- systemctl
+- prometheus
+- node_exporter
+- grafana
+- zabbix_agent
+- telegraf
+- promql
+- logql
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: Guía teórica y matriz taxonómica completa validada para observabilidad y monitoreo en Linux.
-  - environment: AWS EC2
-    type: cloud
-    instance_type: t3.micro
-    os: Ubuntu 24.04 LTS
-    status: VERIFIED
-    test_date: '2026-10-31'
-    notes: Validación conceptual de arquitecturas Pull vs Push en entornos de nube.
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Guía teórica y matriz taxonómica completa validada para observabilidad y
+    monitoreo en Linux.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-31'
+  notes: Validación conceptual de arquitecturas Pull vs Push en entornos de nube.
 environments:
-  - WSL2
-  - AWS EC2
-  - Bare Metal
+- WSL2
+- AWS EC2
+- Bare Metal
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Guía de arquitectura y taxonomía exhaustiva sobre monitoreo y observabilidad en Linux. Analiza la evolución desde la supervisión reactiva clásica (Nagios, Cacti, Zabbix) hacia la observabilidad multidimensional moderna basada en Time-Series Databases (TSDB) y los cuatro pilares fundamentales: Métricas (valores numéricos agregables), Registros/Logs (contexto de eventos forenses), Trazas Distribuidas/APM (recorrido de peticiones entre microservicios) y Pruebas Sintéticas/Probes (monitoreo de caja negra de disponibilidad externa). Detalla el gran debate arquitectural entre modelos PULL (scraping periódico centralizado tipo Prometheus/VictoriaMetrics) y PUSH (agentes transmitiendo activamente tipo Datadog/Graphite/Telegraf), evaluando implicaciones en traversals de firewalls, descubrimiento dinámico de servicios, detección de nodos caídos y sobrecarga de red. Incluye una matriz comparativa definitiva de 10 plataformas y stacks, análisis de formatos OpenMetrics y OTLP, árboles de decisión operativa, anti-patrones de producción (explosión de cardinalidad, fatiga de alertas) y glosario técnico normalizado.'
+rag_summary: 'Guía de arquitectura y taxonomía exhaustiva sobre monitoreo y observabilidad
+  en Linux. Analiza la evolución desde la supervisión reactiva clásica (Nagios, Cacti,
+  Zabbix) hacia la observabilidad multidimensional moderna basada en Time-Series Databases
+  (TSDB) y los cuatro pilares fundamentales: Métricas (valores numéricos agregables),
+  Registros/Logs (contexto de eventos forenses), Trazas Distribuidas/APM (recorrido
+  de peticiones entre microservicios) y Pruebas Sintéticas/Probes (monitoreo de caja
+  negra de disponibilidad externa). Detalla el gran debate arquitectural entre modelos
+  PULL (scraping periódico centralizado tipo Prometheus/VictoriaMetrics) y PUSH (agentes
+  transmitiendo activamente tipo Datadog/Graphite/Telegraf), evaluando implicaciones
+  en traversals de firewalls, descubrimiento dinámico de servicios, detección de nodos
+  caídos y sobrecarga de red. Incluye una matriz comparativa definitiva de 10 plataformas
+  y stacks, análisis de formatos OpenMetrics y OTLP, árboles de decisión operativa,
+  anti-patrones de producción (explosión de cardinalidad, fatiga de alertas) y glosario
+  técnico normalizado.'
 files:
   guide: monitoreo/monitoreo_arquitecturas_comparativa.md
   script: null
   terraform: null
 prerequisites:
-  - lab-3.1-anatomia-filesystems
+- lab-3.1-anatomia-filesystems
 next_recommended_labs:
-  - lab-3.6-monitoreo-metricas
-  - lab-3.6.1-monitoreo-disco-custom
-  - lab-3.6.2-alertmanager-alertas-locales
-  - lab-3.16-taller-integrador-web-lvm-monitoreo
+- lab-3.6-monitoreo-metricas
+- lab-3.6.1-monitoreo-disco-custom
+- lab-3.6.2-alertmanager-alertas-locales
+- lab-3.16-taller-integrador-web-lvm-monitoreo
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Arquitecturas de Monitoreo y Observabilidad en Linux: Paradigmas (Pull vs Push), los 4 Pilares y Matriz Comparativa

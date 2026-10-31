@@ -1,12 +1,13 @@
 ---
 id: lab-3.6.4-monitoreo-clasico-collectd-statsd
-title: 'Monitoreo Clásico y Embebido en Linux: Daemons en C (collectd), UDP Push (StatsD) y Métricas por Terminal'
+title: 'Monitoreo Clásico y Embebido en Linux: Daemons en C (collectd), UDP Push (StatsD)
+  y Métricas por Terminal'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.6'
 sections:
-  - '3.6'
-  - '3'
+- '3.6'
+- '3'
 category: observability
 resource_type: interactive_lab
 has_guide: true
@@ -14,70 +15,80 @@ has_interactive_script: true
 has_terraform: false
 execution_mode: cli_interactive
 tags:
-  - observability
-  - monitoring
-  - monitoreo-clasico
-  - collectd
-  - statsd
-  - udp
-  - rrdtool
-  - cli
-  - embedded
-  - csv-metrics
-  - dstat
-  - sysadmin
+- observability
+- monitoring
+- monitoreo-clasico
+- collectd
+- statsd
+- udp
+- rrdtool
+- cli
+- embedded
+- csv-metrics
+- dstat
+- sysadmin
 tools:
-  - nc
-  - python3
-  - curl
-  - bash
-  - collectd
-  - dstat
-  - vmstat
+- nc
+- python3
+- curl
+- bash
+- collectd
+- dstat
+- vmstat
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: Laboratorio probado con daemon UDP StatsD, colector CSV estilo collectd y script interactivo demo_monitoreo_clasico.sh.
-  - environment: AWS EC2
-    type: cloud
-    instance_type: t3.micro
-    os: Ubuntu 24.04 LTS
-    status: VERIFIED
-    test_date: '2026-10-31'
-    notes: Validación de telemetría UDP StatsD y compatibilidad con scripts de terminal.
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Laboratorio probado con daemon UDP StatsD, colector CSV estilo collectd y
+    script interactivo demo_monitoreo_clasico.sh.
+- environment: AWS EC2
+  type: cloud
+  instance_type: t3.micro
+  os: Ubuntu 24.04 LTS
+  status: VERIFIED
+  test_date: '2026-10-31'
+  notes: Validación de telemetría UDP StatsD y compatibilidad con scripts de terminal.
 environments:
-  - WSL2
-  - AWS EC2
-  - Bare Metal
+- WSL2
+- AWS EC2
+- Bare Metal
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Guía práctica y teórica sobre la arquitectura de monitoreo clásico y embebido de la "vieja escuela" en Linux (década de 2000 a 2015), previa a la era de Prometheus y los contenedores. Analiza en profundidad el daemon en C collectd (recolección periódica de bajo impacto hacia bases RRDtool y archivos CSV), el protocolo StatsD creado por Etsy (transmisión no bloqueante de contadores, medidores y temporizadores por UDP mediante fire-and-forget), y las herramientas de diagnóstico en tiempo real nativas de terminal (vmstat, dstat, iostat). Compara la estructura jerárquica de métricas con puntos frente a los modelos dimensionales modernos por etiquetas, analizando los trade-offs de pérdida de paquetes, resolución fija y consumo de recursos en hardware embebido.'
+rag_summary: Guía práctica y teórica sobre la arquitectura de monitoreo clásico y
+  embebido de la "vieja escuela" en Linux (década de 2000 a 2015), previa a la era
+  de Prometheus y los contenedores. Analiza en profundidad el daemon en C collectd
+  (recolección periódica de bajo impacto hacia bases RRDtool y archivos CSV), el protocolo
+  StatsD creado por Etsy (transmisión no bloqueante de contadores, medidores y temporizadores
+  por UDP mediante fire-and-forget), y las herramientas de diagnóstico en tiempo real
+  nativas de terminal (vmstat, dstat, iostat). Compara la estructura jerárquica de
+  métricas con puntos frente a los modelos dimensionales modernos por etiquetas, analizando
+  los trade-offs de pérdida de paquetes, resolución fija y consumo de recursos en
+  hardware embebido.
 files:
   guide: monitoreo/monitoreo_clasico_collectd_statsd.md
   script: monitoreo/demo_monitoreo_clasico.sh
   terraform: null
 prerequisites:
-  - lab-3.1-anatomia-filesystems
+- lab-3.1-anatomia-filesystems
 next_recommended_labs:
-  - lab-3.6-monitoreo-metricas
-  - lab-3.6.0-monitoreo-arquitecturas-comparativa
+- lab-3.6-monitoreo-metricas
+- lab-3.6.0-monitoreo-arquitecturas-comparativa
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Monitoreo Clásico y Embebido en Linux: Daemons en C (collectd), UDP Push (StatsD) y Métricas por Terminal

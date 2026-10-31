@@ -6,8 +6,8 @@ difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.5'
 sections:
-  - '3.5'
-  - '3'
+- '3.5'
+- '3'
 category: storage
 resource_type: interactive_lab
 has_guide: true
@@ -15,62 +15,71 @@ has_interactive_script: true
 has_terraform: false
 execution_mode: cli_interactive
 tags:
-  - storage
-  - backup
-  - tar
-  - rsync
-  - link-dest
-  - hard-links
-  - deduplicacion
-  - incremental
-  - restore
-  - sha256sum
+- storage
+- backup
+- tar
+- rsync
+- link-dest
+- hard-links
+- deduplicacion
+- incremental
+- restore
+- sha256sum
 tools:
-  - tar
-  - rsync
-  - ls
-  - stat
-  - du
-  - sha256sum
-  - rm
+- tar
+- rsync
+- ls
+- stat
+- du
+- sha256sum
+- rm
 requirements:
   root_required: false
   cloud_required: false
   min_ram_mb: 512
   min_disks: 0
 tested_environments:
-  - environment: WSL2
-    type: local
-    instance_type: virtualized
-    os: Ubuntu 24.04 LTS / Rocky Linux 10.2
-    kernel: 6.18.54.1-microsoft-standard-WSL2
-    status: PASSED
-    test_date: '2026-10-31'
-    notes: 'Ejecución exitosa con demo_backup_tar_rsync.sh, comprobación de inodos compartidos con stat y restauración íntegra.'
+- environment: WSL2
+  type: local
+  instance_type: virtualized
+  os: Ubuntu 24.04 LTS / Rocky Linux 10.2
+  kernel: 6.18.54.1-microsoft-standard-WSL2
+  status: PASSED
+  test_date: '2026-10-31'
+  notes: Ejecución exitosa con demo_backup_tar_rsync.sh, comprobación de inodos compartidos
+    con stat y restauración íntegra.
 environments:
-  - WSL2
-  - Bare Metal
-  - Cloud VMs
+- WSL2
+- Bare Metal
+- Cloud VMs
 operating_systems:
-  - Ubuntu 24.04 LTS
-  - Rocky Linux 10.2
-  - Debian 12
+- Ubuntu 24.04 LTS
+- Rocky Linux 10.2
+- Debian 12
 status: PASSED
-rag_summary: 'Laboratorio práctico interactivo sobre copias de seguridad clásicas y deduplicación inteligente en Linux. Explora el empaquetado y compresión con GNU tar (flags -cvpzf, preservación estricta de permisos numéricos y exclusiones), el mecanismo de snapshots incrementales con tar --listed-incremental (.snar) y la técnica avanzada de deduplicación a nivel de inodo con rsync --link-dest (utilizada por herramientas como Time Machine y rsnapshot). Demuestra con comandos stat y recuentos de nlink cómo múltiples respaldos completos aparentes consumen únicamente los deltas modificados en disco físico. Incluye pruebas de verificación criptográfica con sha256sum, simulacro de recuperación ante pérdidas catastróficas y script de limpieza total.'
+rag_summary: Laboratorio práctico interactivo sobre copias de seguridad clásicas y
+  deduplicación inteligente en Linux. Explora el empaquetado y compresión con GNU
+  tar (flags -cvpzf, preservación estricta de permisos numéricos y exclusiones), el
+  mecanismo de snapshots incrementales con tar --listed-incremental (.snar) y la técnica
+  avanzada de deduplicación a nivel de inodo con rsync --link-dest (utilizada por
+  herramientas como Time Machine y rsnapshot). Demuestra con comandos stat y recuentos
+  de nlink cómo múltiples respaldos completos aparentes consumen únicamente los deltas
+  modificados en disco físico. Incluye pruebas de verificación criptográfica con sha256sum,
+  simulacro de recuperación ante pérdidas catastróficas y script de limpieza total.
 files:
   guide: backup/backup_tar_rsync_incremental.md
   script: backup/demo_backup_tar_rsync.sh
   terraform: null
 prerequisites:
-  - lab-3.2-enlaces-hard-soft-links
-  - lab-3.5.0-backup-arquitecturas-comparativa
+- lab-3.2-enlaces-hard-soft-links
+- lab-3.5.0-backup-arquitecturas-comparativa
 next_recommended_labs:
-  - lab-3.5.2-backup-rdiff-duplicity
-  - lab-3.5-borg-backup
+- lab-3.5.2-backup-rdiff-duplicity
+- lab-3.5-borg-backup
 mcp_tools:
-  - linux-labs-tutor
-  - bash
-  - filesystem
+- linux-labs-tutor
+- bash
+- filesystem
 ---
 
 # Respaldos Clásicos en Linux: Empaquetado con tar y Deduplicación con rsync (--link-dest)

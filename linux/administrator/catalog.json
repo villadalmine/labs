@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 45,
+  "total_labs": 46,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -1667,17 +1667,17 @@
         "Ubuntu 24.04 LTS"
       ],
       "status": "PASSED",
-      "rag_summary": "Taller integrador de administración de sistemas y observabilidad diseñado para clases en vivo. Comienza explicando la evolución desde el diagnóstico reactivo tradicional (uptime, vmstat, df) hacia el modelo PULL moderno con Prometheus Node Exporter. Despliega un servicio web productivo montado sobre almacenamiento resiliente con LVM RAID 1 (dm-raid), genera tráfico HTTP, destruye un disco físico en caliente con dd demostrando cero tiempo de caída (zero downtime), recupera la salud del arreglo en caliente con lvconvert --repair y visualiza la telemetría del sistema a través de un panel gráfico en terminal (TUI) y el circuito completo con Prometheus y Grafana.",
+      "rag_summary": "Taller integrador de administración de sistemas y observabilidad para entornos de alta disponibilidad. Comienza explicando la evolución desde el diagnóstico reactivo tradicional (uptime, vmstat, df) hacia el modelo PULL moderno con Prometheus Node Exporter. Despliega un servicio web productivo montado sobre almacenamiento resiliente con LVM RAID 1 (dm-raid), genera tráfico HTTP, destruye un disco físico en caliente con dd demostrando cero tiempo de caída (zero downtime), recupera la salud del arreglo en caliente con lvconvert --repair y visualiza la telemetría del sistema a través de un panel gráfico en terminal (TUI) y el circuito completo con Prometheus y Grafana.",
       "files": {
         "guide": "monitoreo/taller_integrador_web_lvm_monitoreo.md",
         "script": "monitoreo/demo_taller_integrador.sh",
-        "terraform": null
+        "terraform": "monitoreo/terraform"
       },
-      "resource_type": "interactive_lab",
+      "resource_type": "cloud_project",
       "has_guide": true,
       "has_interactive_script": true,
-      "has_terraform": false,
-      "execution_mode": "cli_interactive",
+      "has_terraform": true,
+      "execution_mode": "terraform_apply",
       "prerequisites": [
         "lab-1.4-tools-stats",
         "lab-3.2-lvm2-online-resize",
@@ -1692,6 +1692,106 @@
         "linux-labs-tutor",
         "bash",
         "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.17-monitoreo-centralizado-multinodo",
+      "title": "Arquitectura de Monitoreo Centralizado Multi-Nodo: Prometheus Central, Grafana, LVM RAID 1 y Cifrado LUKS2",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo",
+      "section": "3.17",
+      "sections": [
+        "3.17",
+        "3"
+      ],
+      "category": "observability",
+      "tags": [
+        "observability",
+        "prometheus",
+        "grafana",
+        "node-exporter",
+        "multi-node",
+        "centralized-monitoring",
+        "pull-model",
+        "lvm",
+        "raid",
+        "luks",
+        "cifrado",
+        "textfile-collector",
+        "terraform",
+        "aws"
+      ],
+      "tools": [
+        "prometheus",
+        "grafana",
+        "node_exporter",
+        "curl",
+        "jq",
+        "cryptsetup",
+        "lvcreate",
+        "lvconvert",
+        "losetup"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-10-31",
+          "notes": "Probado de punta a punta con demo_monitoreo_centralizado.sh: servidor central Prometheus :9090, worker 1 con LVM RAID 1 en :9101, worker 2 con LUKS2 en :9102, inyección de fallas, PromQL y recuperación."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-10-31",
+          "notes": "Compatible con cluster de 3 instancias EC2 y volúmenes EBS gp3 mediante el módulo centralizado_terraform."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía integral y laboratorio práctico sobre arquitecturas de observabilidad centralizada multi-nodo en Linux. Explica el diseño e implementación de un Servidor Central de Monitoreo con Prometheus y Grafana que orquesta la recolección PULL periódica sobre dos nodos productivos: un Servidor Web montado sobre almacenamiento resiliente con LVM RAID 1 y un Servidor de Datos protegido con cifrado de bloques LUKS2 (dm-crypt). Enseña el patrón de diseño Textfile Collector de Node Exporter para exponer la salud del kernel (espejos degradados, estado de contenedores criptográficos) hacia métricas PromQL, simulación de fallas de disco en caliente con dd, comprobación de resiliencia Zero Downtime y despliegue automatizado en AWS con Terraform.",
+      "files": {
+        "guide": "monitoreo/monitoreo_centralizado_multinodo.md",
+        "script": "monitoreo/demo_monitoreo_centralizado.sh",
+        "terraform": "monitoreo/centralizado_terraform"
+      },
+      "resource_type": "cloud_project",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": true,
+      "execution_mode": "terraform_apply",
+      "prerequisites": [
+        "lab-3.16-integrador-web-lvm-raid-monitoreo",
+        "lab-3.3-cifrado-luks"
+      ],
+      "next_recommended_labs": [
+        "lab-3.14-monitoreo-disco-custom",
+        "integrador-4.1-servidor-web-raid-luks-borg"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem",
+        "terraform",
+        "aws"
       ]
     },
     {
@@ -2317,7 +2417,7 @@
       "has_guide": true,
       "has_interactive_script": false,
       "has_terraform": false,
-      "execution_mode": "reading_only",
+      "execution_mode": "manual_commands",
       "tags": [
         "storage",
         "backup",
@@ -3018,7 +3118,7 @@
       "has_guide": true,
       "has_interactive_script": false,
       "has_terraform": false,
-      "execution_mode": "reading_only",
+      "execution_mode": "manual_commands",
       "tags": [
         "observability",
         "monitoreo",

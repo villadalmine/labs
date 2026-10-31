@@ -22,7 +22,7 @@ labs/
 │   ├── luks/ & gocryptfs/     # Cifrado de bloques en reposo y cifrado FUSE
 │   ├── borg/ & backup/        # Respaldos deduplicados con BorgBackup y timers
 │   ├── raid/                  # Arreglos RAID desde cero (mdadm, LVM dm-raid, Btrfs, OpenZFS)
-│   ├── monitoreo/             # Observabilidad continua (Node Exporter, Textfile, LVM mirror)
+│   ├── monitoreo/             # Observabilidad continua, LVM RAID 1, Prometheus Central y Grafana
 │   ├── trabajo_integrador*/   # Proyectos de arquitectura en AWS con Terraform
 │   └── README.md              # 📖 Índice principal y Plan de Carrera (Niveles 0 al 4)
 │
@@ -44,7 +44,7 @@ El contenido curricular de administración de sistemas está ordenado de **menor
 | **🟢 Nivel 0** | **Fundamentos & Compilación** | Ciclo de compilación C con `gcc`, Makefiles e instalación en `/usr/local/bin`. |
 | **🟢 Nivel 1** | **Procesos, Señales, Diagnóstico y Hardware** | Control de trabajos (`fg`, `bg`, `nohup`), procesos zombies (`SIGCHLD`), scheduler CFS (`nice`, `taskset`), métricas en vivo (`uptime`, `vmstat`, `iostat`) y **auditoría de hardware (`lspci`, `lsusb`, `lshw`, `hwinfo`, `dmidecode`, `lscpu`)**. |
 | **🟡 Nivel 2** | **Supervisión Moderna (Systemd & Cgroups)** | Timers automáticos (`memlogger`), activación por sockets (`echo.socket`) y gobernanza dura de CPU/RAM con cgroups v2. |
-| **🟠 Nivel 3** | **Storage, Filesystems, Cifrado, Backups y RAID** | Anatomía de filesystems (ext4, XFS, Btrfs, tmpfs), **enlaces duros y simbólicos (`ln`, `find -samefile`, `-xtype l`)**, **diagnóstico y mantenimiento de volúmenes (`df`, `du`, `tune2fs`, `fsck`, `e2fsck`, `dumpe2fs`, `xfs_metadump`, `xfs_db`, `xfs_fsr`, `btrfs check`, `badblocks`)**, LVM2 en caliente, cifrado LUKS / gocryptfs, BorgBackup y arreglos RAID (mdadm, dm-raid, Btrfs, OpenZFS). |
+| **🟠 Nivel 3** | **Storage, Filesystems, Cifrado, Backups y Observabilidad** | Anatomía de filesystems (ext4, XFS, Btrfs, tmpfs), **enlaces duros y simbólicos (`ln`, `find -samefile`, `-xtype l`)**, **diagnóstico y mantenimiento de volúmenes**, LVM2 en caliente, cifrado LUKS / gocryptfs, BorgBackup, arreglos RAID (mdadm, dm-raid, Btrfs, OpenZFS), **taller web LVM RAID 1 resiliente** y **monitoreo centralizado multi-nodo (Prometheus + Grafana en AWS)**. |
 | **🔴 Nivel 4** | **Proyectos Integradores en la Nube (AWS + Terraform)** | Clústeres tolerantes a fallas con Terraform en AWS Free Tier (Nginx RAID 1 + LUKS + Borg, Docker en LVM Hot-Mirror, Btrfs Subvolúmenes y ZFS Enterprise HA con AWS ALB). |
 
 👉 **Consultá el [Plan de Carrera Completo y Guías Paso a Paso](linux/administrator/README.md)**.
