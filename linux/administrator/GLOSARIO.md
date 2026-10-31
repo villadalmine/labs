@@ -246,3 +246,16 @@ La arquitectura de archivos en sistemas Unix/Linux implementa una separación es
 * **Distributed Tracing (Trazas Distribuidas):** Seguimiento del ciclo de vida completo de una petición a través de múltiples microservicios mediante identificadores de traza (*TraceID*) y bloques de tiempo (*Spans*), implementado con OpenTelemetry o Jaeger.
 * **Monitoreo Sintético (Sondas / Probes):** Verificación activa de disponibilidad desde el exterior simulando el comportamiento de un usuario final (ej: verificar que una URL devuelva HTTP 200 y que su certificado TLS sea válido con Blackbox Exporter).
 * 📖 [Ver taller integrador con telemetría en Lab 3.16](monitoreo/taller_integrador_web_lvm_monitoreo.md).
+
+
+---
+
+### AI SRE, Agentes Autónomos y Remediación (Self-Healing)
+
+* **AI SRE (Site Reliability Engineering con IA):** Integración de modelos de inteligencia artificial y agentes cognitivos con los sistemas de observabilidad (Prometheus, Grafana, OpenTelemetry) para realizar detección de anomalías, investigación causal de fallas y autorremediación sin intervención humana en incidentes estándar.
+* **Patrón ReAct (Reasoning + Acting):** Paradigma cognitivo donde el agente alterna secuencialmente entre formular una hipótesis de razonamiento (*Thought*), invocar una herramienta del sistema operativo (*Action / Tool Call*) e inspeccionar la respuesta obtenida (*Observation*) hasta arribar a un diagnóstico probado.
+* **Model Context Protocol (MCP):** Estándar abierto cliente-servidor JSON-RPC 2.0 desarrollado para desacoplar de forma segura a los modelos de lenguaje de las herramientas de infraestructura. Permite que un agente invoque comandos o consulte métricas únicamente a través de un catálogo de herramientas autorizadas expuestas por un servidor MCP.
+* **Guardrails de Seguridad (Safety Guardrails):** Mecanismos de contención que restringen las acciones que un agente autónomo puede ejecutar en producción, basados en listas blancas de acciones permitidas (*allowlists*), bloqueo de patrones peligrosos (*denylists*) y contención del radio de explosión (*blast radius*).
+* **Human-in-the-Loop (HITL):** Esquema de operación donde el agente autónomo investiga la causa raíz y prepara el plan detallado de remediación con comandos exactos, pero requiere la autorización explícita de un operador humano antes de aplicar cualquier mutación en el sistema.
+* **Self-Healing (Autorremediación):** Capacidad de una infraestructura para detectar fallas en tiempo real, aislar componentes degradados y ejecutar acciones correctivas (como el reinicio de servicios caídos o la reparación de arreglos RAID espejados) cerrando automáticamente el ciclo de alerta sin intervención humana.
+* 📖 [Ver guía y laboratorio interactivo de AI SRE en Lab 3.6.3](monitoreo/ai_sre_agentes_observabilidad.md) y [Comparativa de Arquitecturas de Monitoreo](monitoreo/monitoreo_arquitecturas_comparativa.md#9-la-nueva-frontera-ai-sre-agentes-autónomos-y-remediación-en-observabilidad).
