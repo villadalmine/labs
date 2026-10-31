@@ -178,6 +178,7 @@ Un sistema de archivos **no es una caja vacía**; es una estructura matemática 
 | **Snapshots Nativos** | No | No | **Sí** ($O(1)$ sin consumo inicial) | No |
 | **Detección de Corrupción** | Checksum de metadatos | Checksum de metadatos | **Checksum de datos y metadatos** | No (RAM) |
 | **Uso Típico** | Sistemas estándar, partición raíz `/`, compatibilidad | Bases de datos, discos gigantes >10TB, RHEL/CentOS default | Almacenamiento moderno, subvolúmenes, backups Btrfs send | Caché ultra-rápida, `/tmp`, `/run`, seguridad efímera |
+| **Laboratorio / Demo Práctica** | [`mantenimiento_volumenes.md`](mantenimiento_volumenes.md) · [`demo_mantenimiento_volumenes.sh`](demo_mantenimiento_volumenes.sh) | [`../storage/lab_storage.md`](../storage/lab_storage.md) · [`../storage/demo_lab_storage.sh`](../storage/demo_lab_storage.sh) | [`../raid/raid_btrfs.md`](../raid/raid_btrfs.md) · [`../raid/demo_raid_btrfs.sh`](../raid/demo_raid_btrfs.sh) | [`anatomia_filesystems.md`](anatomia_filesystems.md) · [`demo_filesystems.sh`](demo_filesystems.sh) |
 
 ---
 
@@ -596,3 +597,15 @@ sudo umount /mnt/lab_ext4 /mnt/lab_xfs /mnt/lab_btrfs /mnt/lab_ramdisk 2>/dev/nu
 sudo losetup -d "$LOOP_EXT4" "$LOOP_XFS" "$LOOP_BTR" 2>/dev/null || true
 sudo rm -rf /tmp/lab_fs /mnt/lab_ext4 /mnt/lab_xfs /mnt/lab_btrfs /mnt/lab_ramdisk
 ```
+
+---
+
+## 🗺️ Continuidad: Siguientes Laboratorios de Filesystems y Almacenamiento
+
+Continuá consolidando tus habilidades de administración de almacenamiento con los siguientes laboratorios del repositorio:
+
+1. 🔗 **Enlaces Duros y Simbólicos (*Hard & Soft Links*):** [`enlaces_hard_soft_links.md`](enlaces_hard_soft_links.md) · Demo: [`demo_enlaces.sh`](demo_enlaces.sh)
+2. 🛠️ **Mantenimiento, Chequeo y Redimensionamiento de Volúmenes:** [`mantenimiento_volumenes.md`](mantenimiento_volumenes.md) · Demo: [`demo_mantenimiento_volumenes.sh`](demo_mantenimiento_volumenes.sh)
+3. 📦 **Gestión de Almacenamiento Empresarial con LVM2:** [`../storage/lab_storage.md`](../storage/lab_storage.md) · Demo: [`../storage/demo_lab_storage.sh`](../storage/demo_lab_storage.sh)
+4. 🛡️ **Arreglos Redundantes CoW con Btrfs:** [`../raid/raid_btrfs.md`](../raid/raid_btrfs.md) · Demo: [`../raid/demo_raid_btrfs.sh`](../raid/demo_raid_btrfs.sh)
+5. 🔐 **Cifrado de Almacenamiento en Reposo (LUKS2, gocryptfs, GPG):** [`../cifrado/cifrado_arquitecturas_comparativa.md`](../cifrado/cifrado_arquitecturas_comparativa.md)

@@ -74,6 +74,26 @@ mcp_tools:
 
 Material de consulta sobre procesos, automatización con systemd, discos, sistemas de archivos, RAID y LVM.
 
+---
+
+## 🗺️ Mapa de Laboratorios Prácticos Relacionados
+
+Cada sección teórica y sintaxis de esta guía cuenta con laboratorios prácticos dedicados y scripts didácticos interactivos en el repositorio:
+
+| Tema / Herramienta | Laboratorio Práctico Dedicado | Script Didáctico Interactivo |
+| :--- | :--- | :--- |
+| **Procesos y Señales (`ps`, `kill`, señales POSIX)** | [`procesos/proceso_zombie.md`](procesos/proceso_zombie.md) | [`procesos/demo_zombie.sh`](procesos/demo_zombie.sh) |
+| **Systemd Units & Cgroups (`systemctl`, cgroups v2)** | [`systemd/systemd-cgroups.md`](systemd/systemd-cgroups.md) · [`systemd/systemd-memlogger.md`](systemd/systemd-memlogger.md) | Guías paso a paso en terminal |
+| **Almacenamiento LVM (`pvcreate`, `vgcreate`, `lvcreate`)** | [`storage/lab_storage.md`](storage/lab_storage.md) | [`storage/demo_lab_storage.sh`](storage/demo_lab_storage.sh) |
+| **Filesystems (`ext4`, `XFS`, inodos, rescate)** | [`filesystems/anatomia_filesystems.md`](filesystems/anatomia_filesystems.md) | [`filesystems/demo_filesystems.sh`](filesystems/demo_filesystems.sh) |
+| **Mantenimiento y Reparación (`fsck`, `tune2fs`, `growfs`)** | [`filesystems/mantenimiento_volumenes.md`](filesystems/mantenimiento_volumenes.md) | [`filesystems/demo_mantenimiento_volumenes.sh`](filesystems/demo_mantenimiento_volumenes.sh) |
+| **Enlaces (`hard links`, `symlinks`, `find`)** | [`filesystems/enlaces_hard_soft_links.md`](filesystems/enlaces_hard_soft_links.md) | [`filesystems/demo_enlaces.sh`](filesystems/demo_enlaces.sh) |
+| **Arreglos RAID con mdadm (`/proc/mdstat`)** | [`raid/raid_mdadm.md`](raid/raid_mdadm.md) | [`raid/demo_raid_mdadm.sh`](raid/demo_raid_mdadm.sh) |
+| **RAID en LVM2 (`dm-raid`)** | [`raid/raid_lvm.md`](raid/raid_lvm.md) | [`raid/demo_raid_lvm.sh`](raid/demo_raid_lvm.sh) · [`raid/limpiar_raid_lvm.sh`](raid/limpiar_raid_lvm.sh) |
+| **Monitoreo de Recursos (`node_exporter`, Grafana)** | [`monitoreo/monitoreo_metricas.md`](monitoreo/monitoreo_metricas.md) | [`monitoreo/demo_monitoreo.sh`](monitoreo/demo_monitoreo.sh) · [`monitoreo/limpiar_monitoreo.sh`](monitoreo/limpiar_monitoreo.sh) |
+
+---
+
 ## 1. Gestión de procesos
 
 `ps` (*Process Status*) muestra información sobre los procesos que se están ejecutando.

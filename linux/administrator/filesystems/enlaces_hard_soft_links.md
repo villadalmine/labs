@@ -426,6 +426,8 @@ sudo systemctl mask nginx
 | **Inspección de inodo** | `ls -li` o `stat` (segunda columna: `Links > 1`). | `ls -l` (permisos `lrwxrwxrwx`, tamaño = largo de ruta). |
 | **Búsqueda con find** | `find / -xdev -samefile archivo` o `-inum INODO` | `find / -type l -exec ls -l {} \;` o `-ls` |
 | **Detección de enlaces rotos** | No aplica (no existe el concepto de huérfano). | `find . -xtype l` (purgar con `-delete`). |
+| **Demostración Práctica** | Pasos 1 y 2 en [`demo_enlaces.sh`](demo_enlaces.sh) | Pasos 3 y 4 en [`demo_enlaces.sh`](demo_enlaces.sh) |
+| **Laboratorio Relacionado** | [Respaldos tar & rsync](../backup/backup_tar_rsync_incremental.md) | [Mantenimiento de Volúmenes](mantenimiento_volumenes.md) · [Anatomía de Filesystems](anatomia_filesystems.md) |
 
 ---
 

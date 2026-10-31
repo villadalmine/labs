@@ -262,22 +262,22 @@ A continuación se contrastan las 14 tecnologías y plataformas de observabilida
 
 ### Matriz 1: Taxonomía, Modelo de Datos y Caso de Uso en Producción
 
-| Herramienta / Stack | Paradigma Principal | Tipo de Telemetría | Enfoque Histórico | Motor de Datos / Storage | Lenguaje de Consulta | Costo / Licencia | Caso de Uso Óptimo en Producción |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Prometheus + Node Exporter** | **PULL** (Scrape HTTP) | Métricas numéricas | Moderno (Cloud Native) | TSDB local en bloques de chunks (compresión Gorilla) | **PromQL** | Código Abierto (Apache 2.0) | Estándar indiscutido para servidores Linux, contenedores Docker y clústeres Kubernetes. |
-| **VictoriaMetrics** | **PULL / PUSH** híbrido | Métricas numéricas | Moderno (High Scale) | TSDB de compresión ultra-alta / Integración Object Storage | **MetricsQL / PromQL** | Open Source (Apache 2.0) | Reemplazo directo o almacenamiento a largo plazo de Prometheus con menor consumo de RAM/disco. |
-| **Grafana Mimir / Thanos** | **PULL** federado | Métricas numéricas | Moderno (Distributed) | Chunks inmutables en AWS S3, GCS o Azure Blob | **PromQL** | AGPLv3 (Mimir) / Apache 2.0 (Thanos) | Infraestructuras multi-región o multi-tenant a escala global con retención indefinida. |
-| **Datadog / New Relic** | **PUSH** (Agente HTTPS) | Métricas, Logs, Trazas y Sintéticos | Moderno (SaaS All-in-One) | Propietario en nube SaaS | Sintaxis propietaria / Dashboards GUI | **SaaS Comercial** (Facturación mensual por nodo/volumen) | Corporaciones que priorizan rapidez de despliegue y cero administración de servidores de telemetría. |
-| **InfluxDB + Telegraf (TICK)** | **PUSH** (Streaming) | Métricas y Eventos | Moderno intermedio | TSDB TSM / InfluxDB 3.0 (Apache Arrow & Parquet) | **InfluxQL / Flux / SQL** | MIT / InfluxData Core | Cargas IoT, sensores industriales, telemetría temporal de alta frecuencia y devops. |
-| **Netdata** | **PULL / PUSH** híbrido | Métricas en tiempo real | Moderno de borde (*Edge*) | Base de datos circular en memoria de alta velocidad | Dashboards web automáticos | GPLv3 / Cloud Freemium | Diagnóstico granular segundo a segundo de un servidor Linux individual sin configuración previa. |
-| **Graphite + StatsD** | **PUSH** (UDP / TCP) | Métricas numéricas | Clásico intermedio | Whisper (.wsp) jerárquico de tamaño fijo | Funciones jerárquicas | Open Source | Métricas simples de aplicación (*counters/timers*) en infraestructuras y monolitos heredados. |
-| **Nagios Core / Cacti** | **PULL** (Polling de scripts) | Estados discretos (OK/WARN/CRIT) | Clásico (Años 90/2000) | Archivos RRD / Base relacional | Chequeos binarios (exit codes 0, 1, 2) | Open Source (GPL) | Servidores legacy estáticos con necesidades básicas de notificación por ping/puerto. |
-| **Zabbix** | **PULL / PUSH** híbrido | Métricas y Estados | Clásico evolucionado | Base de datos relacional (PostgreSQL / MySQL) | Expresiones Zabbix SQL | Open Source (GPL / AGPL) | Datacenters con equipamiento de red SNMP y servidores físicos centralizados. |
-| **Checkmk** | **PULL** (Agente ligero/SSH) | Métricas y Estados | Clásico evolucionado | Motor RRD optimizado / Livestatus | Livestatus / GUI | Open Source (GPL) / Commercial | Grandes infraestructuras híbridas que buscan la simplicidad de Nagios pero con escala moderna. |
-| **Grafana Loki** | **PUSH** (Promtail / Fluent Bit) | **Logs y Eventos** | Moderno | Almacenamiento en objetos (S3/GCS) indexando solo etiquetas | **LogQL** | Open Source (AGPLv3) | Recolección masiva de logs correlacionada con las mismas etiquetas dimensionales de Prometheus. |
-| **Elastic Stack (ELK / OpenSearch)** | **PUSH** (Filebeat / Logstash) | **Logs, Métricas y Eventos** | Moderno / Enterprise | Índices invertidos Lucene en disco | **KQL / Lucene / SQL** | Elastic License / Apache 2.0 (OpenSearch) | Búsqueda forense profunda de texto completo, auditoría de seguridad y análisis SIEM/SOC. |
-| **OpenTelemetry + Jaeger / Tempo** | **PUSH** (OTLP gRPC/HTTP) | **Trazas (APM)** y Métricas | Vanguardia estándar | Backends desacoplados (Tempo, Jaeger, ClickHouse) | **TraceQL / Jaeger UI** | Open Source (CNCF) | Diagnóstico de latencia distribuida y mapa de microservicios sin acoplarse a un proveedor propietario. |
-| **Blackbox Exporter** | **PULL** (Sondas externas) | **Pruebas Sintéticas** | Moderno | Expone métricas en formato Prometheus | **PromQL** | Open Source (Apache 2.0) | Vigilancia perimetral externa de certificados SSL/TLS, códigos HTTP 200, resolución DNS e ICMP. |
+| Herramienta / Stack | Paradigma Principal | Tipo de Telemetría | Enfoque Histórico | Motor de Datos / Storage | Lenguaje de Consulta | Costo / Licencia | Caso de Uso Óptimo en Producción | Laboratorio / Demo en el Repo |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Prometheus + Node Exporter** | **PULL** (Scrape HTTP) | Métricas numéricas | Moderno (Cloud Native) | TSDB local en bloques de chunks (compresión Gorilla) | **PromQL** | Código Abierto (Apache 2.0) | Estándar indiscutido para servidores Linux, contenedores Docker y clústeres Kubernetes. | [`monitoreo_metricas.md`](monitoreo_metricas.md) · [`demo_monitoreo.sh`](demo_monitoreo.sh) · [`monitoreo_disco_custom.md`](monitoreo_disco_custom.md) |
+| **VictoriaMetrics** | **PULL / PUSH** híbrido | Métricas numéricas | Moderno (High Scale) | TSDB de compresión ultra-alta / Integración Object Storage | **MetricsQL / PromQL** | Open Source (Apache 2.0) | Reemplazo directo o almacenamiento a largo plazo de Prometheus con menor consumo de RAM/disco. | [`monitoreo_metricas.md`](monitoreo_metricas.md) |
+| **Grafana Mimir / Thanos** | **PULL** federado | Métricas numéricas | Moderno (Distributed) | Chunks inmutables en AWS S3, GCS o Azure Blob | **PromQL** | AGPLv3 (Mimir) / Apache 2.0 (Thanos) | Infraestructuras multi-región o multi-tenant a escala global con retención indefinida. | [`monitoreo_centralizado_multinodo.md`](monitoreo_centralizado_multinodo.md) |
+| **Datadog / New Relic** | **PUSH** (Agente HTTPS) | Métricas, Logs, Trazas y Sintéticos | Moderno (SaaS All-in-One) | Propietario en nube SaaS | Sintaxis propietaria / Dashboards GUI | **SaaS Comercial** (Facturación mensual por nodo/volumen) | Corporaciones que priorizan rapidez de despliegue y cero administración de servidores de telemetría. | Concepto PUSH SaaS (Sección 3) |
+| **InfluxDB + Telegraf (TICK)** | **PUSH** (Streaming) | Métricas y Eventos | Moderno intermedio | TSDB TSM / InfluxDB 3.0 (Apache Arrow & Parquet) | **InfluxQL / Flux / SQL** | MIT / InfluxData Core | Cargas IoT, sensores industriales, telemetría temporal de alta frecuencia y devops. | Concepto PUSH Streaming (Sección 3) |
+| **Netdata** | **PULL / PUSH** híbrido | Métricas en tiempo real | Moderno de borde (*Edge*) | Base de datos circular en memoria de alta velocidad | Dashboards web automáticos | GPLv3 / Cloud Freemium | Diagnóstico granular segundo a segundo de un servidor Linux individual sin configuración previa. | [`monitoreo_clasico_collectd_statsd.md`](monitoreo_clasico_collectd_statsd.md) |
+| **Graphite + StatsD** | **PUSH** (UDP / TCP) | Métricas numéricas | Clásico intermedio | Whisper (.wsp) jerárquico de tamaño fijo | Funciones jerárquicas | Open Source | Métricas simples de aplicación (*counters/timers*) en infraestructuras y monolitos heredados. | [`monitoreo_clasico_collectd_statsd.md`](monitoreo_clasico_collectd_statsd.md) · [`demo_monitoreo_clasico.sh`](demo_monitoreo_clasico.sh) |
+| **Nagios Core / Cacti** | **PULL** (Polling de scripts) | Estados discretos (OK/WARN/CRIT) | Clásico (Años 90/2000) | Archivos RRD / Base relacional | Chequeos binarios (exit codes 0, 1, 2) | Open Source (GPL) | Servidores legacy estáticos con necesidades básicas de notificación por ping/puerto. | [`monitoreo_clasico_collectd_statsd.md`](monitoreo_clasico_collectd_statsd.md) |
+| **Zabbix** | **PULL / PUSH** híbrido | Métricas y Estados | Clásico evolucionado | Base de datos relacional (PostgreSQL / MySQL) | Expresiones Zabbix SQL | Open Source (GPL / AGPL) | Datacenters con equipamiento de red SNMP y servidores físicos centralizados. | Concepto Datacenter SNMP (Sección 5) |
+| **Checkmk** | **PULL** (Agente ligero/SSH) | Métricas y Estados | Clásico evolucionado | Motor RRD optimizado / Livestatus | Livestatus / GUI | Open Source (GPL) / Commercial | Grandes infraestructuras híbridas que buscan la simplicidad de Nagios pero con escala moderna. | Concepto Híbrido (Sección 5) |
+| **Grafana Loki** | **PUSH** (Promtail / Fluent Bit) | **Logs y Eventos** | Moderno | Almacenamiento en objetos (S3/GCS) indexando solo etiquetas | **LogQL** | Open Source (AGPLv3) | Recolección masiva de logs correlacionada con las mismas etiquetas dimensionales de Prometheus. | [`monitoreo_centralizado_multinodo.md`](monitoreo_centralizado_multinodo.md) · [`ai_sre_agentes_observabilidad.md`](ai_sre_agentes_observabilidad.md) |
+| **Elastic Stack (ELK / OpenSearch)** | **PUSH** (Filebeat / Logstash) | **Logs, Métricas y Eventos** | Moderno / Enterprise | Índices invertidos Lucene en disco | **KQL / Lucene / SQL** | Elastic License / Apache 2.0 (OpenSearch) | Búsqueda forense profunda de texto completo, auditoría de seguridad y análisis SIEM/SOC. | Concepto SIEM / Forense (Sección 5) |
+| **OpenTelemetry + Jaeger / Tempo** | **PUSH** (OTLP gRPC/HTTP) | **Trazas (APM)** y Métricas | Vanguardia estándar | Backends desacoplados (Tempo, Jaeger, ClickHouse) | **TraceQL / Jaeger UI** | Open Source (CNCF) | Diagnóstico de latencia distribuida y mapa de microservicios sin acoplarse a un proveedor propietario. | [`ai_sre_agentes_observabilidad.md`](ai_sre_agentes_observabilidad.md) · Sección 9.3 |
+| **Blackbox Exporter** | **PULL** (Sondas externas) | **Pruebas Sintéticas** | Moderno | Expone métricas en formato Prometheus | **PromQL** | Open Source (Apache 2.0) | Vigilancia perimetral externa de certificados SSL/TLS, códigos HTTP 200, resolución DNS e ICMP. | [`alertmanager_alertas_locales.md`](alertmanager_alertas_locales.md) |
 
 ---
 
@@ -457,6 +457,32 @@ Históricamente, integrar un modelo de lenguaje con herramientas de administraci
 | **Agentes ReAct Custom (Python + MCP)** | SRE a medida de la infraestructura propia | JSON-RPC, Python SDK, Prometheus REST | Sí (CLI scripts autónomos `ai_sre_agent.py`) | Configurable (desde Dry-Run hasta ejecución total) | 100% auditable, sin vendor lock-in, adaptable a reglas y runbooks locales de la empresa. | Requiere desarrollo y mantenimiento interno del código de herramientas y guardrails. |
 
 👉 **Laboratorio Práctico Dedicado:** [`ai_sre_agentes_observabilidad.md`](ai_sre_agentes_observabilidad.md) (Incluye agente CLI en Python funcional con bucle ReAct, consulta a Node Exporter, guardrails de seguridad y autorremediación paso a paso).
+
+---
+
+## 🗺️ Hoja de Ruta de Laboratorios Prácticos de Monitoreo y Observabilidad
+
+Para llevar la teoría a la práctica en terminal (WSL2, VMs o AWS EC2), dispones de la siguiente serie de laboratorios paso a paso:
+
+1. **Monitoreo con Prometheus, Node Exporter y Grafana (Lab 3.6):**
+   - 📖 Guía: [`monitoreo_metricas.md`](monitoreo_metricas.md)
+   - 💻 Script Didáctico: [`demo_monitoreo.sh`](demo_monitoreo.sh) · Limpieza: [`limpiar_monitoreo.sh`](limpiar_monitoreo.sh)
+2. **AI SRE, Agentes Autónomos y Remediación en Observabilidad (Lab 3.6.1):**
+   - 📖 Guía: [`ai_sre_agentes_observabilidad.md`](ai_sre_agentes_observabilidad.md)
+   - 💻 Script Didáctico: [`demo_ai_sre.sh`](demo_ai_sre.sh) · Agente ReAct: [`scripts/ai_sre_agent.py`](scripts/ai_sre_agent.py)
+3. **Monitoreo Clásico: collectd, RRDtool, StatsD y Graphite (Lab 3.6.2):**
+   - 📖 Guía: [`monitoreo_clasico_collectd_statsd.md`](monitoreo_clasico_collectd_statsd.md)
+   - 💻 Script Didáctico: [`demo_monitoreo_clasico.sh`](demo_monitoreo_clasico.sh) · Limpieza: [`limpiar_monitoreo_clasico.sh`](limpiar_monitoreo_clasico.sh)
+4. **Métricas Personalizadas de Disco con Textfile Collector (Lab 3.6.3):**
+   - 📖 Guía: [`monitoreo_disco_custom.md`](monitoreo_disco_custom.md)
+   - 💻 Script Colector: [`scripts/colector_disco.sh`](scripts/colector_disco.sh) · Limpieza: [`limpiar_monitoreo_disco_custom.sh`](limpiar_monitoreo_disco_custom.sh)
+5. **Alertas Locales con Prometheus Alertmanager (Lab 3.6.4):**
+   - 📖 Guía: [`alertmanager_alertas_locales.md`](alertmanager_alertas_locales.md)
+6. **Taller Integrador: Servidor Web de Producción con LVM y Monitoreo (Lab 3.6.5):**
+   - 📖 Guía: [`taller_integrador_web_lvm_monitoreo.md`](taller_integrador_web_lvm_monitoreo.md)
+7. **Monitoreo Centralizado Multi-nodo en AWS con Prometheus, Grafana y Loki (Lab 4.1):**
+   - 📖 Guía: [`monitoreo_centralizado_multinodo.md`](monitoreo_centralizado_multinodo.md)
+   - ☁️ Terraform: [`centralizado_terraform/`](centralizado_terraform/)
 
 ---
 

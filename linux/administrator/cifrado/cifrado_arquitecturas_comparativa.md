@@ -130,6 +130,7 @@ Sin embargo, uno de los errores más comunes al diseñar la seguridad de un serv
 | **Impacto en Backups y Nube** | **Pesado:** Modificar 1 archivo altera el volumen; sincronizar a S3 exige subir bloques o imágenes completas. | **Óptimo:** Cada archivo cifrado es independiente; ideal para `rsync`, Rclone o AWS S3. | **Ideal para Archival:** Dumps de DB o tarballs autocontenidos. |
 | **Rendimiento de I/O** | **Máximo** (acelerado por instrucciones CPU AES-NI en kernel). | Medio (overhead por cambios de contexto en FUSE). | Rápido para archivos estáticos; costoso en streaming masivo. |
 | **Mecanismo de Desbloqueo** | Contraseña, Keyfile, **TPM 2.0 (`systemd-cryptenroll`)**, FIDO2 o Tang/Clevis. | Contraseña maestra o llave de recuperación. | Clave privada asimétrica (RSA/ECC) o passphrase simétrica. |
+| **Laboratorio y Demo Interactiva** | [`luks/luks.md`](../luks/luks.md) · Script: [`demo_luks.sh`](../luks/demo_luks.sh) | [`gocryptfs/gocryptfs.md`](../gocryptfs/gocryptfs.md) · Script: [`demo_gocryptfs.sh`](../gocryptfs/demo_gocryptfs.sh) | [`gpg/gpg_firmas_repositorios_backups.md`](../gpg/gpg_firmas_repositorios_backups.md) · Script: [`demo_gpg.sh`](../gpg/demo_gpg.sh) |
 
 ---
 
@@ -253,6 +254,27 @@ No cifra discos ni carpetas montadas. Toma un archivo o un flujo de datos (*stre
     └── ► Usá WireGuard, IPsec o TLS (Cifrado en Tránsito).
 ```
 
+---
+
+## 🗺️ Hoja de Ruta de Laboratorios Prácticos de Cifrado
+
+Para llevar estos conceptos a la práctica en terminal (WSL2 o Linux nativo), seguí la secuencia de laboratorios y scripts didácticos del repositorio:
+
+1. **Fundamentos Criptográficos y Gestión de Llaves:**
+   - 📖 Guía: [`fundamentos_criptografia_llaves_certificados.md`](fundamentos_criptografia_llaves_certificados.md)
+   - 💻 Script Didáctico: [`demo_criptografia_llaves.sh`](demo_criptografia_llaves.sh) (6 etapas: AES-256, RSA/Ed25519, Challenge-Response SSH/EC2, Firmas Digitales y Criptografía Híbrida ECDH).
+2. **Cifrado de Bloques y FDE (Nivel 1):**
+   - 📖 Guía: [`../luks/luks.md`](../luks/luks.md)
+   - 💻 Script Didáctico: [`../luks/demo_luks.sh`](../luks/demo_luks.sh) (Aprovisionamiento dm-crypt, formateo LUKS2, mapeo `/dev/mapper`, keyslots de rescate y benchmarks).
+3. **Cifrado de Filesystems en Espacio de Usuario con FUSE (Nivel 2):**
+   - 📖 Guía: [`../gocryptfs/gocryptfs.md`](../gocryptfs/gocryptfs.md)
+   - 💻 Script Didáctico: [`../gocryptfs/demo_gocryptfs.sh`](../gocryptfs/demo_gocryptfs.sh) (Cifrado transparente para nubes como S3/Dropbox, modo reverse y gestión sin root).
+4. **Firmas Digitales, Repositorios y Backups Asimétricos (Nivel 3):**
+   - 📖 Guía: [`../gpg/gpg_firmas_repositorios_backups.md`](../gpg/gpg_firmas_repositorios_backups.md)
+   - 💻 Script Didáctico: [`../gpg/demo_gpg.sh`](../gpg/demo_gpg.sh) (Generación de llaves OpenPGP, firma de commits y paquetes APT, y backups desatendidos asimétricos).
+5. **Laboratorios Integradores y Producción en la Nube:**
+   - 📖 Trabajo Integrador de Almacenamiento y Cifrado: [`../trabajo_integrador/trabajo_integrador.md`](../trabajo_integrador/trabajo_integrador.md)
+   - 📖 Clúster Multi-nodo en AWS EC2 con LVM, LUKS y Monitoreo: [`../monitoreo/monitoreo_centralizado_multinodo.md`](../monitoreo/monitoreo_centralizado_multinodo.md)
 
 ---
 

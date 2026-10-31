@@ -254,6 +254,7 @@ Se verifica de forma proactiva con **scrub** (`btrfs scrub`, `zpool scrub`, `ech
 | Incluido en kernel Linux | ✅ | ✅ | ✅ | ❌ (módulo OpenZFS, licencia CDDL) |
 | Funciona en WSL2 (kernel por defecto) | ✅* | ✅* | ✅* | ❌ (usar VM/EC2) |
 | Dificultad | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Laboratorio y Demo Práctica** | [Lab mdadm](raid_mdadm.md) · [`demo_raid_mdadm.sh`](demo_raid_mdadm.sh) | [Lab LVM RAID](raid_lvm.md) · [`demo_raid_lvm.sh`](demo_raid_lvm.sh) | [Lab Btrfs](raid_btrfs.md) · [`demo_raid_btrfs.sh`](demo_raid_btrfs.sh) | [Lab OpenZFS](raid_zfs.md) · [`demo_raid_zfs.sh`](demo_raid_zfs.sh) |
 
 \* Según el kernel de WSL2. Ver "Compatibilidad" abajo.
 
@@ -333,6 +334,24 @@ El script te lleva por:
 
 ---
 
-## 7. Qué sigue
+## 7. Qué sigue: Hoja de Ruta de Laboratorios de RAID y Storage
 
-➡️ **Lab 3.8 · [RAID con mdadm](raid_mdadm.md)** — armamos RAID 0/1/5/6/10 con loop devices, rompemos un disco y lo reconstruimos mirando `/proc/mdstat`.
+Continuá con los laboratorios prácticos paso a paso para dominar cada implementación en la terminal:
+
+1. **Lab 3.7 · Teoría de RAID y Paridad XOR:**
+   - 📖 Guía: [`raid_teoria.md`](raid_teoria.md)
+   - 💻 Script Didáctico: [`demo_raid_teoria.sh`](demo_raid_teoria.sh) (XOR interactivo, striping, mirror y bit rot).
+2. **Lab 3.8 · RAID Clásico con mdadm:**
+   - 📖 Guía: [`raid_mdadm.md`](raid_mdadm.md)
+   - 💻 Script Didáctico: [`demo_raid_mdadm.sh`](demo_raid_mdadm.sh)
+3. **Lab 3.9 · RAID Integrado en LVM2 (dm-raid):**
+   - 📖 Guía: [`raid_lvm.md`](raid_lvm.md)
+   - 💻 Script Didáctico: [`demo_raid_lvm.sh`](demo_raid_lvm.sh) · Limpieza: [`limpiar_raid_lvm.sh`](limpiar_raid_lvm.sh)
+4. **Lab 3.10 · RAID en Filesystem CoW con Btrfs:**
+   - 📖 Guía: [`raid_btrfs.md`](raid_btrfs.md)
+   - 💻 Script Didáctico: [`demo_raid_btrfs.sh`](demo_raid_btrfs.sh)
+5. **Lab 3.11 · Almacenamiento Avanzado con OpenZFS:**
+   - 📖 Guía: [`raid_zfs.md`](raid_zfs.md)
+   - 💻 Script Didáctico: [`demo_raid_zfs.sh`](demo_raid_zfs.sh)
+6. **Lab 3.12 · Trabajo Integrador RAID en AWS EC2:**
+   - 📖 Guía: [`integrador_aws/trabajo_integrador_raid.md`](integrador_aws/trabajo_integrador_raid.md) (Infraestructura multi-disco EBSgp3 con Terraform y simulación de fallas en vivo).
