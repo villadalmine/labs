@@ -259,3 +259,14 @@ La arquitectura de archivos en sistemas Unix/Linux implementa una separación es
 * **Human-in-the-Loop (HITL):** Esquema de operación donde el agente autónomo investiga la causa raíz y prepara el plan detallado de remediación con comandos exactos, pero requiere la autorización explícita de un operador humano antes de aplicar cualquier mutación en el sistema.
 * **Self-Healing (Autorremediación):** Capacidad de una infraestructura para detectar fallas en tiempo real, aislar componentes degradados y ejecutar acciones correctivas (como el reinicio de servicios caídos o la reparación de arreglos RAID espejados) cerrando automáticamente el ciclo de alerta sin intervención humana.
 * 📖 [Ver guía y laboratorio interactivo de AI SRE en Lab 3.6.3](monitoreo/ai_sre_agentes_observabilidad.md) y [Comparativa de Arquitecturas de Monitoreo](monitoreo/monitoreo_arquitecturas_comparativa.md#9-la-nueva-frontera-ai-sre-agentes-autónomos-y-remediación-en-observabilidad).
+
+
+---
+
+### Monitoreo Clásico, Embebido y Fire-and-Forget (collectd & StatsD)
+
+* **StatsD Protocol:** Formato de telemetría de texto plano ultraligero creado por Etsy transmitido típicamente sobre UDP (puerto 8125). Sigue la sintaxis `<métrica>:<valor>|<tipo>` (donde `c` es contador, `g` es medidor/gauge y `ms` es temporizador/timer).
+* **Fire-and-Forget (Dispara y Olvida):** Patrón de diseño donde el cliente envía paquetes de telemetría por UDP sin esperar confirmación (ACK) del servidor de monitoreo. Garantiza que la aplicación nunca se ralentice ni bloquee si el sistema de monitoreo colapsa.
+* **collectd:** Demonio de sistema escrito en C diseñado para recolectar estadísticas periódicas de CPU, memoria, discos y red con un consumo mínimo de recursos (< 0.5% CPU y < 10 MB RAM), volcando los datos a archivos CSV o RRD.
+* **RRDtool (Round Robin Database):** Motor de base de datos circular de tamaño fijo donde las muestras se consolidan con el tiempo mediante algoritmos de agregación (*downsampling*: average, min, max), garantizando que el archivo nunca crezca en disco pero perdiendo resolución en picos pasados.
+* 📖 [Ver laboratorio interactivo de monitoreo clásico en Lab 3.6.4](monitoreo/monitoreo_clasico_collectd_statsd.md).
