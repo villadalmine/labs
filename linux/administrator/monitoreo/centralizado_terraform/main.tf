@@ -383,45 +383,64 @@ resource "aws_instance" "srv_web_lvm" {
               </html>
               HTML
 
-              # Daemon en background para actualizar telemetría de LVM en tiempo real
+              # Configurar Textfile Collector en Node Exporter nativo de Ubuntu
               mkdir -p /var/lib/prometheus/node-exporter
+              chmod 755 /var/lib/prometheus/node-exporter
+              echo 'ARGS="--collector.textfile.directory=/var/lib/prometheus/node-exporter"' > /etc/default/prometheus-node-exporter
+
+              # Script puntual (oneshot) para telemetría de LVM en tiempo real
               cat << 'EOF' > /usr/local/bin/update_lvm_metric.sh
               #!/bin/bash
-              while true; do
-                  VAL=1
-                  HEALTH=$(lvs --noheadings -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ')
-                  ATTR=$(lvs --noheadings -o attr vg_web/lv_html 2>/dev/null | tr -d ' ')
-                  if [ "$HEALTH" != "" ] || [[ "$ATTR" =~ p ]]; then
-                      VAL=0
-                  fi
-                  cat << 'PROM' > /var/lib/prometheus/node-exporter/lvm_health.prom.tmp
+              VAL=1
+              HEALTH=$(lvs --noheadings --readonly -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
+              ATTR=$(lvs --noheadings --readonly -o attr vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
+              if [ -n "$HEALTH" ] || [[ "$ATTR" =~ p ]] || [[ "$ATTR" =~ d ]]; then
+                  VAL=0
+              fi
+              TMP_FILE="/var/lib/prometheus/node-exporter/lvm_health.prom.tmp.$$"
+              cat << PROM > "$TMP_FILE"
 # HELP node_lvm_mirror_health Estado de redundancia del espejo LVM (1=Sano, 0=Degradado)
 # TYPE node_lvm_mirror_health gauge
+node_lvm_mirror_health{vg="vg_web",lv="lv_html"} $VAL
 PROM
-                  echo "node_lvm_mirror_health{vg=\"vg_web\",lv=\"lv_html\"} $VAL" >> /var/lib/prometheus/node-exporter/lvm_health.prom.tmp
-                  mv /var/lib/prometheus/node-exporter/lvm_health.prom.tmp /var/lib/prometheus/node-exporter/lvm_health.prom
-                  sleep 2
-              done
+              chmod 644 "$TMP_FILE"
+              mv -f "$TMP_FILE" /var/lib/prometheus/node-exporter/lvm_health.prom
               EOF
               chmod +x /usr/local/bin/update_lvm_metric.sh
 
+              # Ejecución inicial inmediata para que la métrica exista desde el inicio
+              /usr/local/bin/update_lvm_metric.sh || true
+
+              # Unidad de servicio Systemd (Type=oneshot)
               cat << 'EOF' > /etc/systemd/system/lvm-metric.service
               [Unit]
-              Description=LVM Mirror Health Prometheus Metric Exporter
+              Description=LVM Mirror Health Metric Collector
               After=network.target
 
               [Service]
-              Type=simple
+              Type=oneshot
               ExecStart=/usr/local/bin/update_lvm_metric.sh
-              Restart=always
-              RestartSec=2
+              TimeoutSec=5
+              EOF
+
+              # Unidad de Timer Systemd (ejecución periódica cada 3 segundos)
+              cat << 'EOF' > /etc/systemd/system/lvm-metric.timer
+              [Unit]
+              Description=Timer para actualizar telemetria LVM cada 3 segundos
+              After=network.target
+
+              [Timer]
+              OnBootSec=5s
+              OnUnitActiveSec=3s
+              AccuracySec=100ms
 
               [Install]
-              WantedBy=multi-user.target
+              WantedBy=timers.target
               EOF
 
               systemctl daemon-reload
-              systemctl enable --now lvm-metric.service
+              systemctl enable --now lvm-metric.timer
+              systemctl restart prometheus-node-exporter
               systemctl enable --now prometheus-node-exporter
               systemctl restart nginx
               systemctl enable --now nginx
@@ -505,43 +524,62 @@ resource "aws_instance" "srv_data_luks" {
                   echo "/dev/mapper/datos_seguros /data/segura ext4 defaults,nofail 0 2" >> /etc/fstab
               fi
 
-              # Daemon en background para actualizar telemetría de LUKS en tiempo real
+              # Configurar Textfile Collector en Node Exporter nativo de Ubuntu
               mkdir -p /var/lib/prometheus/node-exporter
+              chmod 755 /var/lib/prometheus/node-exporter
+              echo 'ARGS="--collector.textfile.directory=/var/lib/prometheus/node-exporter"' > /etc/default/prometheus-node-exporter
+
+              # Script puntual (oneshot) para telemetría de LUKS
               cat << 'EOF' > /usr/local/bin/update_luks_metric.sh
               #!/bin/bash
-              while true; do
-                  VAL=0
-                  if cryptsetup status datos_seguros 2>/dev/null | grep -q "is active"; then
-                      VAL=1
-                  fi
-                  cat << 'PROM' > /var/lib/prometheus/node-exporter/luks_status.prom.tmp
+              VAL=0
+              if cryptsetup status datos_seguros 2>/dev/null | grep -q "is active"; then
+                  VAL=1
+              fi
+              TMP_FILE="/var/lib/prometheus/node-exporter/luks_status.prom.tmp.$$"
+              cat << PROM > "$TMP_FILE"
 # HELP node_luks_container_active Estado del contenedor LUKS (1=Abierto, 0=Cerrado)
 # TYPE node_luks_container_active gauge
+node_luks_container_active{device="datos_seguros"} $VAL
 PROM
-                  echo "node_luks_container_active{device=\"datos_seguros\"} $VAL" >> /var/lib/prometheus/node-exporter/luks_status.prom.tmp
-                  mv /var/lib/prometheus/node-exporter/luks_status.prom.tmp /var/lib/prometheus/node-exporter/luks_status.prom
-                  sleep 2
-              done
+              chmod 644 "$TMP_FILE"
+              mv -f "$TMP_FILE" /var/lib/prometheus/node-exporter/luks_status.prom
               EOF
               chmod +x /usr/local/bin/update_luks_metric.sh
 
+              # Ejecución inicial inmediata para que la métrica exista desde el inicio
+              /usr/local/bin/update_luks_metric.sh || true
+
+              # Unidad de servicio Systemd (Type=oneshot)
               cat << 'EOF' > /etc/systemd/system/luks-metric.service
               [Unit]
-              Description=LUKS Container Status Prometheus Metric Exporter
+              Description=LUKS Container Status Metric Collector
               After=network.target
 
               [Service]
-              Type=simple
+              Type=oneshot
               ExecStart=/usr/local/bin/update_luks_metric.sh
-              Restart=always
-              RestartSec=2
+              TimeoutSec=5
+              EOF
+
+              # Unidad de Timer Systemd (ejecución periódica cada 3 segundos)
+              cat << 'EOF' > /etc/systemd/system/luks-metric.timer
+              [Unit]
+              Description=Timer para actualizar telemetria LUKS cada 3 segundos
+              After=network.target
+
+              [Timer]
+              OnBootSec=5s
+              OnUnitActiveSec=3s
+              AccuracySec=100ms
 
               [Install]
-              WantedBy=multi-user.target
+              WantedBy=timers.target
               EOF
 
               systemctl daemon-reload
-              systemctl enable --now luks-metric.service
+              systemctl enable --now luks-metric.timer
+              systemctl restart prometheus-node-exporter
               systemctl enable --now prometheus-node-exporter
               LUKS_BOOTSTRAP
 

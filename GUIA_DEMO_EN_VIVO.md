@@ -57,11 +57,14 @@ cd linux/administrator/monitoreo/centralizado_terraform
 ssh -i id_ed25519 -o StrictHostKeyChecking=no ubuntu@52.51.148.219
 ```
 
-### 2. Mostrar a los alumnos el espejo perfecto previo a la rotura:
+### 2. Mostrar a los alumnos el espejo perfecto y el Systemd Timer:
 ```bash
+# A. Salud LVM: Cpy%Sync: 100.00 con dos discos sincronizados (/dev/nvme1n1 y /dev/nvme2n1)
 sudo lvs -a -o lv_name,vg_name,copy_percent,devices
+
+# B. Observar el Systemd Timer que refresca la telemetría para Node Exporter cada 3 segundos:
+systemctl list-timers lvm-metric.timer
 ```
-*Salida:* `Cpy%Sync: 100.00` con dos discos sincronizados: `/dev/nvme1n1` y `/dev/nvme2n1`.
 
 ### 3. Inyectar la rotura física destruyendo sectores del primer disco:
 ```bash
