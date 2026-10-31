@@ -401,7 +401,7 @@ wait "$PID_CPU_A" "$PID_CPU_B" "$PID_MIGRANTE"
 
 ## Opción: Demostración interactiva paso a paso para dar clase (`demo_nice.sh`)
 
-Si preferís dar la clase o presentación en vivo sin tener que copiar y pegar cada comando manualmente mientras explicás, podés utilizar el script interactivo [`demo_nice.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_nice.sh).
+Si preferís dar la clase o presentación en vivo sin tener que copiar y pegar cada comando manualmente mientras explicás, podés utilizar el script interactivo [`demo_nice.sh`](demo_nice.sh).
 
 El script compila automáticamente `cpu_worker.c`, prepara las variables de CPU, ejecuta cada escenario, muestra tablas de monitoreo en tiempo real con colores y se detiene en cada etapa para darte tiempo de explicar antes de continuar.
 

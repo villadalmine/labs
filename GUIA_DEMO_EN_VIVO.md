@@ -109,7 +109,13 @@ ssh -i id_ed25519 -o StrictHostKeyChecking=no ubuntu@54.73.199.14
 
 ### 2. Comandos para demostrar a los alumnos que es LUKS y NO un disco normal:
 
-#### A. Demostrar que el disco físico crudo está cifrado y bloqueado:
+#### A. Mostrar el Systemd Timer de telemetría criptográfica:
+```bash
+systemctl list-timers luks-metric.timer
+```
+*Muestra cómo cada 3 segundos el timer ejecuta el script de recolección atómica que alimenta a Node Exporter.*
+
+#### B. Demostrar que el disco físico crudo está cifrado y bloqueado:
 ```bash
 sudo file -s /dev/nvme1n1
 ```
@@ -120,14 +126,14 @@ sudo blkid /dev/nvme1n1
 ```
 *Salida:* `TYPE="crypto_LUKS"` *(El kernel reconoce que NO es un disco normal; es una bóveda LUKS)*.
 
-#### B. Intentar montar el disco físico directamente (demostración forense):
+#### C. Intentar montar el disco físico directamente (demostración forense):
 ```bash
 sudo mount /dev/nvme1n1 /mnt
 ```
 *Salida:* **Error inmediato:** `mount: /mnt: unknown filesystem type 'crypto_LUKS'`.
 > Explicar a los alumnos: *Si un atacante roba este volumen de AWS o extrae el disco físico, es 100% imposible leer o montar los datos sin la clave criptográfica.*
 
-#### C. Inspeccionar los metadatos y la cabecera criptográfica del contenedor:
+#### D. Inspeccionar los metadatos y la cabecera criptográfica del contenedor:
 ```bash
 sudo cryptsetup status datos_seguros
 ```
@@ -145,7 +151,7 @@ sudo cryptsetup luksDump /dev/nvme1n1 | head -n 25
 ```
 *Muestra los metadatos de grado militar: LUKS versión 2, cifrado AES-XTS de 512 bits, hash SHA256 y Keyslot 0 activo.*
 
-#### D. Ver la estructura en árbol (`lsblk`):
+#### E. Ver la estructura en árbol (`lsblk`):
 ```bash
 lsblk
 ```
@@ -156,7 +162,7 @@ nvme1n1         259:0    0    1G  0 disk
 ```
 *(Se observa claramente cómo el dispositivo `crypt` `datos_seguros` se monta sobre el disco base `nvme1n1`).*
 
-#### E. Leer los datos confidenciales actualmente descifrados:
+#### F. Leer los datos confidenciales actualmente descifrados:
 ```bash
 cat /data/segura/datos_clientes.db
 ```

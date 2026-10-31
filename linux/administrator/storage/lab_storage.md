@@ -307,7 +307,7 @@ df -h /
 
 ## Opción: Demostración interactiva paso a paso para dar clase (`demo_lab_storage.sh`)
 
-Si vas a dar la clase o demostración en vivo, podés usar el script interactivo [`demo_lab_storage.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/demo_lab_storage.sh).
+Si vas a dar la clase o demostración en vivo, podés usar el script interactivo [`demo_lab_storage.sh`](demo_lab_storage.sh).
 
 El script pausa en cada etapa (`[ENTER]`) para dar tiempo a la explicación teórica, muestra explicaciones y comandos resaltados con colores, detecta sesiones de `tmux` activando el scroll con ratón automáticamente, y al finalizar (o con `Ctrl+C`) ejecuta un `trap` para limpiar todos los loop devices, montajes y volúmenes LVM.
 

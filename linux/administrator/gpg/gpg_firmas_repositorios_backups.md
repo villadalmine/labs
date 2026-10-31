@@ -87,7 +87,7 @@ mcp_tools:
 # Criptografía Asimétrica con GnuPG (GPG): Firmas de Repositorios y Backups Asimétricos
 
 > [!NOTE]
-> Para comprender la diferencia entre cifrado de bloques (**LUKS2**), cifrado de sistemas de archivos FUSE (**gocryptfs**) y cifrado asimétrico a nivel de archivo/aplicación (**GPG** y **age**), consultá la [Guía Comparativa de Arquitecturas de Cifrado](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/cifrado/cifrado_arquitecturas_comparativa.md).
+> Para comprender la diferencia entre cifrado de bloques (**LUKS2**), cifrado de sistemas de archivos FUSE (**gocryptfs**) y cifrado asimétrico a nivel de archivo/aplicación (**GPG** y **age**), consultá la [Guía Comparativa de Arquitecturas de Cifrado](../cifrado/cifrado_arquitecturas_comparativa.md).
 
 ---
 

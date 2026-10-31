@@ -85,7 +85,7 @@ mcp_tools:
 # Cifrado de Bloques en Reposo con LUKS2: dm-crypt, Keyslots, TPM 2.0 y NBDE
 
 > [!NOTE]
-> Este laboratorio profundiza en el cifrado de nivel de bloques (**Block-level Encryption / FDE**). Para una comparativa de alto nivel entre cifrado de bloques (LUKS2), sistemas de archivos apilados (gocryptfs) y cifrado asimétrico a nivel de archivo/aplicación (GPG y age), consultá la [Guía de Arquitecturas de Cifrado en Linux](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/cifrado/cifrado_arquitecturas_comparativa.md).
+> Este laboratorio profundiza en el cifrado de nivel de bloques (**Block-level Encryption / FDE**). Para una comparativa de alto nivel entre cifrado de bloques (LUKS2), sistemas de archivos apilados (gocryptfs) y cifrado asimétrico a nivel de archivo/aplicación (GPG y age), consultá la [Guía de Arquitecturas de Cifrado en Linux](../cifrado/cifrado_arquitecturas_comparativa.md).
 
 ---
 
@@ -391,7 +391,7 @@ datos_seguros  UUID=xxxx-xxxx  none  luks,discard
 
 ## 8. Laboratorio Interactivo con Script de Demostración
 
-El repositorio incluye el script [`demo_luks.sh`](file:///C:/Users/rino/Documents/GitHub/labs/linux/administrator/luks/demo_luks.sh) para dar clases o realizar pruebas automatizadas paso a paso:
+El repositorio incluye el script [`demo_luks.sh`](demo_luks.sh) para dar clases o realizar pruebas automatizadas paso a paso:
 
 ```bash
 # Modo interactivo (pausa con [ENTER] en cada fase):

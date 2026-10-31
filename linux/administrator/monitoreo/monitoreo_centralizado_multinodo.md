@@ -217,25 +217,58 @@ sudo lvcreate --type raid1 -m 1 -L 10G -n lv_html vg_web
 sudo mkfs.ext4 /dev/vg_web/lv_html
 sudo mount /dev/vg_web/lv_html /var/www/html
 
-# 4. Crear el recolector textfile para la salud del espejo LVM:
+# 4. Configurar Node Exporter con Textfile Collector:
+sudo sed -i 's|^ARGS=.*|ARGS="--collector.textfile.directory=/var/lib/prometheus/node-exporter"|' /etc/default/prometheus-node-exporter
+
+# 5. Crear el script de recolección de métricas LVM (modo solo lectura para evitar bloqueos en fallas):
 sudo mkdir -p /var/lib/prometheus/node-exporter
-cat << 'EOF' | sudo tee /usr/local/bin/check_lvm_health.sh
+cat << 'EOF' | sudo tee /usr/local/bin/update_lvm_metric.sh
 #!/bin/bash
-HEALTH=$(lvs --noheadings -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ')
+HEALTH=$(lvs --readonly --noheadings -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ')
 VAL=1
 if [ "$HEALTH" != "" ]; then
     VAL=0
 fi
-echo "# HELP node_lvm_mirror_health Salud de LVM RAID 1 (1=Sano, 0=Degradado)" > /var/lib/prometheus/node-exporter/lvm_health.prom.tmp
-echo "# TYPE node_lvm_mirror_health gauge" >> /var/lib/prometheus/node-exporter/lvm_health.prom.tmp
-echo "node_lvm_mirror_health{vg=\"vg_web\",lv=\"lv_html\"} ${VAL}" >> /var/lib/prometheus/node-exporter/lvm_health.prom.tmp
-mv /var/lib/prometheus/node-exporter/lvm_health.prom.tmp /var/lib/prometheus/node-exporter/lvm_health.prom
+cat << METRIC > /var/lib/prometheus/node-exporter/lvm_health.prom.tmp.$$
+# HELP node_lvm_mirror_health Salud de LVM RAID 1 (1=Sano, 0=Degradado)
+# TYPE node_lvm_mirror_health gauge
+node_lvm_mirror_health{vg="vg_web",lv="lv_html"} ${VAL}
+METRIC
+mv /var/lib/prometheus/node-exporter/lvm_health.prom.tmp.$$ /var/lib/prometheus/node-exporter/lvm_health.prom
 EOF
-sudo chmod +x /usr/local/bin/check_lvm_health.sh
-sudo /usr/local/bin/check_lvm_health.sh
+sudo chmod +x /usr/local/bin/update_lvm_metric.sh
 
-# 5. Habilitar y arrancar servicios:
+# 6. Crear unidad systemd de ejecución puntual (oneshot):
+cat << 'EOF' | sudo tee /etc/systemd/system/lvm-metric.service
+[Unit]
+Description=LVM RAID 1 Health Metric Collector
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update_lvm_metric.sh
+TimeoutSec=5
+EOF
+
+# 7. Crear Systemd Timer para ejecutar el colector cada 3 segundos:
+cat << 'EOF' | sudo tee /etc/systemd/system/lvm-metric.timer
+[Unit]
+Description=Trigger LVM metric update every 3s
+
+[Timer]
+OnBootSec=5s
+OnUnitActiveSec=3s
+AccuracySec=100ms
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# 8. Habilitar y arrancar servicios y timers:
+sudo systemctl daemon-reload
+sudo systemctl enable --now lvm-metric.timer
 sudo systemctl enable --now prometheus-node-exporter
+sudo systemctl restart prometheus-node-exporter
 sudo systemctl enable --now nginx
 ```
 
@@ -259,24 +292,57 @@ sudo mkfs.ext4 /dev/mapper/datos_seguros
 sudo mkdir -p /data/segura
 sudo mount /dev/mapper/datos_seguros /data/segura
 
-# 4. Crear el recolector textfile para el estado del contenedor LUKS:
+# 4. Configurar Node Exporter con Textfile Collector:
+sudo sed -i 's|^ARGS=.*|ARGS="--collector.textfile.directory=/var/lib/prometheus/node-exporter"|' /etc/default/prometheus-node-exporter
+
+# 5. Crear el script de recolección de métricas LUKS:
 sudo mkdir -p /var/lib/prometheus/node-exporter
-cat << 'EOF' | sudo tee /usr/local/bin/check_luks_status.sh
+cat << 'EOF' | sudo tee /usr/local/bin/update_luks_metric.sh
 #!/bin/bash
 VAL=0
 if cryptsetup status datos_seguros 2>/dev/null | grep -q "is active"; then
     VAL=1
 fi
-echo "# HELP node_luks_container_active Estado del contenedor LUKS (1=Abierto, 0=Cerrado)" > /var/lib/prometheus/node-exporter/luks_status.prom.tmp
-echo "# TYPE node_luks_container_active gauge" >> /var/lib/prometheus/node-exporter/luks_status.prom.tmp
-echo "node_luks_container_active{device=\"datos_seguros\"} ${VAL}" >> /var/lib/prometheus/node-exporter/luks_status.prom.tmp
-mv /var/lib/prometheus/node-exporter/luks_status.prom.tmp /var/lib/prometheus/node-exporter/luks_status.prom
+cat << METRIC > /var/lib/prometheus/node-exporter/luks_status.prom.tmp.$$
+# HELP node_luks_container_active Estado del contenedor LUKS (1=Abierto, 0=Cerrado)
+# TYPE node_luks_container_active gauge
+node_luks_container_active{device="datos_seguros"} ${VAL}
+METRIC
+mv /var/lib/prometheus/node-exporter/luks_status.prom.tmp.$$ /var/lib/prometheus/node-exporter/luks_status.prom
 EOF
-sudo chmod +x /usr/local/bin/check_luks_status.sh
-sudo /usr/local/bin/check_luks_status.sh
+sudo chmod +x /usr/local/bin/update_luks_metric.sh
 
-# 5. Habilitar Node Exporter:
+# 6. Crear unidad systemd de ejecución puntual (oneshot):
+cat << 'EOF' | sudo tee /etc/systemd/system/luks-metric.service
+[Unit]
+Description=LUKS Container Health Metric Collector
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update_luks_metric.sh
+TimeoutSec=5
+EOF
+
+# 7. Crear Systemd Timer para ejecutar el colector cada 3 segundos:
+cat << 'EOF' | sudo tee /etc/systemd/system/luks-metric.timer
+[Unit]
+Description=Trigger LUKS metric update every 3s
+
+[Timer]
+OnBootSec=5s
+OnUnitActiveSec=3s
+AccuracySec=100ms
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# 8. Habilitar y arrancar servicios y timers:
+sudo systemctl daemon-reload
+sudo systemctl enable --now luks-metric.timer
 sudo systemctl enable --now prometheus-node-exporter
+sudo systemctl restart prometheus-node-exporter
 ```
 
 ---

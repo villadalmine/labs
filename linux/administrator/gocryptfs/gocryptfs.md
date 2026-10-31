@@ -59,11 +59,11 @@ files:
   guide: gocryptfs/gocryptfs.md
   script: gocryptfs/demo_gocryptfs.sh
   terraform: null
-resource_type: practical_lab
+resource_type: interactive_lab
 has_guide: true
 has_interactive_script: true
 has_terraform: false
-execution_mode: manual_commands
+execution_mode: cli_interactive
 prerequisites:
 - lab-3.3-cifrado-luks
 mcp_tools:
