@@ -256,14 +256,19 @@ Mientras que LUKS2, `gocryptfs` y GPG protegen los datos almacenados en un disco
    ~/.ssh/id_ed25519 (User Priv)                        /etc/ssh/ssh_host_ed25519_key (Host Priv)
    ~/.ssh/known_hosts (Verifica Host)                   ~/.ssh/authorized_keys (Verifica User)
             │                                                        │
-            +───────► 1. KEX Diffie-Hellman (curve25519-sha256) ◄────+
-                      2. Túnel Simétrico (chacha20-poly1305)
-                      3. Autenticación Usuario (Challenge-Response)
+            +───────► 1. KEX: Intercambio de Claves (Curve25519 / DH)◄+
+                      2. Asimétrico: Identidad Host + Usuario (Ed25519/RSA)
+                      3. Simétrico: Tráfico 1000x veloz (ChaCha20 / AES-GCM)
+                      4. Integridad: Anti-manipulación (Poly1305 / HMAC-SHA2)
 ```
 
 #### ¿Cómo operan SSH y WireGuard?
-- **OpenSSH (`ssh` / `sshd`):** Combina **dos pares de llaves asimétricas** (la *Host Key* del servidor verificada en `~/.ssh/known_hosts` bajo el modelo TOFU para evitar ataques *Man-in-the-Middle*, y la *User Key* del cliente verificada en `~/.ssh/authorized_keys`) con un intercambio efímero Diffie-Hellman (`curve25519-sha256`) que deriva una **Session Key simétrica en RAM** (`chacha20-poly1305@openssh.com` o `aes256-gcm@openssh.com`). Además de shells remotas y SFTP, permite crear túneles cifrados instantáneos (`ssh -L`, `-R`, `-D`).
-- **WireGuard (`wg`):** Lleva el mismo modelo de llaves públicas sin Autoridad Certificadora de SSH directamente al **Kernel de Linux (Capa 3 IP)**. Cada nodo tiene una llave privada `Curve25519` y una lista de `[Peer]` con sus llaves públicas e IPs permitidas (*Crypto-Key Routing*), cifrando todos los paquetes UDP a velocidad de línea con `ChaCha20-Poly1305`.
+- **OpenSSH (`ssh` / `sshd`) — Arquitectura Híbrida en 4 Etapas:** No elige una sola forma de cifrado, sino que combina cuatro mecanismos para la tarea en la que cada uno es más eficiente:
+  1. **Intercambio de Claves (KEX):** `Curve25519` o `diffie-hellman-group14/16-sha256/512` para acordar una *Session Key* efímera en RAM sin transmitirla por la red (*Perfect Forward Secrecy*).
+  2. **Cifrado Asimétrico (`Ed25519`, `RSA`, `ECDSA`):** Exclusivo para **autenticación de identidades** (el cliente valida la *Host Key* del servidor en `~/.ssh/known_hosts` y el servidor valida la *User Key* del cliente en `~/.ssh/authorized_keys`).
+  3. **Cifrado Simétrico (`ChaCha20-Poly1305`, `AES-256-GCM`, `AES-128-CTR`):** Cifra masivamente todo el tráfico de la sesión (comandos, PTY, SFTP y túneles `-L`/`-R`) porque es **~1.000 veces más rápido** que el asimétrico.
+  4. **Integridad y Autenticación de Mensajes (`MAC / AEAD`):** `HMAC-SHA2-256/512` o autenticación integrada AEAD (`AES-GCM` / `ChaCha20-Poly1305`) para garantizar que ningún paquete sea alterado en tránsito.
+- **WireGuard (`wg`):** Lleva el mismo modelo de llaves públicas sin Autoridad Certificadora de SSH directamente al **Kernel de Linux (Capa 3 IP)**. Cada nodo tiene una llave privada `Curve25519` y una lista de `[Peer]` con sus llaves públicas e IPs permitidas (*Crypto-Key Routing*), cifrando y autenticando todos los paquetes UDP a velocidad de línea con `ChaCha20-Poly1305` (AEAD).
 - **OpenVPN (`openvpn`):** Opera en espacio de usuario (`tun0`) apoyándose en una infraestructura PKI completa de certificados X.509 (`ca.crt`, `server.crt`, `client.crt`) y canales de datos TLS (`AES-256-GCM`).
 
 👉 **Laboratorio Práctico Dedicado (Paso a Paso Cliente/Servidor + WireGuard):** [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md) · Script: [`demo_ssh_cifrado.sh`](demo_ssh_cifrado.sh)
