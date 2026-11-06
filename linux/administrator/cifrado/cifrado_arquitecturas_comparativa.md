@@ -21,6 +21,9 @@ tags:
 - gocryptfs
 - gpg
 - age
+- ssh
+- wireguard
+- openvpn
 - fde
 - dm-crypt
 - comparativa
@@ -29,6 +32,9 @@ tools:
 - cryptsetup
 - gocryptfs
 - gpg
+- ssh
+- wg
+- openvpn
 - lsblk
 - df
 requirements:
@@ -76,6 +82,7 @@ files:
 prerequisites:
 - lab-3.1-anatomia-filesystems
 next_recommended_labs:
+- lab-3.3-ssh-cifrado-cliente-servidor
 - lab-3.3-cifrado-luks
 - lab-3.4-cifrado-fuse-gocryptfs
 - lab-3.4b-gpg-firmas-repositorios-backups
@@ -93,11 +100,16 @@ Sin embargo, uno de los errores más comunes al diseñar la seguridad de un serv
 
 ---
 
-## 🗺️ Mapa de las 3 Capas de Cifrado en Linux
+## 🗺️ Mapa de las Capas de Cifrado en el Stack Linux (En Reposo y En Tránsito)
 
 ```
 +───────────────────────────────────────────────────────────────────────────────────────────────────+
 │                                NIVELES DE CIFRADO EN EL STACK LINUX                               │
+│                                                                                                   │
+│  0. CIFRADO EN TRÁNSITO Y ACCESO REMOTO (OpenSSH, WireGuard, OpenVPN, TLS)                        │
+│     - Opera sobre conexiones TCP/UDP o interfaces virtuales de red (L3/L4/L7).                    │
+│     - Criptografía Híbrida: Asimétrica (Ed25519/Curve25519/X.509) + Simétrica Efímera (ChaCha20). │
+│     - Casos: Administración remota (ssh/sshd), túneles (-L/-R), VPNs entre datacenters y nube.    │
 │                                                                                                   │
 │  1. CIFRADO A NIVEL DE APLICACIÓN / ARCHIVO ESTÁTICO (GnuPG, age, OpenSSL enc)                    │
 │     - Opera sobre archivos aislados (.tar.gz, .sql, secretos).                                    │
@@ -118,19 +130,18 @@ Sin embargo, uno de los errores más comunes al diseñar la seguridad de un serv
 
 ---
 
-## ⚖️ Tabla Comparativa Definitiva
+## ⚖️ Tabla Comparativa Definitiva (Datos en Reposo y en Tránsito)
 
-| Criterio de Comparación | Nivel 1: Bloques (`LUKS2 / dm-crypt`) | Nivel 2: Filesystem (`gocryptfs`) | Nivel 3: Archivo / App (`GPG / age`) |
-| :--- | :--- | :--- | :--- |
-| **Capa del sistema operativo** | Kernel (`drivers/md/dm-crypt.c`) | Espacio de Usuario (`FUSE`) | Espacio de Usuario (Binario CLI / Lib) |
-| **¿Qué se oculta?** | **Todo:** contenido, nombres, inodos, árbol de directorios y espacio libre. | Contenido y nombres de archivo. | Solo el archivo o stream cifrado. |
-| **¿Qué metadatos se filtran?** | Nada (solo el tamaño total de la partición y la cabecera LUKS). | Cantidad de archivos, tamaños aproximados y marcas de tiempo (`mtime`). | Nombre del archivo contenedor y tamaño del payload. |
-| **¿Requiere privilegios `root`?** |  **Sí obligatorio** (para mapear `/dev/mapper`). | ❌ No (ejecuta con usuario estándar vía FUSE). | ❌ No (ejecuta con cualquier usuario). |
-| **Flexibilidad de almacenamiento** | Rígido: Requiere partición o loop device con tamaño fijo. | Dinámico: Crece y decrece según los archivos almacenados. | Archivo por archivo bajo demanda. |
-| **Impacto en Backups y Nube** | **Pesado:** Modificar 1 archivo altera el volumen; sincronizar a S3 exige subir bloques o imágenes completas. | **Óptimo:** Cada archivo cifrado es independiente; ideal para `rsync`, Rclone o AWS S3. | **Ideal para Archival:** Dumps de DB o tarballs autocontenidos. |
-| **Rendimiento de I/O** | **Máximo** (acelerado por instrucciones CPU AES-NI en kernel). | Medio (overhead por cambios de contexto en FUSE). | Rápido para archivos estáticos; costoso en streaming masivo. |
-| **Mecanismo de Desbloqueo** | Contraseña, Keyfile, **TPM 2.0 (`systemd-cryptenroll`)**, FIDO2 o Tang/Clevis. | Contraseña maestra o llave de recuperación. | Clave privada asimétrica (RSA/ECC) o passphrase simétrica. |
-| **Laboratorio y Demo Interactiva** | [`luks/luks.md`](../luks/luks.md) · Script: [`demo_luks.sh`](../luks/demo_luks.sh) | [`gocryptfs/gocryptfs.md`](../gocryptfs/gocryptfs.md) · Script: [`demo_gocryptfs.sh`](../gocryptfs/demo_gocryptfs.sh) | [`gpg/gpg_firmas_repositorios_backups.md`](../gpg/gpg_firmas_repositorios_backups.md) · Script: [`demo_gpg.sh`](../gpg/demo_gpg.sh) |
+| Criterio de Comparación | Nivel 1: Bloques (`LUKS2 / dm-crypt`) | Nivel 2: Filesystem (`gocryptfs`) | Nivel 3: Archivo / App (`GPG / age`) | Nivel 4: Sesión y Túneles (`SSH / OpenSSH`) | Nivel 5: Red VPN (`WireGuard / OpenVPN`) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Ámbito de Protección** | **En Reposo** (Disco completo / Partición) | **En Reposo** (Directorio / Nube) | **En Reposo e Intercambio** (Archivo único) | **En Tránsito** (Shell, SFTP y Túneles TCP `:22`) | **En Tránsito** (Red L3/L2 entre nodos `:51820` / `:1194`) |
+| **Capa del Sistema Operativo** | Kernel (`drivers/md/dm-crypt.c`) | Espacio de Usuario (`FUSE`) | Espacio de Usuario (CLI) | Espacio de Usuario (`ssh` cliente ↔ `sshd` servidor) | Kernel Linux (`wireguard.ko`) o Userspace (`openvpn` TUN) |
+| **Cifrado Simétrico (Datos)** | `AES-256-XTS` (con Master Key en RAM) | `AES-256-GCM` por archivo + `EME` nombres | `AES-256` o `ChaCha20-Poly1305` por paquete | `ChaCha20-Poly1305` o `AES-256-GCM` (Session Key efímera) | `ChaCha20-Poly1305` (WireGuard) o `AES-256-GCM` (OpenVPN) |
+| **Criptografía Asimétrica** | ❌ No (usa KDF `Argon2id` en 8 Keyslots) | ❌ No (usa KDF `scrypt`) | ✅ Sí (`Ed25519` / `Cv25519` / `RSA`) | ✅ **Doble:** Host Key (`known_hosts`) + User Key (`authorized_keys`) + KEX `curve25519` | ✅ Sí: Pares `Curve25519` (*Crypto-Key Routing*) o PKI X.509 (`ca.crt`) |
+| **¿Qué se oculta?** | **Todo en el disco:** contenido, nombres, inodos y espacio libre. | Contenido y nombres de cada archivo. | Solo el archivo o stream cifrado. | Comandos, salida de terminal, archivos SFTP y puertos tunelizados (`-L`/`-R`). | Todo el tráfico IP entre los nodos/subredes conectados a la VPN. |
+| **¿Requiere privilegios `root`?** | ✅ **Sí obligatorio** (para mapear `/dev/mapper`). | ❌ No (ejecuta vía FUSE). | ❌ No (cualquier usuario). | Cliente: ❌ No · Servidor `sshd` en `:22`: ✅ Sí. | ✅ Sí (para levantar interfaces `wg0` o `tun0` y rutas). |
+| **Archivos Clave en Linux** | Cabecera binaria en `/dev/sdX`, `/etc/crypttab` | `gocryptfs.conf`, `gocryptfs.diriv` | `~/.gnupg/`, archivos `.gpg` / `.age` | `~/.ssh/id_ed25519`, `known_hosts`, `authorized_keys`, `/etc/ssh/sshd_config` | `/etc/wireguard/wg0.conf` (o `ca.crt`, `server.crt`, `ta.key`) |
+| **Laboratorio y Demo Interactiva** | [`luks/luks.md`](../luks/luks.md) · [`demo_luks.sh`](../luks/demo_luks.sh) | [`gocryptfs/gocryptfs.md`](../gocryptfs/gocryptfs.md) · [`demo_gocryptfs.sh`](../gocryptfs/demo_gocryptfs.sh) | [`gpg/gpg_firmas_repositorios_backups.md`](../gpg/gpg_firmas_repositorios_backups.md) · [`demo_gpg.sh`](../gpg/demo_gpg.sh) | [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md) · [`demo_ssh_cifrado.sh`](demo_ssh_cifrado.sh) | [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md) · [`demo_criptografia_llaves.sh`](demo_criptografia_llaves.sh) |
 
 ---
 
@@ -236,6 +247,29 @@ No cifra discos ni carpetas montadas. Toma un archivo o un flujo de datos (*stre
 
 ---
 
+### 4. Cifrado en Tránsito: SSH (Cliente/Servidor), WireGuard y OpenVPN
+
+Mientras que LUKS2, `gocryptfs` y GPG protegen los datos almacenados en un disco o carpeta (**Data at Rest**), en cuanto un dato sale por la placa de red hacia otro servidor necesita **Cifrado en Tránsito (*Data in Transit*)**.
+
+```
+  [ Cliente SSH (ssh) ]                                [ Servidor SSH (sshd :22) ]
+   ~/.ssh/id_ed25519 (User Priv)                        /etc/ssh/ssh_host_ed25519_key (Host Priv)
+   ~/.ssh/known_hosts (Verifica Host)                   ~/.ssh/authorized_keys (Verifica User)
+            │                                                        │
+            +───────► 1. KEX Diffie-Hellman (curve25519-sha256) ◄────+
+                      2. Túnel Simétrico (chacha20-poly1305)
+                      3. Autenticación Usuario (Challenge-Response)
+```
+
+#### ¿Cómo operan SSH y WireGuard?
+- **OpenSSH (`ssh` / `sshd`):** Combina **dos pares de llaves asimétricas** (la *Host Key* del servidor verificada en `~/.ssh/known_hosts` bajo el modelo TOFU para evitar ataques *Man-in-the-Middle*, y la *User Key* del cliente verificada en `~/.ssh/authorized_keys`) con un intercambio efímero Diffie-Hellman (`curve25519-sha256`) que deriva una **Session Key simétrica en RAM** (`chacha20-poly1305@openssh.com` o `aes256-gcm@openssh.com`). Además de shells remotas y SFTP, permite crear túneles cifrados instantáneos (`ssh -L`, `-R`, `-D`).
+- **WireGuard (`wg`):** Lleva el mismo modelo de llaves públicas sin Autoridad Certificadora de SSH directamente al **Kernel de Linux (Capa 3 IP)**. Cada nodo tiene una llave privada `Curve25519` y una lista de `[Peer]` con sus llaves públicas e IPs permitidas (*Crypto-Key Routing*), cifrando todos los paquetes UDP a velocidad de línea con `ChaCha20-Poly1305`.
+- **OpenVPN (`openvpn`):** Opera en espacio de usuario (`tun0`) apoyándose en una infraestructura PKI completa de certificados X.509 (`ca.crt`, `server.crt`, `client.crt`) y canales de datos TLS (`AES-256-GCM`).
+
+👉 **Laboratorio Práctico Dedicado (Paso a Paso Cliente/Servidor + WireGuard):** [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md) · Script: [`demo_ssh_cifrado.sh`](demo_ssh_cifrado.sh)
+
+---
+
 ## 🎯 Matriz de Decisión Operativa
 
 ```
@@ -250,8 +284,11 @@ No cifra discos ni carpetas montadas. Toma un archivo o un flujo de datos (*stre
 ├── ¿Respaldos automatizados generados por cron o firmas de paquetes/commits?
 │   └── ► Usá GnuPG (gpg) o age (Cifrado de Aplicación / Archivo Estático).
 │
-└── ¿Canales de comunicación entre servidores a través de Internet?
-    └── ► Usá WireGuard, IPsec o TLS (Cifrado en Tránsito).
+├── ¿Administración remota de servidores, copia de archivos o tunelizar un puerto interno?
+│   └── ► Usá OpenSSH (ssh / sshd / scp / sftp / ssh -L) con llaves Ed25519.
+│
+└── ¿Redes privadas permanentes entre servidores, datacenters o clientes remotos?
+    └── ► Usá WireGuard (Kernel VPN con Crypto-Key Routing) u OpenVPN (mTLS X.509).
 ```
 
 ---
@@ -263,16 +300,19 @@ Para llevar estos conceptos a la práctica en terminal (WSL2 o Linux nativo), se
 1. **Fundamentos Criptográficos y Gestión de Llaves:**
    - 📖 Guía: [`fundamentos_criptografia_llaves_certificados.md`](fundamentos_criptografia_llaves_certificados.md)
    - 💻 Script Didáctico: [`demo_criptografia_llaves.sh`](demo_criptografia_llaves.sh) (6 etapas: AES-256, RSA/Ed25519, Challenge-Response SSH/EC2, Firmas Digitales y Criptografía Híbrida ECDH).
-2. **Cifrado de Bloques y FDE (Nivel 1):**
+2. **Arquitectura de Cifrado en SSH (Cliente/Servidor), Túneles y WireGuard:**
+   - 📖 Guía: [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md)
+   - 💻 Script Didáctico: [`demo_ssh_cifrado.sh`](demo_ssh_cifrado.sh) (Servidor `sshd` real aislado, auditoría de las 3 capas con `ssh -v`, permisos `chmod 600`, ataque MitM en `known_hosts`, túneles `ssh -L` y llaves WireGuard).
+3. **Cifrado de Bloques y FDE (Nivel 1):**
    - 📖 Guía: [`../luks/luks.md`](../luks/luks.md)
    - 💻 Script Didáctico: [`../luks/demo_luks.sh`](../luks/demo_luks.sh) (Aprovisionamiento dm-crypt, formateo LUKS2, mapeo `/dev/mapper`, keyslots de rescate y benchmarks).
-3. **Cifrado de Filesystems en Espacio de Usuario con FUSE (Nivel 2):**
+4. **Cifrado de Filesystems en Espacio de Usuario con FUSE (Nivel 2):**
    - 📖 Guía: [`../gocryptfs/gocryptfs.md`](../gocryptfs/gocryptfs.md)
    - 💻 Script Didáctico: [`../gocryptfs/demo_gocryptfs.sh`](../gocryptfs/demo_gocryptfs.sh) (Cifrado transparente para nubes como S3/Dropbox, modo reverse y gestión sin root).
-4. **Firmas Digitales, Repositorios y Backups Asimétricos (Nivel 3):**
+5. **Firmas Digitales, Repositorios y Backups Asimétricos (Nivel 3):**
    - 📖 Guía: [`../gpg/gpg_firmas_repositorios_backups.md`](../gpg/gpg_firmas_repositorios_backups.md)
    - 💻 Script Didáctico: [`../gpg/demo_gpg.sh`](../gpg/demo_gpg.sh) (Generación de llaves OpenPGP, firma de commits y paquetes APT, y backups desatendidos asimétricos).
-5. **Laboratorios Integradores y Producción en la Nube:**
+6. **Laboratorios Integradores y Producción en la Nube:**
    - 📖 Trabajo Integrador de Almacenamiento y Cifrado: [`../trabajo_integrador/trabajo_integrador.md`](../trabajo_integrador/trabajo_integrador.md)
    - 📖 Clúster Multi-nodo en AWS EC2 con LVM, LUKS y Monitoreo: [`../monitoreo/monitoreo_centralizado_multinodo.md`](../monitoreo/monitoreo_centralizado_multinodo.md)
 

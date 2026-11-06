@@ -100,6 +100,7 @@ def auto_populate_resource_types():
         "lab-2.6-systemd-timers-vs-cron-chrony": ["lab-2.0-automatizacion-arquitecturas-comparativa", "lab-2.1-systemd-memlogger", "lab-2.4-cron-crontab-planificacion", "lab-2.5-anacron-at-tareas-asincronas"],
         "lab-3.1-anatomia-filesystems": ["ref-guia-discos-procesos"],
         "lab-3.2-lvm2-online-resize": ["lab-3.1-anatomia-filesystems"],
+        "lab-3.3-ssh-cifrado-cliente-servidor": ["lab-3.3.0-cifrado-arquitecturas-comparativa", "lab-3.3-fundamentos-criptografia-llaves"],
         "lab-3.3-cifrado-luks": ["lab-3.2-lvm2-online-resize"],
         "lab-3.4-cifrado-fuse-gocryptfs": ["lab-3.3-cifrado-luks"],
         "lab-3.5-borg-backup": ["lab-3.2-lvm2-online-resize"],

@@ -19,9 +19,11 @@
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
-if [[ "${1:-}" == "--auto" && -n "${2:-}" ]]; then
-    AUTO_WAIT="$2"
+if [[ "${1:-}" == "--auto" ]]; then
+    AUTO_MODE=true
+    AUTO_WAIT="${2:-2}"
 fi
 
 # Colores ANSI
@@ -75,8 +77,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM:-\033[2m}   [Presioná ENTER para revelar la respuesta...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -87,7 +89,7 @@ pie_clase() {
 
 pause_step() {
     local msg="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_YELLOW}⏳ Esperando ${AUTO_WAIT}s (modo automático)...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
