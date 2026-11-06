@@ -11,9 +11,12 @@ output "resumen_cluster" {
   ----------------------------------------------------------------------------------------------------------------------
   ROL                    IP PÚBLICA (ESTÁTICA)   IP INTERNA   PUERTOS       ACCESO WEB / MÉTRICAS
   ----------------------------------------------------------------------------------------------------------------------
-  Servidor Central       ${format("%-23s", aws_eip.eip_central.public_ip)} 10.0.1.10    3000, 9090    Grafana:    http://${aws_eip.eip_central.public_ip}:3000/d/cluster-monitoreo-multinodo/
-                                                                            Prometheus: http://${aws_eip.eip_central.public_ip}:9090
-  Worker 1 (Web LVM)     ${format("%-23s", aws_eip.eip_web.public_ip)} 10.0.1.20    80, 8080      Servicio:   http://${aws_eip.eip_web.public_ip}
+  Servidor Central       ${format("%-23s", aws_eip.eip_central.public_ip)} 10.0.1.10    3000, 9090    Grafana:      http://${aws_eip.eip_central.public_ip}:3000/d/cluster-monitoreo-multinodo/
+                                                              9093, 9999    Prometheus:   http://${aws_eip.eip_central.public_ip}:9090
+                                                                            Alertmanager: http://${aws_eip.eip_central.public_ip}:9093
+                                                                            Alert Hub:    http://${aws_eip.eip_central.public_ip}:9999
+                                                                            ntfy.sh Push: https://ntfy.sh/${var.ntfy_topic}
+  Worker 1 (Web LVM)     ${format("%-23s", aws_eip.eip_web.public_ip)} 10.0.1.20    80, 8080      Servicio:     http://${aws_eip.eip_web.public_ip}
   Worker 2 (Datos LUKS)  ${format("%-23s", aws_eip.eip_luks.public_ip)} 10.0.1.30    (VPC only)    Contenedor Cifrado Activo (/data/segura)
   ----------------------------------------------------------------------------------------------------------------------
 
@@ -38,6 +41,21 @@ output "grafana_url" {
 output "prometheus_url" {
   description = "URL de la interfaz de Prometheus en el Servidor Central"
   value       = "http://${aws_eip.eip_central.public_ip}:9090"
+}
+
+output "alertmanager_url" {
+  description = "URL de Prometheus Alertmanager en el Servidor Central"
+  value       = "http://${aws_eip.eip_central.public_ip}:9093"
+}
+
+output "alert_hub_web_url" {
+  description = "URL del Centro de Incidentes Web en Vivo (Receptor Webhook de Alertmanager)"
+  value       = "http://${aws_eip.eip_central.public_ip}:9999"
+}
+
+output "ntfy_topic_url" {
+  description = "URL pública en ntfy.sh donde llegan las alertas push en tiempo real (celular y navegador)"
+  value       = "https://ntfy.sh/${var.ntfy_topic}"
 }
 
 output "web_service_url" {

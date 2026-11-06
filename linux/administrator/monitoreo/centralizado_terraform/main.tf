@@ -126,6 +126,22 @@ resource "aws_security_group" "sg_central" {
   }
 
   ingress {
+    description = "Prometheus Alertmanager UI"
+    from_port   = 9093
+    to_port     = 9093
+    protocol    = "tcp"
+    cidr_blocks = [local.admin_cidr]
+  }
+
+  ingress {
+    description = "Alert Hub Web en Vivo (Receptor Webhook + Panel NOC + Bridge ntfy.sh)"
+    from_port   = 9999
+    to_port     = 9999
+    protocol    = "tcp"
+    cidr_blocks = [local.admin_cidr]
+  }
+
+  ingress {
     description = "Trafico interno completo dentro de la VPC"
     from_port   = 0
     to_port     = 0
@@ -211,7 +227,7 @@ resource "aws_instance" "srv_central" {
     delete_on_termination = true
   }
 
-  user_data = <<-CENTRAL_BOOTSTRAP
+  user_data_base64 = base64gzip(<<-CENTRAL_BOOTSTRAP
               #!/bin/bash
               export DEBIAN_FRONTEND=noninteractive
 
@@ -224,7 +240,7 @@ resource "aws_instance" "srv_central" {
 
               # 1. Instalar dependencias y repositorio oficial de Grafana
               apt-get update -qq
-              apt-get install -y -qq apt-transport-https software-properties-common wget curl jq prometheus gpg
+              apt-get install -y -qq apt-transport-https software-properties-common wget curl jq prometheus prometheus-alertmanager python3 gpg
 
               mkdir -p /etc/apt/keyrings/
               wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null
@@ -232,11 +248,56 @@ resource "aws_instance" "srv_central" {
               apt-get update -qq
               apt-get install -y -qq grafana
 
-              # 2. Configuración centralizada de Prometheus hacia los dos workers
+              # 2. Reglas de Alerta de Prometheus (LVM RAID 1, LUKS2 y Caída de Nodos)
+              cat << 'ARULES' > /etc/prometheus/alert_rules.yml
+              groups:
+                - name: cluster_resilience_and_security_alerts
+                  interval: 2s
+                  rules:
+                    - alert: LvmRaid1Degradado
+                      expr: node_lvm_mirror_health == 0
+                      for: 2s
+                      labels:
+                        severity: critical
+                        subsystem: lvm-raid1
+                      annotations:
+                        summary: "🚨 Espejo LVM RAID 1 DEGRADADO en Worker 1 (srv-web-lvm)"
+                        description: "Se detectó pérdida de redundancia física en /dev/vg_web/lv_html (10.0.1.20). El sitio web sigue ONLINE (HTTP 200) por tolerancia a fallos. Ejecutar hot-repair: vgreduce --removemissing --force vg_web && pvcreate -ff -y /dev/nvme1n1 && vgextend vg_web /dev/nvme1n1 && lvconvert -y --repair vg_web/lv_html"
+
+                    - alert: LuksContenedorCerrado
+                      expr: node_luks_container_active == 0
+                      for: 2s
+                      labels:
+                        severity: critical
+                        subsystem: luks2-dmcrypt
+                      annotations:
+                        summary: "🔐 Bóveda Cifrada LUKS2 CERRADA en Worker 2 (srv-data-luks)"
+                        description: "El volumen criptográfico /dev/mapper/datos_seguros (10.0.1.30) fue desmontado o bloqueado. Datos en /data/segura inaccesibles."
+
+                    - alert: NodoWorkerCaido
+                      expr: up == 0
+                      for: 5s
+                      labels:
+                        severity: critical
+                        subsystem: node-availability
+                      annotations:
+                        summary: "⚠️ Nodo {{ $labels.job }} ({{ $labels.instance }}) INALCANZABLE"
+                        description: "Prometheus no puede recolectar métricas del nodo {{ $labels.job }} desde hace más de 5 segundos."
+              ARULES
+
+              # 2b. Configuración centralizada de Prometheus hacia los dos workers + Alertmanager
               cat << 'PCONF' > /etc/prometheus/prometheus.yml
               global:
                 scrape_interval: 2s
                 evaluation_interval: 2s
+
+              alerting:
+                alertmanagers:
+                  - static_configs:
+                      - targets: ['localhost:9093']
+
+              rule_files:
+                - '/etc/prometheus/alert_rules.yml'
 
               scrape_configs:
                 - job_name: 'srv-monitoreo-central'
@@ -259,6 +320,191 @@ resource "aws_instance" "srv_central" {
                         storage: 'luks2-encrypted'
                         env: 'produccion'
               PCONF
+
+              # 2c. Configurar Prometheus Alertmanager (:9093) -> Webhook hacia Alert Hub (:9999)
+              cat << 'AMCONF' > /etc/prometheus/alertmanager.yml
+              global:
+                resolve_timeout: 1m
+
+              route:
+                group_by: ['alertname', 'job']
+                group_wait: 1s
+                group_interval: 2s
+                repeat_interval: 1h
+                receiver: 'alert-hub-and-ntfy'
+
+              receivers:
+                - name: 'alert-hub-and-ntfy'
+                  webhook_configs:
+                    - url: 'http://127.0.0.1:9999/webhook'
+                      send_resolved: true
+              AMCONF
+
+              # 2d. Crear Servicio Alert Hub Web (:9999) + Puente automático hacia ntfy.sh
+              cat << 'HUBPY' > /usr/local/bin/alert_hub.py
+              #!/usr/bin/env python3
+              import json
+              import os
+              import urllib.request
+              from datetime import datetime, timezone
+              from http.server import HTTPServer, BaseHTTPRequestHandler
+
+              NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "lab-sre-monitoreo-aws-dalmine")
+              EVENTS = []
+
+              def strip_emojis(text):
+                  return text.encode("ascii", "ignore").decode("ascii").strip()
+
+              def push_ntfy(title, message, priority="default", tags="warning"):
+                  if not NTFY_TOPIC:
+                      return
+                  try:
+                      req = urllib.request.Request(
+                          f"https://ntfy.sh/{NTFY_TOPIC}",
+                          data=message.encode("utf-8"),
+                          headers={
+                              "Title": strip_emojis(title),
+                              "Priority": priority,
+                              "Tags": tags,
+                          },
+                          method="POST"
+                      )
+                      urllib.request.urlopen(req, timeout=5)
+                  except Exception as e:
+                      print(f"[WARN] Error enviando a ntfy.sh: {e}", flush=True)
+
+              class HubHandler(BaseHTTPRequestHandler):
+                  def log_message(self, fmt, *args):
+                      return
+
+                  def do_POST(self):
+                      length = int(self.headers.get("Content-Length", 0))
+                      raw = self.rfile.read(length)
+                      try:
+                          payload = json.loads(raw.decode("utf-8"))
+                      except Exception:
+                          self.send_response(400)
+                          self.end_headers()
+                          return
+
+                      now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                      for alert in payload.get("alerts", []):
+                          status = alert.get("status", "firing").upper()
+                          labels = alert.get("labels", {})
+                          ann = alert.get("annotations", {})
+                          name = labels.get("alertname", "Alert")
+                          job = labels.get("job", labels.get("instance", "cluster"))
+                          severity = labels.get("severity", "critical").upper()
+                          summary = ann.get("summary", name)
+                          desc = ann.get("description", "")
+
+                          event = {
+                              "time": now,
+                              "status": status,
+                              "name": name,
+                              "job": job,
+                              "severity": severity,
+                              "summary": summary,
+                              "description": desc,
+                          }
+                          EVENTS.insert(0, event)
+                          del EVENTS[50:]
+
+                          if status == "FIRING":
+                              push_ntfy(
+                                  title=f"[FIRING] {name} ({job})",
+                                  message=f"{summary}\n\n{desc}\nHora: {now}",
+                                  priority="urgent",
+                                  tags="rotating_light,skull"
+                              )
+                          else:
+                              push_ntfy(
+                                  title=f"[RESOLVED] {name} ({job})",
+                                  message=f"Incidente resuelto y servicio normalizado.\n{summary}\nHora: {now}",
+                                  priority="high",
+                                  tags="white_check_mark,tada"
+                              )
+
+                      self.send_response(200)
+                      self.send_header("Content-Type", "application/json")
+                      self.end_headers()
+                      self.wfile.write(b'{"status":"ok"}')
+
+                  def do_GET(self):
+                      if self.path.startswith("/api/events"):
+                          self.send_response(200)
+                          self.send_header("Content-Type", "application/json")
+                          self.end_headers()
+                          self.wfile.write(json.dumps({"ntfy_topic": NTFY_TOPIC, "events": EVENTS}).encode("utf-8"))
+                          return
+
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/html; charset=utf-8")
+                      self.end_headers()
+                      rows = ""
+                      if not EVENTS:
+                          rows = '<div style="padding:30px;text-align:center;color:#a6adc8;background:#181825;border-radius:10px;border:1px dashed #45475a;">✅ Sin incidentes registrados. Todos los sistemas (LVM RAID 1 y LUKS2) operando normalmente.</div>'
+                      else:
+                          for ev in EVENTS:
+                              is_firing = ev["status"] == "FIRING"
+                              border = "#f38ba8" if is_firing else "#a6e3a1"
+                              bg = "rgba(243, 139, 168, 0.12)" if is_firing else "rgba(166, 227, 161, 0.12)"
+                              badge_bg = "#f38ba8" if is_firing else "#a6e3a1"
+                              badge_txt = "🚨 FIRING (ACTIVA)" if is_firing else "✅ RESOLVED (RESUELTA)"
+                              rows += f'''
+                              <div style="background:{bg};border-left:6px solid {border};padding:18px 22px;border-radius:8px;margin-bottom:14px;border:1px solid {border};">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                  <span style="background:{badge_bg};color:#11111b;font-weight:800;padding:4px 10px;border-radius:6px;font-size:0.85em;">{badge_txt}</span>
+                                  <span style="color:#bac2de;font-family:monospace;font-size:0.9em;">{ev["time"]} | Nodo: {ev["job"]}</span>
+                                </div>
+                                <div style="font-size:1.15em;font-weight:700;color:#cdd6f4;margin-bottom:6px;">{ev["summary"]}</div>
+                                <div style="color:#bac2de;font-size:0.95em;line-height:1.45;font-family:monospace;">{ev["description"]}</div>
+                              </div>'''
+
+                      html = f'''<!DOCTYPE html>
+                      <html lang="es">
+                      <head>
+                        <meta charset="UTF-8">
+                        <meta http-equiv="refresh" content="3">
+                        <title>SRE Alert Hub & ntfy.sh Bridge</title>
+                      </head>
+                      <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#11111b;color:#cdd6f4;margin:0;padding:30px;">
+                        <div style="max-width:920px;margin:0 auto;">
+                          <div style="display:flex;justify-content:space-between;align-items:center;background:#1e1e2e;padding:20px 28px;border-radius:12px;border:1px solid #313244;margin-bottom:24px;">
+                            <div>
+                              <h1 style="margin:0 0 6px 0;color:#cba6f7;font-size:1.5em;">🔔 SRE Alert Hub — Centro de Incidentes en Vivo</h1>
+                              <div style="color:#a6adc8;font-size:0.92em;">Conectado a <b>Prometheus Alertmanager (:9093)</b> y reenviando push en vivo a <a href="https://ntfy.sh/{NTFY_TOPIC}" target="_blank" style="color:#89b4fa;font-weight:bold;">https://ntfy.sh/{NTFY_TOPIC}</a></div>
+                            </div>
+                            <div style="text-align:right;">
+                              <span style="display:inline-block;padding:6px 12px;background:#313244;border-radius:20px;font-size:0.82em;color:#a6e3a1;">● Auto-Refresh 3s</span>
+                            </div>
+                          </div>
+                          {rows}
+                        </div>
+                      </body>
+                      </html>'''
+                      self.wfile.write(html.encode("utf-8"))
+
+              if __name__ == "__main__":
+                  HTTPServer(("0.0.0.0", 9999), HubHandler).serve_forever()
+              HUBPY
+              chmod +x /usr/local/bin/alert_hub.py
+
+              cat << 'HUBSVC' > /etc/systemd/system/alert-hub.service
+              [Unit]
+              Description=SRE Alert Hub Web & ntfy.sh Webhook Bridge
+              After=network.target
+
+              [Service]
+              Type=simple
+              Environment="NTFY_TOPIC=${var.ntfy_topic}"
+              ExecStart=/usr/bin/python3 /usr/local/bin/alert_hub.py
+              Restart=always
+              RestartSec=2
+
+              [Install]
+              WantedBy=multi-user.target
+              HUBSVC
 
               # 3. Configurar Grafana: Acceso Anónimo como Admin (Apertura inmediata sin contraseña)
               cat << 'GCONF' >> /etc/grafana/grafana.ini
@@ -302,15 +548,20 @@ resource "aws_instance" "srv_central" {
 
               mkdir -p /var/lib/grafana/dashboards
               cat << 'JSONDASH' > /var/lib/grafana/dashboards/cluster.json
-              ${file("${path.module}/../dashboards/dashboard_centralizado_multinodo.json")}
+              ${replace(file("${path.module}/../dashboards/dashboard_centralizado_multinodo.json"), "\n", "\n              ")}
               JSONDASH
               chown -R grafana:grafana /var/lib/grafana/dashboards
 
+              systemctl daemon-reload
+              systemctl enable --now alert-hub.service
+              systemctl restart prometheus-alertmanager
+              systemctl enable --now prometheus-alertmanager
               systemctl restart prometheus
               systemctl enable --now prometheus
               systemctl restart grafana-server
               systemctl enable --now grafana-server
               CENTRAL_BOOTSTRAP
+  )
 
   tags = {
     Name = "${var.project_name}-srv-monitoreo"
@@ -392,17 +643,17 @@ resource "aws_instance" "srv_web_lvm" {
               cat << 'EOF' > /usr/local/bin/update_lvm_metric.sh
               #!/bin/bash
               VAL=1
-              HEALTH=$(lvs --noheadings --readonly -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
-              ATTR=$(lvs --noheadings --readonly -o attr vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
+              HEALTH=$(lvs --noheadings -o health_status vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
+              ATTR=$(lvs --noheadings -o attr vg_web/lv_html 2>/dev/null | tr -d ' ' || true)
               if [ -n "$HEALTH" ] || [[ "$ATTR" =~ p ]] || [[ "$ATTR" =~ d ]]; then
                   VAL=0
               fi
               TMP_FILE="/var/lib/prometheus/node-exporter/lvm_health.prom.tmp.$$"
               cat << PROM > "$TMP_FILE"
-# HELP node_lvm_mirror_health Estado de redundancia del espejo LVM (1=Sano, 0=Degradado)
-# TYPE node_lvm_mirror_health gauge
-node_lvm_mirror_health{vg="vg_web",lv="lv_html"} $VAL
-PROM
+              # HELP node_lvm_mirror_health Estado de redundancia del espejo LVM (1=Sano, 0=Degradado)
+              # TYPE node_lvm_mirror_health gauge
+              node_lvm_mirror_health{vg="vg_web",lv="lv_html"} $VAL
+              PROM
               chmod 644 "$TMP_FILE"
               mv -f "$TMP_FILE" /var/lib/prometheus/node-exporter/lvm_health.prom
               EOF
@@ -538,10 +789,10 @@ resource "aws_instance" "srv_data_luks" {
               fi
               TMP_FILE="/var/lib/prometheus/node-exporter/luks_status.prom.tmp.$$"
               cat << PROM > "$TMP_FILE"
-# HELP node_luks_container_active Estado del contenedor LUKS (1=Abierto, 0=Cerrado)
-# TYPE node_luks_container_active gauge
-node_luks_container_active{device="datos_seguros"} $VAL
-PROM
+              # HELP node_luks_container_active Estado del contenedor LUKS (1=Abierto, 0=Cerrado)
+              # TYPE node_luks_container_active gauge
+              node_luks_container_active{device="datos_seguros"} $VAL
+              PROM
               chmod 644 "$TMP_FILE"
               mv -f "$TMP_FILE" /var/lib/prometheus/node-exporter/luks_status.prom
               EOF

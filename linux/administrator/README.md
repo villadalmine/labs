@@ -24,6 +24,7 @@ Dispones de un [**Glosario Técnico de Almacenamiento, Resiliencia y Criptograf�
 - [**Perfect Forward Secrecy (PFS)**](GLOSARIO.md#perfect-forward-secrecy-pfs)
 - [**Keyslots y Master Key (LUKS2)**](GLOSARIO.md#keyslots-ranuras-de-clave-en-luks2)
 - [**Systemd Timers**](GLOSARIO.md#monitoreo-telemetría-y-observabilidad)
+- [**Cron, Anacron, at, Systemd Timers y Chrony (NTP)**](GLOSARIO.md#automatización-planificación-de-tareas-y-sincronización-ntp)
 
 ---
 
@@ -43,10 +44,14 @@ Dispones de un [**Glosario Técnico de Almacenamiento, Resiliencia y Criptograf�
   1.5 Detección, Inventario y Auditoría Forense de Hardware (lspci, lsusb, lshw, hwinfo, dmidecode, lscpu)
            │
            ▼
-[NIVEL 2: SUPERVISIÓN & GOBERNANZA MODERNA (SYSTEMD)]
+[NIVEL 2: SUPERVISIÓN, PLANIFICACIÓN & GOBERNANZA MODERNA (CRON, ANACRON, AT & SYSTEMD)]
+  2.0 Arquitecturas de Automatización y Planificación: Cron, Anacron, at, Systemd Timers y Chrony (NTP)
   2.1 Tareas Periódicas con Systemd Timers (memlogger)
   2.2 Activación de Servicios por Sockets bajo demanda (socket-activation)
   2.3 Gobernanza de Recursos con Cgroups v2 (Límites duros de CPUQuota y MemoryMax)
+  2.4 Planificación Clásica con Cron y Crontab (5 campos, operadores /, -, ,, macros @ y PATH)
+  2.5 Sistemas Intermitentes y Ejecución Efímera: Anacron (/etc/anacrontab) y Comando at (atq, atrm)
+  2.6 El Estándar Moderno: Systemd Timers vs Cron (.timer + .service), Cgroups y Chrony (NTP)
            │
            ▼
 [NIVEL 3: STORAGE, FILESYSTEMS, CIFRADO, BACKUPS & MONITOREO]
@@ -158,14 +163,18 @@ python query_catalog.py --sync
 
 ---
 
-## 🟡 Nivel 2: Supervisión y Gobernanza Moderna (Systemd & Cgroups)
-*El estándar de la industria para inicio de servicios, tareas programadas y gobernanza dura de memoria y CPU.*
+## 🟡 Nivel 2: Supervisión, Automatización, Planificación y Gobernanza Moderna (Cron, Anacron, at, Systemd & Cgroups)
+*De Unix V7 a Systemd: planificación periódica, sistemas intermitentes, colas efímeras ad-hoc, sincronización NTP (Chrony), inicio de servicios y gobernanza dura de memoria y CPU.*
 
-| Sección | Guía Teórica (Local / GitHub) | Unidad de Demostración | Conceptos Clave |
+| Sección | Guía Teórica (Local / GitHub) | Unidad / Script de Demostración | Conceptos Clave |
 | :--- | :--- | :--- | :--- |
+| **2.0** | [`automatizacion/automatizacion_arquitecturas_comparativa.md`](automatizacion/automatizacion_arquitecturas_comparativa.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/automatizacion_arquitecturas_comparativa.md) | Guía de Arquitectura y Matriz de Decisión | Evolución histórica desde Unix V7 Cron (1979) y Vixie Cron (1987) hasta `at` & `Anacron` (1997) y `Systemd Timers` (2010s). Matriz de decisión operativa (Servidor 24/7 vs Laptop/Desktop vs Ejecución Única vs Logs/Dependencias) y la Regla de Oro del SysAdmin con `Chrony (NTP)`. |
 | **2.1** | [`systemd/systemd-memlogger.md`](systemd/systemd-memlogger.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-memlogger.md) | `memlogger.service` <br> `memlogger.timer` | Reemplazo moderno de `cron`, unidades `Type=oneshot`, directivas `OnCalendar` y precisión temporal con `AccuracySec`. |
 | **2.2** | [`systemd/systemd-scoket.md`](systemd/systemd-scoket.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-scoket.md) | `echo.socket` <br> `echo@.service` | Socket activation bajo demanda, escucha pasiva del kernel, arranque instantáneo al recibir tráfico de red sin memoria ociosa. |
 | **2.3** | [`systemd/systemd-cgroups.md`](systemd/systemd-cgroups.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/systemd/systemd-cgroups.md) | `systemd-run` | Control de contención: `CPUQuota`, `MemoryMax`, `MemoryHigh` y prevención de caídas generales de servidor por saturación. |
+| **2.4** | [`automatizacion/cron_crontab_planificacion.md`](automatizacion/cron_crontab_planificacion.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/cron_crontab_planificacion.md) | [`demo_cron_crontab.sh`](automatizacion/demo_cron_crontab.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/demo_cron_crontab.sh) <br> [`limpiar_cron_crontab.sh`](automatizacion/limpiar_cron_crontab.sh) | El servicio core `cron`: motor global `/etc/crontab` (`SHELL`, `PATH`, `MAILTO`), anatomía de los 5 campos, gestión de usuarios (`crontab -l`, `-e`, `-r` y advertencia operativa), frecuencias regulares (`*`, `/`, `-`), listas discontinuas (`,`), macros (`@yearly`, `@monthly`, `@daily`, `@hourly`, `@reboot`) y troubleshooting del `PATH`. |
+| **2.5** | [`automatizacion/anacron_at_tareas_asincronas.md`](automatizacion/anacron_at_tareas_asincronas.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/anacron_at_tareas_asincronas.md) | [`demo_anacron_at.sh`](automatizacion/demo_anacron_at.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/demo_anacron_at.sh) <br> [`limpiar_anacron_at.sh`](automatizacion/limpiar_anacron_at.sh) | `Anacron` para sistemas intermitentes (`/etc/anacrontab`: `period`, `delay`, `job-identifier`, sellos en `/var/spool/anacron/`) y el comando `at` para ejecución única efímera sin código residual (`at 2:00 AM tomorrow`, `atq`, `at -c`, `atrm` y `batch`). |
+| **2.6** | [`automatizacion/systemd_timers_vs_cron_chrony.md`](automatizacion/systemd_timers_vs_cron_chrony.md) <br> [🌐 Ver en GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/systemd_timers_vs_cron_chrony.md) | [`demo_systemd_timers_chrony.sh`](automatizacion/demo_systemd_timers_chrony.sh) <br> [🌐 GitHub](https://github.com/villadalmine/labs/blob/main/linux/administrator/automatizacion/demo_systemd_timers_chrony.sh) <br> [`limpiar_systemd_timers_chrony.sh`](automatizacion/limpiar_systemd_timers_chrony.sh) | Desacoplamiento lógico `mi_tarea.timer` (cuándo) + `mi_tarea.service` (qué), validación con `systemd-analyze calendar`, persistencia `Persistent=true`, dependencias `After=network-online.target`, límites `cgroups`, timers efímeros con `systemd-run`, logs en `journalctl` y sincronización NTP con `Chrony` (`timedatectl`, `chronyc`). |
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 47,
+  "total_labs": 51,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -689,6 +689,119 @@
       ]
     },
     {
+      "id": "lab-2.0-automatizacion-arquitecturas-comparativa",
+      "title": "Arquitecturas de Automatización y Planificación en Linux: Cron, Anacron, at, Systemd Timers y Sincronización NTP (Chrony)",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd & Automatización)",
+      "section": "2.0",
+      "sections": [
+        "2.0",
+        "2"
+      ],
+      "category": "systemd",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "systemd",
+        "automatizacion",
+        "planificacion",
+        "cron",
+        "crontab",
+        "anacron",
+        "at",
+        "atd",
+        "timers",
+        "chrony",
+        "ntp",
+        "timedatectl",
+        "comparativa",
+        "arquitectura"
+      ],
+      "tools": [
+        "crontab",
+        "anacron",
+        "at",
+        "atq",
+        "atrm",
+        "systemctl",
+        "systemd-analyze",
+        "journalctl",
+        "chronyc",
+        "timedatectl"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-automatizacion-systemd (Fedora 41 + systemd 256)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "6.19.6-200.fc43.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Validado en contenedor Podman local con systemd (/sbin/init), cronie 1.7.2, cronie-anacron, at 3.2.5 y chrony 4.7 activos."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Guía teórica y matriz de decisión operativa validada frente al temario oficial de Automatización y Planificación en Linux (Clase 8)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-06",
+          "notes": "Arquitectura validada para servidores de producción 24/7 y sincronización NTP con Chrony."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2",
+        "Bare-Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía maestra de arquitectura y matriz de decisión operativa sobre automatización y planificación de tareas en Linux (De Unix V7 a Systemd). Recorre la evolución histórica desde Unix V7 Cron (1979) y Vixie Cron (1987) hasta at/Anacron (1997) y Systemd Timers (2010s), destacando el rol crítico de Chrony (NTP) como habilitador base para garantizar la precisión del reloj del sistema. Analiza la anatomía de /etc/crontab (SHELL, PATH, MAILTO), los 5 campos de tiempo y sus operadores (*, /, -, ,), macros (@reboot, @daily, @yearly), colas efímeras de ejecución única con at, recuperación de tareas en equipos intermitentes con Anacron (/var/spool/anacron) y el desacoplamiento lógico moderno de Systemd Timers (.timer + .service con journalctl, dependencias condicionales y cgroups v2).",
+      "files": {
+        "guide": "automatizacion/automatizacion_arquitecturas_comparativa.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.1-jobs-multiplexores"
+      ],
+      "next_recommended_labs": [
+        "lab-2.4-cron-crontab-planificacion",
+        "lab-2.5-anacron-at-tareas-asincronas",
+        "lab-2.6-systemd-timers-vs-cron-chrony",
+        "lab-2.1-systemd-memlogger"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-2.1-systemd-memlogger",
       "title": "Monitoreo de Memoria con Systemd Services y Systemd Timers (Alternativa Moderna a Cron)",
       "difficulty_level": 2,
@@ -928,6 +1041,328 @@
       "prerequisites": [
         "lab-1.3-planificacion-cpu-nice",
         "lab-2.1-systemd-memlogger"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-2.4-cron-crontab-planificacion",
+      "title": "Planificación Clásica con Cron y Crontab: Sintaxis de 5 Campos, Operadores, Macros (@), Variables de Entorno y Troubleshooting",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd & Automatización)",
+      "section": "2.4",
+      "sections": [
+        "2.4",
+        "2"
+      ],
+      "category": "systemd",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "systemd",
+        "automatizacion",
+        "planificacion",
+        "cron",
+        "crontab",
+        "crond",
+        "cronie",
+        "vixie-cron",
+        "path",
+        "shell",
+        "mailto",
+        "macros",
+        "troubleshooting"
+      ],
+      "tools": [
+        "crontab",
+        "systemctl",
+        "journalctl",
+        "grep",
+        "cat",
+        "chmod"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-automatizacion-systemd (Fedora 41 + systemd 256)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "6.19.6-200.fc43.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Ejecutado de punta a punta con demo_cron_crontab.sh contra crond.service activo (cronie 1.7.2), probando /etc/crontab, crontab -l/-e/-r y fallo real de PATH con env -i."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Ejecución verificada con demo_cron_crontab.sh probando sintaxis de 5 campos, operadores, macros, aislamiento de usuarios y troubleshooting de PATH."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-06",
+          "notes": "Compatible 100% con cron (Debian/Ubuntu) y cronie (RHEL/Rocky/Amazon Linux)."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2",
+        "Bare-Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico e interactivo sobre el servicio core cron y la gestión de tareas periódicas con crontab en Linux. Cubre en detalle el motor de configuración global /etc/crontab (variables SHELL, PATH y MAILTO), la diferencia estructural entre crontabs de sistema (con columna de usuario) y crontabs individuales de usuario (crontab -l, -e, -r), la anatomía de los 5 campos de tiempo (minuto, hora, día del mes, mes, día de la semana), el dominio de operadores de frecuencia (/, -, ,) y las macros de tiempo (@yearly, @monthly, @daily, @hourly, @reboot). Incluye reproducción y resolución en vivo del fallo clásico de producción donde un script funciona en terminal interactiva pero falla en cron por falta de rutas en PATH o permisos.",
+      "files": {
+        "guide": "automatizacion/cron_crontab_planificacion.md",
+        "script": "automatizacion/demo_cron_crontab.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-2.0-automatizacion-arquitecturas-comparativa"
+      ],
+      "next_recommended_labs": [
+        "lab-2.5-anacron-at-tareas-asincronas",
+        "lab-2.6-systemd-timers-vs-cron-chrony"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-2.5-anacron-at-tareas-asincronas",
+      "title": "Planificación en Sistemas Intermitentes y Ejecución Efímera: Anacron (/etc/anacrontab) y el Comando at (atq, atrm, batch)",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd & Automatización)",
+      "section": "2.5",
+      "sections": [
+        "2.5",
+        "2"
+      ],
+      "category": "systemd",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "systemd",
+        "automatizacion",
+        "planificacion",
+        "anacron",
+        "anacrontab",
+        "at",
+        "atd",
+        "atq",
+        "atrm",
+        "batch",
+        "laptops",
+        "sistemas-intermitentes"
+      ],
+      "tools": [
+        "anacron",
+        "at",
+        "atq",
+        "atrm",
+        "batch",
+        "date",
+        "cat"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-automatizacion-systemd (Fedora 41 + systemd 256)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "6.19.6-200.fc43.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Ejecutado en vivo con demo_anacron_at.sh contra atd.service activo (at 3.2.5) y cronie-anacron (1.7.2), verificando recuperación de spool YYYYMMDD y colas at/atq/atrm."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Validación completa con demo_anacron_at.sh cubriendo /etc/anacrontab, /var/spool/anacron, recuperación de tareas perdidas y encolado efímero con at/atq/atrm."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-06",
+          "notes": "Ejecución verificada con paquetes anacron y at en instancias cloud y workstations."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2",
+        "Bare-Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico e interactivo sobre expansión del ecosistema de planificación en Linux mediante Anacron y el comando at. Explica por qué cron pierde irrecuperablemente las tareas cuando un equipo (laptop, desktop o VM de desarrollo) está apagado a la hora programada, y cómo Anacron resuelve este problema verificando sellos de fecha (YYYYMMDD) en /var/spool/anacron/ y aplicando retardos escalonados (delay) definidos en /etc/anacrontab (period, delay, job-identifier, command) junto con START_HOURS_RANGE y RANDOM_DELAY. Además, aborda la ejecución efímera de tareas únicas con el demonio atd y los comandos at, atq, atrm y batch, demostrando cómo at captura el entorno del usuario y evita dejar código residual en crontab.",
+      "files": {
+        "guide": "automatizacion/anacron_at_tareas_asincronas.md",
+        "script": "automatizacion/demo_anacron_at.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-2.0-automatizacion-arquitecturas-comparativa",
+        "lab-2.4-cron-crontab-planificacion"
+      ],
+      "next_recommended_labs": [
+        "lab-2.6-systemd-timers-vs-cron-chrony"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-2.6-systemd-timers-vs-cron-chrony",
+      "title": "El Estándar Moderno: Systemd Timers vs Cron (.timer + .service), Control Cgroups y Sincronización NTP con Chrony",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión & Gobernanza Moderna (Systemd & Automatización)",
+      "section": "2.6",
+      "sections": [
+        "2.6",
+        "2"
+      ],
+      "category": "systemd",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "systemd",
+        "timers",
+        "services",
+        "cron",
+        "anacron",
+        "at",
+        "chrony",
+        "chronyc",
+        "ntp",
+        "timedatectl",
+        "systemd-analyze",
+        "systemd-run",
+        "cgroups",
+        "journalctl"
+      ],
+      "tools": [
+        "systemctl",
+        "systemd-analyze",
+        "systemd-run",
+        "journalctl",
+        "timedatectl",
+        "chronyc"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-automatizacion-systemd (Fedora 41 + systemd 256)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "6.19.6-200.fc43.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Ejecutado en vivo con demo_systemd_timers_chrony.sh sobre systemd 256.17 y chrony 4.7, verificando timedatectl, systemd-analyze calendar, unidades .timer/.service con Persistent=true, cgroups y systemd-run --on-active."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10.2",
+          "kernel": "6.18.54.1-microsoft-standard-WSL2",
+          "status": "PASSED",
+          "test_date": "2026-11-06",
+          "notes": "Validación con demo_systemd_timers_chrony.sh probando auditoría NTP (timedatectl/chronyc), systemd-analyze calendar, unidades .timer/.service con Persistent=true y cgroups."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-06",
+          "notes": "Sincronización con Amazon Time Sync Service vía Chrony y ejecución nativa de Systemd Timers."
+        }
+      ],
+      "environments": [
+        "WSL2",
+        "AWS EC2",
+        "Bare-Metal"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Rocky Linux 10.2",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio integrador sobre el estándar moderno de planificación en Linux con Systemd Timers y sincronización de reloj con Chrony (NTP). Demuestra en la práctica la Regla de Oro del SysAdmin: auditar y sincronizar primero la capa base de tiempo con timedatectl y chronyc (tracking, sources, makestep) antes de orquestar tareas. Guía paso a paso en la traducción de expresiones crontab hacia OnCalendar verificadas con systemd-analyze calendar, el desacoplamiento lógico entre mi_tarea.timer (cuándo) y mi_tarea.service (qué), la emulación de Anacron con Persistent=true, la emulación de at con systemd-run --on-active, las dependencias condicionales de red (After=network-online.target), la contención de recursos con cgroups v2 (CPUQuota, MemoryMax) y el monitoreo centralizado en journalctl.",
+      "files": {
+        "guide": "automatizacion/systemd_timers_vs_cron_chrony.md",
+        "script": "automatizacion/demo_systemd_timers_chrony.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-2.0-automatizacion-arquitecturas-comparativa",
+        "lab-2.1-systemd-memlogger",
+        "lab-2.4-cron-crontab-planificacion",
+        "lab-2.5-anacron-at-tareas-asincronas"
+      ],
+      "next_recommended_labs": [
+        "lab-3.5-borg-systemd-timers",
+        "lab-3.6-monitoreo-metricas"
       ],
       "mcp_tools": [
         "linux-labs-tutor",

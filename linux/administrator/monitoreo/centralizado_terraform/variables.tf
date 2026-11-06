@@ -27,3 +27,9 @@ variable "allowed_cidr" {
   type        = string
   default     = ""
 }
+
+variable "ntfy_topic" {
+  description = "Tópico público en https://ntfy.sh donde Alertmanager y el Alert Hub enviarán notificaciones push en tiempo real cuando se rompa o repare el RAID 1 o la bóveda LUKS"
+  type        = string
+  default     = "lab-sre-monitoreo-aws-dalmine"
+}
