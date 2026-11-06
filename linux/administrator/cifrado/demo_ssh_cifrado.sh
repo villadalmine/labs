@@ -170,9 +170,14 @@ pie_clase "¿Por qué el servidor NUNCA tiene la llave privada del usuario, y el
 pausa
 
 # ==============================================================================
-# ESCENARIO 2: HANDSHAKE SSH EN VIVO — LAS 3 FASES DEL CIFRADO
+# ESCENARIO 2: HANDSHAKE SSH EN VIVO — LOS 4 PILARES DE LA ARQUITECTURA HÍBRIDA
 # ==============================================================================
-banner "2️⃣  ESCENARIO 2: AUDITORÍA EN VIVO DEL HANDSHAKE SSH (LAS 3 CAPAS)"
+banner "2️⃣  ESCENARIO 2: AUDITORÍA EN VIVO DEL HANDSHAKE SSH (LOS 4 PILARES CRIPTOGRÁFICOS)"
+echo -e "SSH combina ${C_BOLD}4 mecanismos criptográficos distintos${C_RESET}, cada uno en lo que es más eficiente:"
+echo -e "  1. ${C_CYAN}KEX (Intercambio de Claves)${C_RESET} : Curve25519 / Diffie-Hellman ➔ Acuerda la Session Key en RAM sin enviarla."
+echo -e "  2. ${C_CYAN}Cifrado Asimétrico${C_RESET}          : Ed25519 / RSA / ECDSA       ➔ Autentica al Servidor (known_hosts) y al Usuario (authorized_keys)."
+echo -e "  3. ${C_CYAN}Cifrado Simétrico${C_RESET}           : ChaCha20 / AES-GCM / CTR    ➔ Cifra el tráfico de datos (~1.000x más rápido que el asimétrico)."
+echo -e "  4. ${C_CYAN}Integridad (MAC / AEAD)${C_RESET}     : Poly1305 / GCM / HMAC-SHA2  ➔ Evita que un tercero altere paquetes en tránsito."
 
 if [[ -n "$SSHD_BIN" ]]; then
     if [[ "$USE_DIRECT_TCP" == true ]]; then
@@ -202,8 +207,8 @@ else
     echo -e "${C_YELLOW}⚠️ Binario sshd no encontrado en el host; simulando traza de handshake criptográfico...${C_RESET}"
 fi
 
-pie_clase "Mirá la salida de 'ssh -v' arriba: dice 'cipher: chacha20-poly1305@openssh.com'. Si nos autenticamos con Ed25519, ¿por qué el tráfico se cifra con ChaCha20-Poly1305?" \
-    "Porque Ed25519 (asimétrico) solo se usa en el Handshake para verificar identidades. Los datos y comandos de la sesión se cifran con ChaCha20-Poly1305 o AES-256-GCM (simétrico) usando una llave efímera acordada con Diffie-Hellman (curve25519-sha256), que es 1000 veces más veloz y brinda Perfect Forward Secrecy."
+pie_clase "Mirá la salida de 'ssh -v' arriba: dice 'cipher: chacha20-poly1305@openssh.com MAC: <implicit>'. ¿Cómo se ven ahí los 4 pilares juntos?" \
+    "1) KEX 'curve25519-sha256' acordó la clave en RAM. 2) Asimétrico 'ssh-ed25519' autenticó al servidor (known_hosts) y luego al usuario (authorized_keys). 3) Simétrico 'ChaCha20' cifra los datos 1.000x más rápido. 4) AEAD 'Poly1305' (MAC implícito) garantiza la integridad de cada paquete contra manipulaciones."
 
 pausa
 

@@ -109,49 +109,111 @@ Esta guía explica paso a paso cómo funciona el cifrado de SSH por dentro, cóm
 
 ---
 
-## 1. ¿Cómo funciona el Cifrado en SSH? Las 3 Capas Criptográficas
+## 1. ¿Cómo funciona el Cifrado en SSH? Arquitectura Criptográfica Híbrida (Los 4 Pilares)
 
-El protocolo SSH (definido en los RFC 4251, 4252 y 4253) no es un simple login remoto: establece un **túnel criptográfico híbrido en tres fases secuenciales**.
+Cuando alguien pregunta *"¿SSH usa cifrado simétrico, asimétrico, intercambio Diffie-Hellman o códigos MAC?"*, la respuesta técnica exacta es: **SSH utiliza TODAS esas formas de cifrado simultáneamente**, pero organizadas por etapas dentro de una **arquitectura criptográfica híbrida** (RFC 4251, 4252 y 4253).
+
+No elige una sola opción, sino que combina **4 mecanismos matemáticos distintos**, asignando cada uno a la tarea técnica en la que es más eficiente:
+
+```mermaid
+flowchart TD
+    subgraph P1["1️⃣ INTERCAMBIO DE CLAVES (KEX - Key Exchange)"]
+        direction LR
+        K1["Cliente y Servidor negocian en red pública insegura<br/>sin transmitir jamás la clave secreta"] --> K2["Algoritmos:<br/>• Curve25519 (curve25519-sha256)<br/>• Diffie-Hellman (diffie-hellman-group14/16-sha256/512)"]
+        K2 --> K3(["🔑 Resultado: Ambos derivan en RAM la misma<br/>Session Key efímera (Perfect Forward Secrecy)"])
+    end
+
+    subgraph P2["2️⃣ CIFRADO ASIMÉTRICO (Clave Pública / Privada — Identidad)"]
+        direction LR
+        A1["A. Identidad del Servidor (Host Key):<br/>• Servidor firma el KEX con /etc/ssh/ssh_host_ed25519_key<br/>• Cliente verifica contra ~/.ssh/known_hosts (TOFU)"] --> A2["B. Identidad del Usuario (User Key):<br/>• Cliente firma desafío con ~/.ssh/id_ed25519<br/>• Servidor verifica contra ~/.ssh/authorized_keys"]
+        A2 --> A3["Algoritmos:<br/>• Ed25519 (Estándar actual)<br/>• RSA (3072 / 4096 bits) / ECDSA"]
+    end
+
+    subgraph P3["3️⃣ CIFRADO SIMÉTRICO (Bulk Encryption — Velocidad 1.000x)"]
+        direction LR
+        S1["Una vez establecida la Session Key, cifra TODO el tráfico:<br/>comandos, PTY, variables, SFTP/SCP y túneles (-L/-R)"] --> S2["¿Por qué Simétrico acá?<br/>Porque es ~1.000 veces más rápido que el asimétrico<br/>y usa aceleración por hardware (AES-NI)"]
+        S2 --> S3["Algoritmos:<br/>• chacha20-poly1305@openssh.com<br/>• aes256-gcm@openssh.com / aes128-ctr"]
+    end
+
+    subgraph P4["4️⃣ INTEGRIDAD Y AUTENTICACIÓN DE MENSAJES (MAC / AEAD)"]
+        direction LR
+        M1["Cada paquete SSH lleva una etiqueta criptográfica<br/>calculada con la clave de sesión y número de secuencia"] --> M2["Propósito:<br/>Garantiza que ningún bit sea alterado o inyectado<br/>en tránsito por un atacante (Anti-MitM / Anti-Tampering)"]
+        M2 --> M3["Algoritmos:<br/>• AEAD integrado (AES-GCM, ChaCha20-Poly1305)<br/>• HMAC-SHA2-256 / HMAC-SHA2-512 (etm@openssh.com)"]
+    end
+
+    P1 ==> P2 ==> P3 ==> P4
+```
+
+### Detalle Técnico de los 4 Mecanismos Criptográficos en SSH
+
+1. **Intercambio de Claves (`KEX - Key Exchange`):**
+   * **Propósito:** Permite que el cliente (`ssh`) y el servidor (`sshd`) acuerden una clave secreta temporal de sesión (*Session Key*) a través de una red pública hostil (Internet) **sin transmitir jamás esa clave por el cable**.
+   * **Algoritmos:** ECDH sobre curva elíptica (`curve25519-sha256`, hoy el predeterminado en OpenSSH) o Diffie-Hellman clásico sobre cuerpos finitos (`diffie-hellman-group14-sha256`, `diffie-hellman-group16-sha512`).
+   * **Efecto de Seguridad:** Proporciona **Perfect Forward Secrecy (PFS)**. Como la clave se calcula con números efímeros en memoria RAM y se destruye al cerrar la consola, aunque un atacante grabe todo el tráfico cifrado hoy y robe las llaves privadas del disco mañana, **es matemáticamente imposible descifrar las sesiones pasadas**.
+
+2. **Cifrado Asimétrico (`Clave Pública / Privada`):**
+   * **Propósito:** Se utiliza exclusivamente para la **autenticación de identidades** (nunca para cifrar el flujo masivo de datos de la terminal). Opera en **ambos sentidos**:
+     1. *Del Servidor hacia el Cliente:* El cliente verifica la identidad del servidor comprobando su **Host Key** (`/etc/ssh/ssh_host_*_key.pub`) contra su registro local `~/.ssh/known_hosts`.
+     2. *Del Cliente hacia el Servidor:* El servidor autentica al usuario mediante un desafío criptográfico (*Challenge-Response*) firmado con la llave privada `~/.ssh/id_ed25519` del cliente y validado contra `~/.ssh/authorized_keys` en el servidor.
+   * **Algoritmos:** **Ed25519** (`ssh-ed25519`), **RSA** de 3072/4096 bits (`rsa-sha2-256` / `rsa-sha2-512`) o **ECDSA** (`ecdsa-sha2-nistp256`).
+
+3. **Cifrado Simétrico (`Cifrado de Canal de Datos / Bulk Encryption`):**
+   * **Propósito:** Cifrado masivo y en tiempo real de todo el tráfico de la sesión (cada tecla que presionás, la salida de la terminal virtual PTY, transferencias `scp`/`sftp` y puertos redirigidos) una vez establecida la *Session Key* en el paso 1.
+   * **¿Por qué usa Simétrico en esta fase?** Porque el cifrado simétrico es aproximadamente **1.000 veces más rápido** y liviano en CPU que el cifrado asimétrico.
+   * **Algoritmos:** `chacha20-poly1305@openssh.com`, `aes256-gcm@openssh.com`, `aes128-gcm@openssh.com` o `aes256-ctr` / `aes128-ctr`.
+
+4. **Integridad y Autenticación de Mensajes (`MAC / AEAD`):**
+   * **Propósito:** Garantiza que **ningún paquete de datos pueda ser alterado, truncado, reordenado o inyectado** durante la transmisión por un tercero en la red (previniendo ataques *Man-in-the-Middle* activos de modificación de comandos).
+   * **Algoritmos:**
+     * **AEAD (*Authenticated Encryption with Associated Data*):** Cifrados modernos como **`AES-256-GCM`** y **`ChaCha20-Poly1305`** ya integran el cifrado simétrico (Paso 3) y la etiqueta de integridad (Paso 4) en una sola operación atómica ultrarrápida (por eso en `ssh -v` verás `MAC: <implicit>`).
+     * **HMAC (*Hash-based Message Authentication Code*):** Cuando se usan cifrados de bloque clásicos como `AES-CTR`, SSH adosa un código explícito **Encrypt-then-MAC (`ETM`)** como `hmac-sha2-256-etm@openssh.com` o `hmac-sha2-512-etm@openssh.com`.
+
+---
+
+### Diagrama de Secuencia Completo: ¿En qué orden exacto ocurren las 4 etapas?
 
 ```
 💻 CLIENTE (ssh)                                          🖥️ SERVIDOR (sshd :22)
 ================                                          ======================
 
-FASE 1: CAPA DE TRANSPORTE (KEX + Identidad del Servidor)
----------------------------------------------------------
-1. Negociación de algoritmos (KexAlgorithms, Ciphers) ──►
-2. Intercambio Diffie-Hellman Efímero (curve25519)    ◄─► Calculan ambos la MISMA
-                                                          Session Key Simétrica en RAM
-                                                          (sin transmitirla por la red)
-3. Verifica huella en ~/.ssh/known_hosts (TOFU)       ◄── Envía su Host Key Pública
-   (¡Protege contra ataques Man-in-the-Middle!)           (/etc/ssh/ssh_host_ed25519_key.pub)
-                                                          + Firma del intercambio con su
-                                                          Host Key Privada
+ETAPA 1: INTERCAMBIO DE CLAVES (KEX) + IDENTIDAD ASIMÉTRICA DEL SERVIDOR
+------------------------------------------------------------------------
+1. Negociación (KexAlgorithms, HostKey, Ciphers, MACs) ──►
+2. [1. KEX] Diffie-Hellman Efímero (curve25519-sha256) ◄─► Ambos calculan en RAM la MISMA
+                                                           Session Key Simétrica + Claves MAC
+                                                           (sin enviarlas jamás por el cable)
+3. [2. ASIMÉTRICO - Servidor] Verifica Host Key en     ◄── Envía Host Key Pública
+   ~/.ssh/known_hosts (Modelo TOFU, frena MitM)            (/etc/ssh/ssh_host_ed25519_key.pub)
+                                                           + Firma del hash KEX hecha con su
+                                                           Host Key Privada (Ed25519/RSA)
 
-FASE 2: TÚNEL SIMÉTRICO ACTIVO (Cifrado de Tráfico / Bulk Encryption)
----------------------------------------------------------------------
-🔒 ========= TÚNEL CIFRADO CON chacha20-poly1305 O aes256-gcm ========= 🔒
-   (A partir de este milisegundo, TODO paquete viaja cifrado con la
-    Session Key simétrica efímera. Si roban tu disco mañana, no pueden
-    descifrar el tráfico de hoy: Perfect Forward Secrecy - PFS).
+ETAPA 2: ACTIVACIÓN DEL TÚNEL SIMÉTRICO + INTEGRIDAD DE PAQUETES (AEAD / MAC)
+-----------------------------------------------------------------------------
+🔒 === TÚNEL ACTIVO: [3. SIMÉTRICO (ChaCha20 / AES-GCM)] + [4. INTEGRIDAD (Poly1305 / HMAC-SHA2)] === 🔒
+   ┌────────────────────────────────────────────────────────────────────────────────────────┐
+   │ Anatomía de cada paquete en la red a partir de este instante:                          │
+   │ [ Longitud ] + [ Payload Cifrado Simétricamente (1000x veloz) ] + [ Tag MAC/Poly1305 ] │
+   └────────────────────────────────────────────────────────────────────────────────────────┘
 
-FASE 3: CAPA DE AUTENTICACIÓN DEL USUARIO (Dentro del túnel ya cifrado)
------------------------------------------------------------------------
-4. "Soy el usuario 'deploy', quiero autenticarme      ──► Busca la llave pública en:
-    con la llave pública ID_PUB"                          ~/.ssh/authorized_keys
-5. Firma el Session ID con su llave privada           ◄── Envía Desafío (Challenge)
-   (~/.ssh/id_ed25519 en el cliente, que                  si la llave pública está autorizada
-    JAMÁS sale por la red)                            ──► Verifica la firma matemática
-                                                      ◄── ✅ Acceso Concedido (Shell/Túnel)
+ETAPA 3: AUTENTICACIÓN ASIMÉTRICA DEL USUARIO (Viaja ya protegida dentro del túnel)
+-----------------------------------------------------------------------------------
+4. "Soy el usuario 'deploy', ofrezco autenticarme     ──► Busca la llave pública en:
+    con mi llave pública ~/.ssh/id_ed25519.pub"           ~/.ssh/authorized_keys
+5. [2. ASIMÉTRICO - Cliente] Firma el Session ID +    ◄── Envía Desafío (Challenge) si la
+   Challenge usando su llave privada ~/.ssh/id_ed25519    llave figura autorizada
+   (la llave privada NUNCA sale de tu máquina)        ──► Verifica la firma con id_ed25519.pub
+                                                      ◄── ✅ Acceso Concedido (Shell / SFTP / -L)
 ```
 
-### Resumen de las 3 Llaves que participan en cada conexión SSH
+### Mapa Resumen de los 4 Componentes Criptográficos en una Sesión SSH
 
-| Tipo de Llave | ¿Dónde vive la Privada? | ¿Dónde vive la Pública? | ¿Para qué sirve exactamente? |
-| :--- | :--- | :--- | :--- |
-| **1. Host Key (Identidad del Servidor)** | Servidor: `/etc/ssh/ssh_host_ed25519_key` | Servidor: `/etc/ssh/ssh_host_ed25519_key.pub` <br> Cliente: `~/.ssh/known_hosts` | **Autenticar al Servidor frente al Cliente.** Evita que un atacante en la red suplante al servidor (*Man-in-the-Middle*). |
-| **2. Session Key (Cifrado del Tráfico)** | **Solo en RAM** (ambos extremos, efímera por sesión) | No existe (es **Simétrica**, calculada vía Diffie-Hellman `curve25519-sha256`) | **Cifrar todos los datos, comandos y archivos** que viajan por el túnel a alta velocidad (`chacha20-poly1305` o `aes256-gcm`). |
-| **3. User Key (Identidad del Usuario)** | Cliente: `~/.ssh/id_ed25519` | Cliente: `~/.ssh/id_ed25519.pub` <br> Servidor: `~/.ssh/authorized_keys` | **Autenticar al Usuario frente al Servidor** mediante firma matemática (*Challenge-Response*) sin enviar contraseñas. |
+| Etapa / Componente | Mecanismo Criptográfico | Algoritmos en OpenSSH | ¿Dónde viven las llaves / archivos? | Propósito Exacto |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Intercambio de Claves (KEX)** | Acuerdo matemático efímero (ECDH / DH) | `curve25519-sha256`, `diffie-hellman-group14-sha256`, `group16-sha512` | **Solo en memoria RAM** (se destruye al desconectar: *Perfect Forward Secrecy*) | Acordar la *Session Key* en una red pública insegura sin transmitir la clave. |
+| **2A. Identidad del Servidor (Host Key)** | **Cifrado Asimétrico** (Par Pública/Privada del Host) | `ssh-ed25519`, `rsa-sha2-512` (3072/4096b), `ecdsa-sha2-nistp256` | Privada: `/etc/ssh/ssh_host_*_key` (Servidor)<br>Pública: `~/.ssh/known_hosts` (Cliente) | Que el cliente verifique que el servidor no es un impostor (*Man-in-the-Middle*). |
+| **2B. Identidad del Usuario (User Key)** | **Cifrado Asimétrico** (Par Pública/Privada del Usuario) | `ssh-ed25519`, `rsa-sha2-512` (3072/4096b), `ecdsa` | Privada: `~/.ssh/id_ed25519` (Cliente)<br>Pública: `~/.ssh/authorized_keys` (Servidor) | Autenticar al usuario ante el servidor mediante un desafío firmado sin enviar contraseñas. |
+| **3. Cifrado de Tráfico (Bulk Data)** | **Cifrado Simétrico** (~1.000x más rápido que asimétrico) | `chacha20-poly1305@openssh.com`, `aes256-gcm@openssh.com`, `aes128-ctr` | Derivada en RAM a partir de la *Session Key* del KEX | Cifrar masivamente comandos, terminales PTY, archivos SFTP y túneles a velocidad de línea. |
+| **4. Integridad de Mensajes (MAC / AEAD)** | Código de Autenticación de Mensaje / AEAD | Integrado en `AES-GCM` / `ChaCha20-Poly1305`, o explícito `hmac-sha2-256-etm` | Etiqueta matemática (*Tag* de 16-64 bytes) al final de cada paquete TCP | Garantizar que ningún bit del paquete sea modificado o inyectado en tránsito por un tercero. |
 
 ---
 

@@ -289,8 +289,16 @@ El mecanismo real se llama **Challenge-Response (Reto-Respuesta)**:
 ```
 
 > [!TIP]
-> **¿Por qué la clave privada nunca se envía?**
-> Porque el servidor no necesita tener tu clave privada para saber que la tienes. Solo necesita que resuelvas un reto matemático que **únicamente el poseedor de la clave privada puede resolver**.
+> **¿Por qué la clave privada nunca se envía y cómo combina SSH las 4 formas de cifrado?**
+> Porque el servidor no necesita tener tu clave privada para saber que la tienes: solo necesita que resuelvas un reto matemático que **únicamente el poseedor de la clave privada puede resolver**.
+>
+> Además, SSH no utiliza una sola técnica, sino una **arquitectura criptográfica híbrida en 4 etapas**:
+> 1. **Intercambio de Claves (`KEX`):** Usa `Curve25519` o `diffie-hellman-group14/16-sha256` para acordar una *Session Key* efímera en RAM sin enviarla por la red.
+> 2. **Cifrado Asimétrico (`Ed25519`, `RSA`, `ECDSA`):** Exclusivo para **autenticación de identidades** (el cliente verifica la *Host Key* del servidor en `known_hosts` y el servidor verifica la *User Key* del cliente en `authorized_keys`).
+> 3. **Cifrado Simétrico (`ChaCha20-Poly1305`, `AES-256-GCM`, `AES-128-CTR`):** Cifra masivamente todo el tráfico de la sesión porque es **~1.000 veces más rápido** que el asimétrico.
+> 4. **Integridad y Autenticación de Mensajes (`MAC / AEAD`):** Usa `HMAC-SHA2-256/512` o etiquetas AEAD (`AES-GCM`, `ChaCha20-Poly1305`) para impedir que un tercero altere paquetes en tránsito.
+>
+> 👉 **Guía dedicada con gráficos paso a paso:** [`ssh_cifrado_cliente_servidor_wireguard.md`](ssh_cifrado_cliente_servidor_wireguard.md)
 
 ---
 
