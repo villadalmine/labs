@@ -37,6 +37,24 @@ Este skill codifica la metodología estándar, las lecciones aprendidas de infra
    - Todos los scripts deben poder correrse tanto en vivo durante la clase (con pausas `[ENTER]` y preguntas socráticas `pie_clase`) como en modo desatendido de prueba rápida (`./demo_xxx.sh --auto 0` o `./demo_xxx.sh --auto 2`).
    - **Atención a `--auto 0`:** Al implementar el parser de argumentos en Bash, usar una bandera booleana `AUTO_MODE=true` cuando `$1 == "--auto"`, de modo que `./demo_xxx.sh --auto 0` nunca quede bloqueado en `read -r` esperando entrada de teclado.
 
+4. **Visibilidad Pedagógica de Comandos en Pantalla (Show-Your-Work Standard):**
+   - **NUNCA** ejecutar comandos a ciegas o en silencio dentro de los scripts interactivos `demo_*.sh`.
+   - Cada comando relevante (local o remoto por SSH) **DEBE imprimir en pantalla la línea de comando exacta que se ejecuta** (`$ comando`) inmediatamente antes de mostrar su salida real del sistema.
+   - Usar siempre funciones helper estándar de ejecución didáctica:
+     - Para comandos locales estándar: `run_cmd "Contexto" "comando"` o `run_and_show "comando"`.
+     - Para comandos remotos por SSH: `run_ssh "Etiqueta Nodo" "$IP" "comando"`.
+     - Para comandos largos que requieren ver progreso continuo: `run_cmd_stream "Contexto" "comando"` (e.g. `terraform apply` o `docker build`).
+   - Formato visual de caja estándar:
+     ```text
+     ┌─── [Worker 1 - Web LVM (54.x.x.x)] COMANDO A EJECUTAR ──────────────────────────────────────────┐
+     $ sudo lvs -o lv_name,vg_name,attr,health_status,copy_percent vg_web/lv_html
+     ├─── SALIDA REAL DEL NODO ──────────────────────────────────────────────────────────┤
+     <salida del sistema>
+     └───────────────────────────────────────────────────────────────────────────────────┘
+     ```
+   - Si un comando finaliza exitosamente pero no produce texto (stdout/stderr vacíos), el helper debe imprimir un mensaje explicativo entre paréntesis (e.g. `"(Comando ejecutado exitosamente sin salida en stdout/stderr)"`) para evitar que el alumno crea que la terminal se congeló o falló.
+   - **Objetivo pedagógico:** En clase en vivo o en estudio individual, el alumno debe relacionar inmediatamente la sintaxis exacta del comando ejecutado con la respuesta del kernel, demonio o servicio.
+
 ---
 
 ## 2. Plantilla Determinística de Metadatos (YAML Frontmatter)
@@ -154,11 +172,12 @@ Cada vez que el usuario pida agregar un laboratorio, guía o demostración:
 
 ### Paso 2: Creación y Prueba del Script Interactivo (`demo_*.sh`)
 1. Escribí el script en `linux/administrator/<modulo>/demo_<nombre>.sh` y dale permisos de ejecución (`chmod +x`).
-2. Probá el script de extremo a extremo en modo automático:
+2. Implementá obligatoriamente los helpers pedagógicos `run_cmd` y `run_ssh` (o `run_and_show`) para garantizar el estándar de visibilidad de comandos y salidas reales en pantalla.
+3. Probá el script de extremo a extremo en modo automático:
    ```bash
    ./linux/administrator/<modulo>/demo_<nombre>.sh --auto 0
    ```
-3. Confirmá que el código de salida sea `0`, que todos los pasos muestren salidas reales y que el bloque `cleanup` elimine todos los procesos y archivos temporales.
+4. Confirmá que el código de salida sea `0`, que todos los pasos muestren la línea de comando antes de su salida real, y que el bloque `cleanup` elimine todos los procesos y archivos temporales.
 
 ### Paso 3: Prueba y Destrucción de Infraestructura Cloud / Contenedores (Si aplica)
 1. Si el laboratorio involucra Terraform (AWS) o Docker:
