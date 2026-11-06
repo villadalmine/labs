@@ -1,6 +1,7 @@
 ---
 id: lab-3.3-fundamentos-criptografia-llaves
-title: 'Fundamentos de Criptografía, Llaves y Certificados en Linux: Simétrica vs Asimétrica, Autenticación vs Cifrado (SSH, AWS EC2, OpenVPN, TLS, LUKS, GPG)'
+title: 'Fundamentos de Criptografía, Llaves y Certificados en Linux: Simétrica vs
+  Asimétrica, Autenticación vs Cifrado (SSH, AWS EC2, OpenVPN, TLS, LUKS, GPG)'
 difficulty_level: 3
 difficulty_label: 'Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos y Monitoreo'
 section: '3.3'
@@ -47,23 +48,25 @@ tested_environments:
   kernel: 6.18.54.1-microsoft-standard-WSL2
   status: PASSED
   test_date: '2026-10-31'
-  notes: Demostración interactiva probada de punta a punta con demo_criptografia_llaves.sh (simétrica, asimétrica, challenge-response SSH y firmas).
+  notes: Demostración interactiva probada de punta a punta con demo_criptografia_llaves.sh
+    (simétrica, asimétrica, challenge-response SSH y firmas).
 - environment: AWS EC2
   type: cloud
   instance_type: t3.micro
   os: Ubuntu 24.04 LTS
   status: VERIFIED
   test_date: '2026-10-31'
-  notes: Validación de autenticación por llave pública en SSH/cloud-init y comparación con claves en reposo (LUKS/gocryptfs).
+  notes: Validación de autenticación por llave pública en SSH/cloud-init y comparación
+    con claves en reposo (LUKS/gocryptfs).
 environments:
 - WSL2
 - AWS EC2
 operating_systems:
 - Ubuntu 24.04 LTS
 status: PASSED
-rag_summary: 'Guía pedagógica maestra y laboratorio práctico sobre los fundamentos de
-  criptografía en Linux y la resolución de la confusión sobre el término llaves (keys).
-  Diferencia con rigor los tres objetivos de seguridad: Confidencialidad (cifrado),
+rag_summary: 'Guía pedagógica maestra y laboratorio práctico sobre los fundamentos
+  de criptografía en Linux y la resolución de la confusión sobre el término llaves
+  (keys). Diferencia con rigor los tres objetivos de seguridad: Confidencialidad (cifrado),
   Autenticación (identidad) e Integridad/No Repudio (firma digital). Analiza la distinción
   matemática y de rendimiento entre Criptografía Simétrica (AES, ChaCha20) y Criptografía
   Asimétrica (RSA, Ed25519, Curve25519), explicando por qué los protocolos modernos
