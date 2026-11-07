@@ -56,13 +56,13 @@ rag_summary: Guía de automatización de copias de seguridad continuas con BorgB
   mediante OnCalendar.
 files:
   guide: borg/borg-con-systemd-timers.md
-  script: null
+  script: borg/demo_borg_systemd_timers.sh
   terraform: null
-resource_type: theoretical_guide
+resource_type: interactive_lab
 has_guide: true
-has_interactive_script: false
+has_interactive_script: true
 has_terraform: false
-execution_mode: manual_commands
+execution_mode: cli_interactive
 prerequisites:
 - lab-3.5-borg-backup
 - lab-2.1-systemd-memlogger
@@ -243,3 +243,23 @@ journalctl -u borg-backup.service -f
 ```
 
 > Este patrón es ideal para copias de seguridad periódicas, mantenimiento de repositorios y tareas administradas de forma fiable sin depender de `cron`.
+
+---
+
+## 💻 Opción: Demostración Interactiva Paso a Paso para Dar Clase (`demo_borg_systemd_timers.sh`)
+
+Para probar este laboratorio en vivo (mostrando cada comando ejecutado y su salida real en cajas formateadas, con soporte para modo paso a paso, modo automático y limpieza integrada por flag):
+
+```bash
+# Modo interactivo paso a paso (pausa con [ENTER] y preguntas de clase)
+sudo ./demo_borg_systemd_timers.sh
+
+# Modo automático de un tirón (espera 2 segundos entre pasos)
+sudo ./demo_borg_systemd_timers.sh --auto 2
+
+# Preservar las unidades .service/.timer y el repositorio al finalizar para inspección manual
+sudo ./demo_borg_systemd_timers.sh --keep
+
+# Limpiar todas las unidades temporales y el repositorio con el mismo script
+sudo ./demo_borg_systemd_timers.sh --clean
+```

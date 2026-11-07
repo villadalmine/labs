@@ -19,18 +19,29 @@
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
+            AUTO_MODE=true
             AUTO_WAIT="${2:-2}"
             shift 2
             ;;
         --keep)
             KEEP_FILES=true
             shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_gocryptfs.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
             ;;
         *)
             shift
@@ -57,20 +68,26 @@ PASS_DEMO="ClaseGocryptfs2026!"
 
 cleanup() {
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Desmontando sistema FUSE y limpiando recursos...${C_RESET}"
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "${C_GREEN}[INFO] Carpetas preservadas para práctica manual:${C_RESET}"
         echo -e "  • Cifrada: ${DIR_CIPHER}"
         echo -e "  • Visible: ${DIR_PLAIN}"
-        echo -e "Para desmontar manualmente: fusermount -u ${DIR_PLAIN}"
+        echo -e "Para limpiar luego ejecutá: ./demo_gocryptfs.sh --clean"
         return
     fi
 
-    if mountpoint -q "${DIR_PLAIN}" 2>/dev/null; then
-        fusermount -u "${DIR_PLAIN}" 2>/dev/null || true
-    fi
-    rm -rf "${LAB_DIR}" 2>/dev/null || true
+    for p in "${DIR_PLAIN}" /tmp/demo_gocryptfs_*/datos_visibles; do
+        if [ -d "$p" ] && mountpoint -q "$p" 2>/dev/null; then
+            fusermount -u "$p" 2>/dev/null || umount -f "$p" 2>/dev/null || true
+        fi
+    done
+    rm -rf "${LAB_DIR}" /tmp/demo_gocryptfs_* 2>/dev/null || true
     echo -e "${C_GREEN}✔ Sistema FUSE desmontado y carpetas temporales eliminadas.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -80,7 +97,7 @@ fi
 
 pause_step() {
     local mensaje="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_DIM}⏳ [MODO AUTO] Esperando ${AUTO_WAIT}s...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
@@ -107,8 +124,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "$AUTO_WAIT" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r

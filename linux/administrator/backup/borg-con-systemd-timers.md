@@ -8,11 +8,11 @@ sections:
 - '3.5'
 - '3'
 category: storage
-resource_type: theoretical_guide
+resource_type: interactive_lab
 has_guide: true
-has_interactive_script: false
+has_interactive_script: true
 has_terraform: false
-execution_mode: manual_commands
+execution_mode: cli_interactive
 tags:
 - storage
 - backup
@@ -60,7 +60,7 @@ rag_summary: Guía de respaldo automatizado y seguro utilizando BorgBackup y sys
   timers con persistencia de eventos.
 files:
   guide: backup/borg-con-systemd-timers.md
-  script: null
+  script: borg/demo_borg_systemd_timers.sh
   terraform: null
 mcp_tools:
 - linux-labs-tutor
@@ -271,3 +271,23 @@ journalctl -u borg-backup.service
 ```
 
 El temporizador se habilita con `enable --now`; el servicio es `oneshot` y se ejecuta cuando lo inicia el timer o manualmente. Verificá también que el repositorio esté montado y que las rutas de backup del script sean las correctas.
+
+---
+
+## 💻 Opción: Demostración Interactiva Paso a Paso para Dar Clase (`demo_borg_systemd_timers.sh`)
+
+Para probar este laboratorio en vivo (mostrando cada comando ejecutado y su salida real en cajas formateadas, con soporte para modo paso a paso, modo automático y limpieza integrada por flag):
+
+```bash
+# Modo interactivo paso a paso (pausa con [ENTER] y preguntas de clase)
+sudo ../borg/demo_borg_systemd_timers.sh
+
+# Modo automático de un tirón (espera 2 segundos entre pasos)
+sudo ../borg/demo_borg_systemd_timers.sh --auto 2
+
+# Preservar las unidades .service/.timer y el repositorio al finalizar para inspección manual
+sudo ../borg/demo_borg_systemd_timers.sh --keep
+
+# Limpiar todas las unidades temporales y el repositorio con el mismo script
+sudo ../borg/demo_borg_systemd_timers.sh --clean
+```

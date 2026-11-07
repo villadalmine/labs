@@ -22,10 +22,29 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+AUTO_MODE=false
 AUTO_WAIT=0
-if [[ "${1:-}" == "--auto" && -n "${2:-}" ]]; then
-    AUTO_WAIT="$2"
-fi
+CLEAN_ONLY=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --auto)
+            AUTO_MODE=true
+            AUTO_WAIT="${2:-2}"
+            shift 2
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: sudo ./demo_luks.sh [--auto <segundos>] [--clean|--limpiar]"
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Colores ANSI
 C_RESET="\033[0m"
@@ -55,10 +74,19 @@ cleanup() {
     if [ -n "$LOOP_DEV" ] && [ -b "$LOOP_DEV" ]; then
         losetup -d "$LOOP_DEV" 2>/dev/null || true
     fi
+    if [ -f "$IMG_FILE" ]; then
+        for l in $(losetup -j "$IMG_FILE" 2>/dev/null | cut -d: -f1); do
+            losetup -d "$l" 2>/dev/null || true
+        done
+    fi
     rm -f "$IMG_FILE" 2>/dev/null || true
     rmdir "$MOUNT_DIR" 2>/dev/null || true
     echo -e "${C_GREEN}✔ Contenedor LUKS cerrado y loop device liberado.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -89,8 +117,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM:-\033[2m}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -101,12 +129,12 @@ pie_clase() {
 
 pause_step() {
     local msg="${1:-Presioná [ENTER] para continuar...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_YELLOW}⏳ Esperando ${AUTO_WAIT}s (modo auto)...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
         echo -e "\n${C_BOLD}${C_GREEN}▶ ${msg}${C_RESET}"
-        read -r
+        read -r </dev/tty 2>/dev/null || read -r
     fi
 }
 
@@ -134,14 +162,22 @@ echo -e "${C_BOLD}${C_GREEN}====================================================
 echo -e "luksFormat ➔ luksDump ➔ luksOpen ➔ mkfs.ext4 ➔ Inspección Forense contra Robo"
 echo -e "Demostración de por qué robar un disco físico cifrado no sirve de nada\n"
 
+ensure_loop_nodes() {
+    [ -e /dev/loop-control ] || mknod /dev/loop-control c 10 237 2>/dev/null || true
+    for i in $(seq 0 15); do
+        [ -e "/dev/loop$i" ] || mknod -m 660 "/dev/loop$i" b 7 "$i" 2>/dev/null || true
+    done
+}
+
 # ------------------------------------------------------------------------------
 # 0. Verificaciones previas
 # ------------------------------------------------------------------------------
 step_banner "0" "Verificación de paquetes y herramientas"
 
-explain "Comprobando la presencia de cryptsetup, losetup y e2fsprogs:"
+ensure_loop_nodes
+explain "Comprobando la presencia de cryptsetup, losetup, strings y e2fsprogs:"
 MISSING_PKGS=()
-for pkg in cryptsetup losetup mkfs.ext4; do
+for pkg in cryptsetup losetup mkfs.ext4 strings; do
     if ! command -v "$pkg" &>/dev/null; then
         MISSING_PKGS+=("$pkg")
     fi
@@ -150,9 +186,9 @@ done
 if [ ${#MISSING_PKGS[@]} -gt 0 ]; then
     echo -e "${C_YELLOW}Faltan herramientas: ${MISSING_PKGS[*]}. Instalando...${C_RESET}"
     if command -v dnf &>/dev/null; then
-        dnf install -y cryptsetup util-linux e2fsprogs
+        dnf install -y cryptsetup util-linux e2fsprogs binutils ncurses
     elif command -v apt-get &>/dev/null; then
-        apt-get update -qq && apt-get install -y -qq cryptsetup util-linux e2fsprogs
+        apt-get update -qq && apt-get install -y -qq cryptsetup util-linux e2fsprogs binutils ncurses-bin
     fi
 fi
 echo -e "${C_GREEN}✔ Herramientas LUKS disponibles.${C_RESET}"
