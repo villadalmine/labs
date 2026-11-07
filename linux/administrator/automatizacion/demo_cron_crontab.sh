@@ -44,6 +44,7 @@ fi
 AUTO_MODE=false
 AUTO_DELAY=3
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -56,8 +57,12 @@ while [[ $# -gt 0 ]]; do
             KEEP_FILES=true
             shift
             ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
         --help|-h)
-            echo "Uso: sudo ./demo_cron_crontab.sh [--auto <segundos>] [--keep] [--help]"
+            echo "Uso: sudo ./demo_cron_crontab.sh [--auto <segundos>] [--keep] [--clean|--limpiar] [--help]"
             exit 0
             ;;
         *)
@@ -96,7 +101,7 @@ pie_clase() {
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
         if [ "$AUTO_MODE" = true ]; then
-            sleep 1
+            sleep "$AUTO_DELAY"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -141,14 +146,19 @@ cleanup() {
             crontab -r 2>/dev/null || true
         fi
     fi
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "${C_GREEN}[INFO] Se preservan los archivos de laboratorio en ${DIR_LAB} por opción --keep.${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: sudo ./demo_cron_crontab.sh --clean\n"
     else
-        rm -rf "$DIR_LAB"
+        rm -rf "$DIR_LAB" /tmp/lab_cron
         echo -e "${C_GREEN}✔ Archivos temporales limpiados correctamente.${C_RESET}"
     fi
     echo -e "${C_GREEN}✔ Demostración finalizada.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 clear 2>/dev/null || true

@@ -12,13 +12,30 @@
 
 set -euo pipefail
 
-# --- Configuración de modo (Interactivo vs Auto) ------------------------------
+# --- Configuración de modo (Interactivo vs Auto / Clean) ----------------------
 AUTO_MODE=false
 PAUSE_SEC=2
-if [[ "${1:-}" == "--auto" ]]; then
-    AUTO_MODE=true
-    PAUSE_SEC="${2:-2}"
-fi
+CLEAN_ONLY=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --auto)
+            AUTO_MODE=true
+            PAUSE_SEC="${2:-2}"
+            shift 2
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_ssh_cifrado.sh [--auto <segundos>] [--clean|--limpiar]"
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # --- Colores y Formato Visual -------------------------------------------------
 C_RESET="\033[0m"
@@ -52,9 +69,13 @@ cleanup() {
             kill "$fpid" 2>/dev/null || true
         fi
     fi
-    rm -rf "$WORK_DIR"
+    rm -rf "$WORK_DIR" /tmp/demo_ssh_cifrado.* 2>/dev/null || true
     echo -e "${C_GREEN}✅ Entorno limpio. Tu configuración personal (~/.ssh) no fue tocada en ningún momento.${C_RESET}"
 }
+if [[ "$CLEAN_ONLY" == true ]]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # --- Funciones Auxiliares Pedagógicas -----------------------------------------
@@ -77,8 +98,17 @@ cmd_run() {
     local desc="$1"
     local cmd="$2"
     echo -e "\n${C_MAGENTA}🔹 ${desc}${C_RESET}"
-    echo -e "${C_DIM}\$ ${cmd}${C_RESET}"
-    eval "$cmd"
+    echo -e "${C_BOLD}${C_BLUE}┌─── COMANDO A EJECUTAR ────────────────────────────────────────────────────────────┐${C_RESET}"
+    echo -e "${C_BOLD}${C_GREEN}$ ${cmd}${C_RESET}"
+    echo -e "${C_BOLD}${C_BLUE}├─── SALIDA REAL DEL SISTEMA ───────────────────────────────────────────────────────┤${C_RESET}"
+    local output
+    output=$(eval "$cmd" 2>&1) || true
+    if [[ -z "$output" ]]; then
+        echo -e "${C_YELLOW}(Comando ejecutado exitosamente sin salida en stdout/stderr)${C_RESET}"
+    else
+        echo -e "${output}"
+    fi
+    echo -e "${C_BOLD}${C_BLUE}└───────────────────────────────────────────────────────────────────────────────────┘${C_RESET}"
 }
 
 pie_clase() {

@@ -15,28 +15,40 @@
 #   sudo ./demo_backup_dd_snapshots.sh          -> Modo interactivo (pausa con [ENTER])
 #   sudo ./demo_backup_dd_snapshots.sh --auto 2 -> Modo desatendido (espera 2s entre pasos)
 #   sudo ./demo_backup_dd_snapshots.sh --keep   -> Preserva los volúmenes para pruebas
+#   sudo ./demo_backup_dd_snapshots.sh --clean  -> Desmonta y limpia todos los volúmenes de prueba
 # ==============================================================================
 
 set -uo pipefail
 
 if [ "$EUID" -ne 0 ]; then
     echo -e "\033[0;31m[ERROR] Este script requiere privilegios de superusuario (sudo) para crear volúmenes LVM y discos loop.\033[0m"
-    echo "Ejecutá: sudo $0"
+    echo "Ejecutá: sudo $0 $*"
     exit 1
 fi
 
+AUTO_MODE=false
 AUTO_WAIT=0
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
+            AUTO_MODE=true
             AUTO_WAIT="${2:-2}"
             shift 2
             ;;
         --keep)
             KEEP_FILES=true
             shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: sudo ./demo_backup_dd_snapshots.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
             ;;
         *)
             shift
@@ -66,37 +78,49 @@ MOUNT_SNAP="/mnt/demo_snap_$$"
 
 cleanup() {
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Desmontando sistemas de archivos y liberando volúmenes LVM...${C_RESET}"
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "${C_GREEN}[INFO] Entorno LVM preservado para práctica:${C_RESET}"
         echo -e "  • Montaje: ${MOUNT_PROD}"
         echo -e "  • Volume Group: ${VG_NAME}"
+        echo -e "Para limpiar luego ejecutá: sudo ./demo_backup_dd_snapshots.sh --clean\n"
         return
     fi
 
-    if mountpoint -q "$MOUNT_SNAP" 2>/dev/null; then
-        umount -f "$MOUNT_SNAP" 2>/dev/null || true
-    fi
-    if mountpoint -q "$MOUNT_PROD" 2>/dev/null; then
-        umount -f "$MOUNT_PROD" 2>/dev/null || true
-    fi
-    rmdir "$MOUNT_SNAP" 2>/dev/null || true
-    rmdir "$MOUNT_PROD" 2>/dev/null || true
+    for m in "$MOUNT_SNAP" "$MOUNT_PROD" /mnt/demo_snap_* /mnt/demo_prod_* /mnt/snapshot_seguro /mnt/produccion_lab; do
+        if [ -d "$m" ] && mountpoint -q "$m" 2>/dev/null; then
+            umount -f "$m" 2>/dev/null || umount -l "$m" 2>/dev/null || true
+        fi
+        rmdir "$m" 2>/dev/null || true
+    done
 
-    if vgs "$VG_NAME" &>/dev/null; then
-        lvremove -y "/dev/${VG_NAME}/${LV_SNAP}" 2>/dev/null || true
-        lvremove -y "/dev/${VG_NAME}/${LV_PROD}" 2>/dev/null || true
-        vgremove -y "$VG_NAME" 2>/dev/null || true
-    fi
+    for vg in $(vgs --noheadings -o vg_name 2>/dev/null | grep -E "vg_backup_demo_|vg_backup_lab" || true); do
+        lvremove -f "$vg" 2>/dev/null || true
+        vgremove -f "$vg" 2>/dev/null || true
+    done
 
     if [ -n "$LOOP_DEV" ] && [ -b "$LOOP_DEV" ]; then
         pvremove -y "$LOOP_DEV" 2>/dev/null || true
         losetup -d "$LOOP_DEV" 2>/dev/null || true
     fi
 
-    rm -f "$IMG_DISK" 2>/dev/null || true
-    rm -rf "$LAB_DIR" 2>/dev/null || true
+    for img in /tmp/disk_dd_demo_*.img /tmp/lab_dd_lvm/disco_lvm.img; do
+        if [ -f "$img" ]; then
+            for l in $(losetup -j "$img" 2>/dev/null | cut -d: -f1); do
+                pvremove -f -y "$l" 2>/dev/null || true
+                losetup -d "$l" 2>/dev/null || true
+            done
+        fi
+    done
+
+    rm -f "$IMG_DISK" /tmp/disk_dd_demo_*.img 2>/dev/null || true
+    rm -rf "$LAB_DIR" /tmp/lab_dd_snapshots_* /tmp/lab_dd_lvm 2>/dev/null || true
     echo -e "${C_GREEN}✔ Volúmenes LVM eliminados, loop liberado y entorno limpio.${C_RESET}\n"
 }
+
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -106,7 +130,7 @@ fi
 
 pause_step() {
     local mensaje="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_DIM}⏳ [MODO AUTO] Esperando ${AUTO_WAIT}s...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
@@ -133,8 +157,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "$AUTO_WAIT" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -165,21 +189,26 @@ echo -e "${C_BOLD}${C_CYAN} 📦 DEMO EN VIVO: IMÁGENES CRUDAS (dd) Y SNAPSHOTS
 echo -e "${C_BOLD}${C_CYAN}===============================================================================${C_RESET}"
 echo -e "Bloque Crudo ➔ Congelamiento Atómico ➔ Escrituras en Caliente ➔ Rescate con e2fsck\n"
 
+ensure_loop_nodes() {
+    [ -e /dev/loop-control ] || mknod /dev/loop-control c 10 237 2>/dev/null || true
+    for i in $(seq 0 15); do
+        [ -e "/dev/loop$i" ] || mknod -m 660 "/dev/loop$i" b 7 "$i" 2>/dev/null || true
+    done
+}
+
 # ==============================================================================
 # PASO 1: CREAR ENTORNO LVM
 # ==============================================================================
 step_banner "1" "Creación de Almacenamiento LVM y Datos de Producción"
 
+ensure_loop_nodes
 mkdir -p "$LAB_DIR" "$MOUNT_PROD" "$MOUNT_SNAP"
 truncate -s 512M "$IMG_DISK"
 LOOP_DEV=$(losetup --find --show "$IMG_DISK")
 
 explain "Asociamos el disco virtual loop a LVM:"
-pvcreate -y -ff "$LOOP_DEV" >/dev/null
-vgcreate -y "$VG_NAME" "$LOOP_DEV" >/dev/null
-lvcreate -y -L 200M -n "$LV_PROD" "$VG_NAME" >/dev/null
-mkfs.ext4 -F -q "/dev/${VG_NAME}/${LV_PROD}"
-mount "/dev/${VG_NAME}/${LV_PROD}" "$MOUNT_PROD"
+run_and_show "pvcreate -y -ff ${LOOP_DEV} && vgcreate -y ${VG_NAME} ${LOOP_DEV} && lvcreate -y -L 200M -n ${LV_PROD} ${VG_NAME}"
+run_and_show "mkfs.ext4 -F -q /dev/${VG_NAME}/${LV_PROD} && mount /dev/${VG_NAME}/${LV_PROD} ${MOUNT_PROD}"
 
 echo "BASE_DE_DATOS_TRANSACCIONES_SQL_2026" > "${MOUNT_PROD}/database.db"
 echo "config_produccion_token=xyz987" > "${MOUNT_PROD}/config.env"
@@ -235,16 +264,13 @@ pause_step "Presioná [ENTER] para modificar producción y ver el crecimiento de
 step_banner "4" "Escrituras en Caliente sobre Producción y Divergencia CoW"
 
 explain "Sobrescribimos datos en producción para comprobar que el snapshot mantiene el pasado congelado:"
-echo "DATOS_NUEVOS_DEL_FUTURO_MODIFICADOS" > "${MOUNT_PROD}/database.db"
-echo "Nuevo archivo temporal" > "${MOUNT_PROD}/archivo_nuevo.txt"
-dd if=/dev/urandom of="${MOUNT_PROD}/datos_binarios.dat" bs=1M count=3 status=none
-sync
+run_and_show "echo 'DATOS_NUEVOS_DEL_FUTURO_MODIFICADOS' > ${MOUNT_PROD}/database.db && echo 'Nuevo archivo temporal' > ${MOUNT_PROD}/archivo_nuevo.txt && dd if=/dev/urandom of=${MOUNT_PROD}/datos_binarios.dat bs=1M count=3 status=none && sync"
 
 explain "Inspeccionamos el porcentaje de divergencia consumido en el snapshot (Data% subió):"
 run_and_show "lvs -o lv_name,vg_name,data_percent,origin ${VG_NAME}"
 
 explain "Montamos el snapshot en modo solo lectura para auditar qué ve:"
-mount -o ro,nouuid "/dev/${VG_NAME}/${LV_SNAP}" "$MOUNT_SNAP" 2>/dev/null || mount -o ro "/dev/${VG_NAME}/${LV_SNAP}" "$MOUNT_SNAP"
+run_and_show "mount -o ro,nouuid /dev/${VG_NAME}/${LV_SNAP} ${MOUNT_SNAP} 2>/dev/null || mount -o ro /dev/${VG_NAME}/${LV_SNAP} ${MOUNT_SNAP}"
 
 explain "1. VISIÓN EN PRODUCCIÓN (Datos Modificados):"
 run_and_show "cat ${MOUNT_PROD}/database.db"
@@ -262,12 +288,10 @@ pause_step "Presioná [ENTER] para desmontar el snapshot y simular una catástro
 # ==============================================================================
 step_banner "5" "Simulacro de Corrupción Catastrófica y Restauración con dd"
 
-umount "$MOUNT_SNAP"
-lvremove -y "/dev/${VG_NAME}/${LV_SNAP}" >/dev/null
+run_and_show "umount ${MOUNT_SNAP} && lvremove -y /dev/${VG_NAME}/${LV_SNAP}"
 
 explain "Simulamos un desastre de hardware: destruimos los primeros 15 MB del volumen de producción con ceros:"
-umount "$MOUNT_PROD"
-dd if=/dev/zero of="/dev/${VG_NAME}/${LV_PROD}" bs=1M count=15 status=none
+run_and_show "umount ${MOUNT_PROD} && dd if=/dev/zero of=/dev/${VG_NAME}/${LV_PROD} bs=1M count=15 status=none"
 
 explain "Intentamos montar el volumen dañado:"
 run_and_show "mount /dev/${VG_NAME}/${LV_PROD} ${MOUNT_PROD} 2>&1 || echo 'FALLO ESPERADO: Superbloque y tabla de inodos destruidos.'"
@@ -279,7 +303,7 @@ explain "Ejecutamos el chequeo forense de consistencia con e2fsck:"
 run_and_show "e2fsck -f -y /dev/${VG_NAME}/${LV_PROD}"
 
 explain "Montamos el volumen restaurado y comprobamos los datos:"
-mount "/dev/${VG_NAME}/${LV_PROD}" "$MOUNT_PROD"
+run_and_show "mount /dev/${VG_NAME}/${LV_PROD} ${MOUNT_PROD}"
 run_and_show "cat ${MOUNT_PROD}/database.db"
 run_and_show "cat ${MOUNT_PROD}/config.env"
 

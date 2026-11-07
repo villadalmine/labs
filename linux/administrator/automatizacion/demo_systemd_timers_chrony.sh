@@ -45,6 +45,7 @@ fi
 AUTO_MODE=false
 AUTO_DELAY=3
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -57,8 +58,12 @@ while [[ $# -gt 0 ]]; do
             KEEP_FILES=true
             shift
             ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
         --help|-h)
-            echo "Uso: sudo ./demo_systemd_timers_chrony.sh [--auto <segundos>] [--keep] [--help]"
+            echo "Uso: sudo ./demo_systemd_timers_chrony.sh [--auto <segundos>] [--keep] [--clean|--limpiar] [--help]"
             exit 0
             ;;
         *)
@@ -97,7 +102,7 @@ pie_clase() {
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
         if [ "$AUTO_MODE" = true ]; then
-            sleep 1
+            sleep "$AUTO_DELAY"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -124,18 +129,24 @@ run_and_show() {
 }
 
 cleanup() {
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "\n${C_GREEN}[INFO] Se preservan las unidades lab-mantenimiento.{timer,service} por opción --keep.${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: sudo ./demo_systemd_timers_chrony.sh --clean\n"
     else
         echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Deteniendo y eliminando unidades de prueba de Systemd...${C_RESET}"
         systemctl stop lab-mantenimiento.timer lab-mantenimiento.service lab-tarea-efimera.timer lab-tarea-efimera.service 2>/dev/null || true
         systemctl disable lab-mantenimiento.timer 2>/dev/null || true
         rm -f /etc/systemd/system/lab-mantenimiento.timer /etc/systemd/system/lab-mantenimiento.service /usr/local/bin/lab-mantenimiento-enterprise.sh
         systemctl daemon-reload 2>/dev/null || true
+        systemctl reset-failed 2>/dev/null || true
         echo -e "${C_GREEN}✔ Unidades temporales de Systemd limpiadas correctamente.${C_RESET}"
     fi
     echo -e "${C_GREEN}✔ Demostración finalizada.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 clear 2>/dev/null || true

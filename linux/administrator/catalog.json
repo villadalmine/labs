@@ -3413,11 +3413,11 @@
         "3"
       ],
       "category": "storage",
-      "resource_type": "theoretical_guide",
+      "resource_type": "interactive_lab",
       "has_guide": true,
-      "has_interactive_script": false,
+      "has_interactive_script": true,
       "has_terraform": false,
-      "execution_mode": "manual_commands",
+      "execution_mode": "cli_interactive",
       "tags": [
         "storage",
         "backup",
@@ -3473,7 +3473,7 @@
       "rag_summary": "Guía de respaldo automatizado y seguro utilizando BorgBackup y systemd timers. Destaca el uso de la directiva EnvironmentFile para resguardar BORG_PASSPHRASE con permisos 600, impidiendo la filtración de contraseñas en scripts y configurando timers con persistencia de eventos.",
       "files": {
         "guide": "backup/borg-con-systemd-timers.md",
-        "script": null,
+        "script": "borg/demo_borg_systemd_timers.sh",
         "terraform": null
       },
       "mcp_tools": [
@@ -3545,14 +3545,14 @@
       "rag_summary": "Guía de automatización de copias de seguridad continuas con BorgBackup y systemd timers. Explica cómo inyectar la clave BORG_PASSPHRASE de manera segura sin exponerla en la tabla de procesos, crear unidades .service de tipo oneshot con políticas de reinicio y programar la ejecución periódica con rotación automática mediante OnCalendar.",
       "files": {
         "guide": "borg/borg-con-systemd-timers.md",
-        "script": null,
+        "script": "borg/demo_borg_systemd_timers.sh",
         "terraform": null
       },
-      "resource_type": "theoretical_guide",
+      "resource_type": "interactive_lab",
       "has_guide": true,
-      "has_interactive_script": false,
+      "has_interactive_script": true,
       "has_terraform": false,
-      "execution_mode": "manual_commands",
+      "execution_mode": "cli_interactive",
       "prerequisites": [
         "lab-3.5-borg-backup",
         "lab-2.1-systemd-memlogger"

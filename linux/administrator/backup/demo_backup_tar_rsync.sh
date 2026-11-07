@@ -16,22 +16,34 @@
 #   ./demo_backup_tar_rsync.sh          -> Modo interactivo (pausa con [ENTER])
 #   ./demo_backup_tar_rsync.sh --auto 2 -> Modo desatendido (espera 2s entre pasos)
 #   ./demo_backup_tar_rsync.sh --keep   -> Preserva los backups generados para inspección
+#   ./demo_backup_tar_rsync.sh --clean  -> Limpia todos los backups y archivos temporales
 # ==============================================================================
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
+            AUTO_MODE=true
             AUTO_WAIT="${2:-2}"
             shift 2
             ;;
         --keep)
             KEEP_FILES=true
             shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_backup_tar_rsync.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
             ;;
         *)
             shift
@@ -56,13 +68,19 @@ DST_DIR="${LAB_DIR}/repositorio_backups"
 
 cleanup() {
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Eliminando datos temporales de backup...${C_RESET}"
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "${C_GREEN}[INFO] Entorno de backups preservado en: ${LAB_DIR}${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: ./demo_backup_tar_rsync.sh --clean\n"
         return
     fi
-    rm -rf "${LAB_DIR}" 2>/dev/null || true
+    rm -rf "${LAB_DIR}" /tmp/lab_backups /tmp/lab_backups_* 2>/dev/null || true
     echo -e "${C_GREEN}✔ Directorio temporal de pruebas eliminado correctamente.${C_RESET}\n"
 }
+
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -72,7 +90,7 @@ fi
 
 pause_step() {
     local mensaje="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_DIM}⏳ [MODO AUTO] Esperando ${AUTO_WAIT}s...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
@@ -99,8 +117,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "$AUTO_WAIT" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -145,7 +163,7 @@ dd if=/dev/urandom of="$SRC_DIR/db/clientes.dat" bs=1M count=3 status=none
 echo "v1.0.0" > "$SRC_DIR/db/version.txt"
 
 explain "Calculamos los hashes SHA-256 originales para validar la restauración al final:"
-(cd "$SRC_DIR" && sha256sum web/* db/* > "${LAB_DIR}/original_checksums.sha256")
+run_and_show "cd ${SRC_DIR} && sha256sum web/* db/* > ${LAB_DIR}/original_checksums.sha256"
 run_and_show "ls -lh ${SRC_DIR}/web ${SRC_DIR}/db"
 run_and_show "cat ${LAB_DIR}/original_checksums.sha256"
 
@@ -237,8 +255,7 @@ pause_step "Presioná [ENTER] para simular un desastre y restaurar..."
 step_banner "5" "Simulacro de Pérdida Catastrófica y Restauración con rsync"
 
 explain "Simulamos un borrado accidental o sabotaje en producción con 'rm -rf':"
-rm -rf "${SRC_DIR:?}"/*
-run_and_show "ls -la ${SRC_DIR}"
+run_and_show "rm -rf ${SRC_DIR}/* && ls -la ${SRC_DIR}"
 
 explain "Restauramos toda la producción en segundos desde la copia deduplicada de rsync:"
 run_and_show "rsync -av ${RSYNC_DIR}/dia_2/ ${SRC_DIR}/"

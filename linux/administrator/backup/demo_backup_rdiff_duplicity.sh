@@ -15,22 +15,34 @@
 #   ./demo_backup_rdiff_duplicity.sh          -> Modo interactivo (pausa con [ENTER])
 #   ./demo_backup_rdiff_duplicity.sh --auto 2 -> Modo desatendido (espera 2s entre pasos)
 #   ./demo_backup_rdiff_duplicity.sh --keep   -> Preserva los repositorios para pruebas
+#   ./demo_backup_rdiff_duplicity.sh --clean  -> Limpia todos los repositorios de prueba
 # ==============================================================================
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
 KEEP_FILES=false
+CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --auto)
+            AUTO_MODE=true
             AUTO_WAIT="${2:-2}"
             shift 2
             ;;
         --keep)
             KEEP_FILES=true
             shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_backup_rdiff_duplicity.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
             ;;
         *)
             shift
@@ -57,13 +69,19 @@ PASSPHRASE="ClaseBackupSeguro2026!"
 
 cleanup() {
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Eliminando datos temporales de backup...${C_RESET}"
-    if [ "$KEEP_FILES" = true ]; then
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
         echo -e "${C_GREEN}[INFO] Entorno preservado en: ${LAB_DIR}${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: ./demo_backup_rdiff_duplicity.sh --clean\n"
         return
     fi
-    rm -rf "${LAB_DIR}" 2>/dev/null || true
+    rm -rf "${LAB_DIR}" /tmp/lab_rdiff_duplicity /tmp/lab_rdiff_duplicity_* /tmp/clientes_recuperado.txt 2>/dev/null || true
     echo -e "${C_GREEN}✔ Directorio temporal de pruebas eliminado correctamente.${C_RESET}\n"
 }
+
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -73,7 +91,7 @@ fi
 
 pause_step() {
     local mensaje="${1:-Presioná [ENTER] para continuar al siguiente paso...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_DIM}⏳ [MODO AUTO] Esperando ${AUTO_WAIT}s...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
@@ -100,8 +118,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta para la clase / autoaprendizaje: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "$AUTO_WAIT" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM}   [Presioná ENTER para ver la respuesta esperada...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -216,8 +234,7 @@ pause_step "Presioná [ENTER] para simular la restauración de emergencia..."
 step_banner "4" "Restauración Descifrando en Memoria"
 
 explain "Simulamos la pérdida total de los archivos en producción:"
-rm -rf "${SRC_DIR:?}"/*
-run_and_show "ls -la '${SRC_DIR}'"
+run_and_show "rm -rf '${SRC_DIR}'/* && ls -la '${SRC_DIR}'"
 
 explain "Restauramos descifrando al vuelo sin escribir archivos intermedios en disco:"
 if [ -f "${DUPL_DEST}/duplicity-full.vol1.difftar.gpg" ]; then

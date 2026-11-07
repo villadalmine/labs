@@ -314,5 +314,9 @@ Esta guía se complementa con los siguientes laboratorios prácticos paso a paso
    - Limpieza: [`limpiar_backup_dd_snapshots.sh`](limpiar_backup_dd_snapshots.sh)
 
 4. **[`lab-3.5-borg-backup`](../borg/borg.md):**
-   *BorgBackup: Inicialización cifrada (repokey), deduplicación por chunking, montaje FUSE (`borg mount`) y timers automáticos de systemd.*
-   - Incluye script interactivo: [`demo_borg.sh`](../borg/demo_borg.sh)
+   *BorgBackup: Inicialización cifrada (`repokey`), deduplicación por chunking, montaje FUSE (`borg mount`) y poda (`borg prune`).*
+   - Incluye script interactivo todo-en-uno: [`demo_borg.sh`](../borg/demo_borg.sh) (`--auto`, `--keep`, `--clean`)
+
+5. **[`lab-3.5-borg-systemd-timers`](../borg/borg-con-systemd-timers.md) / [`backup/borg-con-systemd-timers.md`](borg-con-systemd-timers.md):**
+   *Automatización Desatendida de BorgBackup con Systemd Timers: directiva `EnvironmentFile` con permisos `chmod 600`, unidades `.service` (`Type=oneshot`) y `.timer` (`Persistent=true`).*
+   - Incluye script interactivo todo-en-uno: [`demo_borg_systemd_timers.sh`](../borg/demo_borg_systemd_timers.sh) (`--auto`, `--keep`, `--clean`)

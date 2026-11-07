@@ -150,5 +150,7 @@ El script genera datos simulados de un servidor web (`/var/www` y `/etc/nginx`),
 
 ```bash
 ./demo_borg.sh          # Modo interactivo (pausa con [ENTER])
-./demo_borg.sh --auto 5 # Modo automático (espera 5s por paso)
+./demo_borg.sh --auto 2 # Modo automático (espera 2s por paso)
+./demo_borg.sh --keep   # Preservar el repositorio para inspección manual
+./demo_borg.sh --clean  # Limpiar repositorios y montajes FUSE desde el mismo script
 ```
