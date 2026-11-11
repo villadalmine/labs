@@ -419,7 +419,7 @@ def main():
     elif args.command == "new-lab":
         scaffold_new_lab(args)
     elif args.command == "validate":
-        validate_catalog()
+        sys.exit(0 if validate_catalog() else 1)
     elif args.command == "sync":
         sync_catalog()
 
