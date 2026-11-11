@@ -123,6 +123,7 @@ files:
 - `Bare-Metal`: Servidor físico real sobre hardware dedicado.
 - `Docker`: Contenedor Linux aislado.
 - `QEMU/KVM`: Máquina virtual sobre hipervisor KVM.
+- `Podman Systemd Container (Toolbox Host)`: Contenedor Podman con systemd como PID 1, lanzado desde un host Toolbox.
 
 ### 2. `tested_environments[].status` y `status` general
 - `PASSED`: El laboratorio y su script interactivo fueron ejecutados de punta a punta y completaron todas las pruebas con código de salida `0` sin errores.

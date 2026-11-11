@@ -141,7 +141,7 @@
         "properties": {
           "environment": {
             "type": "string",
-            "enum": ["WSL2", "AWS EC2", "Bare-Metal", "Docker", "QEMU/KVM"]
+            "enum": ["WSL2", "AWS EC2", "Bare-Metal", "Docker", "QEMU/KVM", "Podman Systemd Container (Toolbox Host)"]
           },
           "type": {
             "type": "string",
