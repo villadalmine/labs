@@ -466,3 +466,6 @@ ai/tutor/rag_corpus_export/
 linux/administrator/nice/cpu_worker
 linux/administrator/procesos/zombie_maker
 
+
+# Hub MCP: estado local (pids, logs) y configuración personal
+ai/tutor/hub/.run/

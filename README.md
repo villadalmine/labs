@@ -36,6 +36,7 @@ labs/
 │
 └── ai/tutor/                  # 🤖 Ecosistema de Tutor de IA y Asistencia RAG
     ├── mcp/                   # Servidor MCP nativo (labs_mcp_server.py) y generador de corpus RAG
+    ├── hub/                   # Hub Multi-MCP: hub.py levanta varios MCP por HTTP y configura Open WebUI / VS Code
     ├── tutor_engine.py        # Motor de decisiones pedagógicas y recomendación de rutas
     ├── GUIA_PASO_A_PASO.md    # Despliegue de Open WebUI, Goose CLI y Ollama local en CPU
     └── README.md              # 📖 Arquitectura del Tutor Inteligente y Protocolos de Agente
@@ -66,6 +67,7 @@ El repositorio implementa un catálogo formal de metadatos ([`catalog.json`](lin
 - **Motor Pedagógico (`ai/tutor/tutor_engine.py`):** Recomienda el siguiente laboratorio según tu sistema operativo (`WSL2`, `AWS EC2`, `Debian`, `Ubuntu`), nivel y prerequisitos aprobados.
 - **Servidor MCP Nativo (`ai/tutor/mcp/labs_mcp_server.py`):** Expone 7 herramientas dinámicas (preguntas socráticas progresivas, validación de entorno, consulta de laboratorios) para clientes compatibles con Model Context Protocol (Goose CLI, Claude Desktop, Cursor, Continue.dev).
 - **Corpus RAG Local:** Compatible con Open WebUI, AnythingLLM y Ollama para estudiar offline en CPU.
+- **Hub Multi-MCP (`ai/tutor/hub/hub.py`):** Levanta por HTTP este MCP junto con los de `study-cybercirujas`, `rag-tutor` y `oss-docs`, y los conecta a Open WebUI y VS Code con un comando. Ver la [Guía del Hub Multi-MCP](ai/tutor/GUIA_HUB_MCP.md).
 
 👉 **Seguí la [Guía Paso a Paso para configurar tu Tutor Local de IA](ai/tutor/GUIA_PASO_A_PASO.md)**.
 

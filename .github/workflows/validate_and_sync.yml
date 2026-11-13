@@ -98,3 +98,7 @@ jobs:
 
           print('✅ Servidor MCP y todas sus 7 herramientas probadas con éxito.')
           "
+
+      - name: 5. Probar transporte HTTP, puente stdio y manifiesto del Hub MCP
+        run: |
+          python ai/tutor/hub/test_hub.py

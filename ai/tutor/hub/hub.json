@@ -1,0 +1,68 @@
+{
+  "_comment": "Manifiesto del hub MCP: única fuente de verdad. hub.py levanta estos servidores y genera desde acá la configuración de Open WebUI, VS Code, Cline, Goose y Claude Code. Agregar un MCP nuevo = agregar un bloque en 'servers'.",
+  "webui": {
+    "image": "ghcr.io/open-webui/open-webui:v0.13.3",
+    "container": "labs-hub-webui",
+    "volume": "labs-hub-webui-data",
+    "port": 3000
+  },
+  "servers": [
+    {
+      "id": "labs",
+      "title": "Labs Linux",
+      "description": "Catálogo de laboratorios prácticos de administración Linux de este curso (procesos, systemd, LVM, RAID, cifrado, backups, monitoreo): ruta de aprendizaje, detalle y guía de cada lab, y pistas socráticas graduales.",
+      "port": 8091,
+      "mode": "native",
+      "cmd": ["{python}", "{labs}/ai/tutor/mcp/labs_mcp_server.py", "--transport", "http", "--host", "{bind}", "--port", "{port}"],
+      "exclude_when_shared": ["check_lab_environment"],
+      "smoke": {"tool": "search_curriculum", "arguments": {"query": "raid"}}
+    },
+    {
+      "id": "study",
+      "title": "study.cybercirujas",
+      "description": "Temarios oficiales y teoría por objetivo de certificaciones (LPIC, CKA, CKAD, CKS, Linux Foundation, NVIDIA): listar certificaciones, ver el temario, leer un tema y buscar conceptos.",
+      "port": 8092,
+      "mode": "bridge",
+      "repo": {"dir": "study-cybercirujas", "url": "https://github.com/villadalmine/study-cybercirujas.git"},
+      "venv": {"python": "3.12", "install": ["-e", ".[mcp]"]},
+      "check": [".venv/bin/python", "-c", "import mcp, teach"],
+      "cmd": [".venv/bin/python", "-m", "teach.mcp_server"],
+      "smoke": {"tool": "list_certs", "arguments": {}}
+    },
+    {
+      "id": "rag-tutor",
+      "title": "rag-tutor (libros)",
+      "description": "RAG híbrido + grafo sobre los libros técnicos y cursos que cada uno indexó (arquitectura, plataforma, Kubernetes, agentes de IA): catálogo de libros, fragmentos por sección, relaciones del grafo y ejemplos de código/YAML, con cita.",
+      "port": 8093,
+      "mode": "bridge",
+      "repo": {"dir": "rag-tutor", "url": "https://github.com/villadalmine/rag-tutor.git"},
+      "venv": {"python": "3.12", "install": ["-r", "requirements.txt"]},
+      "check": [".venv/bin/python", "-c", "import mcp, chromadb, kuzu"],
+      "data": {
+        "check": "chroma_db/chroma.sqlite3",
+        "hint": "rag-tutor no trae libros: copiá tus PDF/Markdown a books/ y corré '.venv/bin/python src/ingest.py' dentro del repo (o usá el del docente con HUB_URL_RAG_TUTOR)."
+      },
+      "start_timeout": 300,
+      "cmd": [".venv/bin/python", "-m", "src.mcp_server"],
+      "smoke": {"tool": "listar_libros_y_secciones", "arguments": {}}
+    },
+    {
+      "id": "oss-docs",
+      "title": "oss-docs (docs versionadas)",
+      "description": "Documentación oficial versionada de proyectos open source de infraestructura de IA y Kubernetes (KServe, llm-d, vLLM, SGLang, agentgateway, Kubeflow, KEDA, Istio, Envoy Gateway): buscar, leer secciones con cita y comparar versiones.",
+      "port": 8094,
+      "mode": "bridge",
+      "repo": {"dir": "oss-docs-mcp", "url": null},
+      "venv": {"python": "3.12", "install": ["-e", "."]},
+      "check": [".venv/bin/python", "-c", "import oss_docs_mcp"],
+      "data": {
+        "check": "data/oss_docs.db",
+        "build": [".venv/bin/oss-docs", "sync"],
+        "hint": "Falta el índice: corré '.venv/bin/oss-docs sync' dentro del repo (tarda unos minutos, baja la doc desde git)."
+      },
+      "env": {"OSS_DOCS_MAX_HITS": "6", "OSS_DOCS_MAX_READ_TOKENS": "2500"},
+      "cmd": [".venv/bin/oss-docs-mcp"],
+      "smoke": {"tool": "list_projects", "arguments": {}}
+    }
+  ]
+}

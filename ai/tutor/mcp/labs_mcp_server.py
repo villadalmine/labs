@@ -2,7 +2,8 @@
 """
 labs_mcp_server.py - Servidor MCP (Model Context Protocol) nativo para el Tutor de Laboratorios Linux.
 
-Implementa la especificación JSON-RPC 2.0 de MCP sobre stdio (entrada/salida estándar).
+Implementa la especificación JSON-RPC 2.0 de MCP sobre stdio (entrada/salida estándar) y,
+con `--transport http`, sobre Streamable HTTP (http://host:8091/mcp) usando mcp_http.py.
 Permite que cualquier cliente o agente autónomo (Goose CLI, Cline, Claude Desktop,
 Continue.dev, jdev, Open WebUI) consulte el catálogo de laboratorios, obtenga recomendaciones
 pedagógicas, lea guías y verifique la preparación del alumno mediante llamadas a herramientas.
@@ -360,6 +361,68 @@ def execute_tool(name: str, arguments: dict):
     return {"error": f"Herramienta desconocida: {name}"}
 
 
+SERVER_INFO = {"name": "linux-labs-tutor", "version": "1.1.0"}
+STDIO_PROTOCOL_VERSION = "2024-11-05"
+SUPPORTED_PROTOCOL_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
+
+
+def handle_message(req: dict, excluded_tools=frozenset()):
+    """
+    Procesa un mensaje JSON-RPC 2.0 de MCP y devuelve la respuesta (dict), o None
+    si era una notificación. Es independiente del transporte: lo usan tanto el bucle
+    stdio como el servidor HTTP.
+    """
+    req_id = req.get("id")
+    method = req.get("method")
+    params = req.get("params") or {}
+
+    if method is None or req_id is None:
+        # Notificaciones (ej: notifications/initialized) y respuestas: no se contestan.
+        return None
+
+    if method == "initialize":
+        requested = params.get("protocolVersion")
+        version = requested if requested in SUPPORTED_PROTOCOL_VERSIONS else STDIO_PROTOCOL_VERSION
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {
+                "protocolVersion": version,
+                "capabilities": {"tools": {}},
+                "serverInfo": SERVER_INFO,
+            },
+        }
+
+    if method == "ping":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {}}
+
+    if method == "tools/list":
+        tools = [t for t in TOOLS if t["name"] not in excluded_tools]
+        return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": tools}}
+
+    if method == "tools/call":
+        tool_name = params.get("name")
+        tool_args = params.get("arguments") or {}
+        try:
+            if tool_name in excluded_tools:
+                raise PermissionError("herramienta deshabilitada en este servidor")
+            res = execute_tool(tool_name, tool_args)
+            text, is_error = json.dumps(res, indent=2, ensure_ascii=False), False
+        except Exception as e:
+            text, is_error = f"Error ejecutando herramienta {tool_name}: {str(e)}", True
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {"content": [{"type": "text", "text": text}], "isError": is_error},
+        }
+
+    return {
+        "jsonrpc": "2.0",
+        "id": req_id,
+        "error": {"code": -32601, "message": f"Método no implementado: {method}"},
+    }
+
+
 def send_response(response_dict):
     """Envía un mensaje JSON-RPC formateado sobre stdout."""
     line = json.dumps(response_dict, ensure_ascii=False)
@@ -367,95 +430,54 @@ def send_response(response_dict):
     sys.stdout.flush()
 
 
-def main():
-    """Bucle principal de escucha JSON-RPC 2.0 sobre stdin."""
+def run_stdio(excluded_tools=frozenset()):
+    """Bucle principal de escucha JSON-RPC 2.0 sobre stdin (transporte stdio)."""
     for line in sys.stdin:
         line = line.strip()
         if not line:
             continue
         try:
             req = json.loads(line)
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             continue
+        if not isinstance(req, dict):
+            continue
+        response = handle_message(req, excluded_tools)
+        if response is not None:
+            send_response(response)
 
-        req_id = req.get("id")
-        method = req.get("method")
-        params = req.get("params", {})
 
-        if method == "initialize":
-            send_response({
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "result": {
-                    "protocolVersion": "2024-11-05",
-                    "capabilities": {
-                        "tools": {}
-                    },
-                    "serverInfo": {
-                        "name": "linux-labs-tutor",
-                        "version": "1.0.0"
-                    }
-                }
-            })
+def main(argv=None):
+    import argparse
 
-        elif method == "notifications/initialized":
-            # Notificación de inicialización del cliente, no requiere respuesta
-            pass
+    parser = argparse.ArgumentParser(
+        description="Servidor MCP del Tutor de Laboratorios Linux (stdio o Streamable HTTP).")
+    parser.add_argument("--transport", choices=["stdio", "http"], default="stdio",
+                        help="stdio (Goose, Cline, VS Code local) o http (Open WebUI, clientes remotos)")
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="[http] Dirección de escucha. 0.0.0.0 expone a la LAN: usar con --token")
+    parser.add_argument("--port", type=int, default=8091, help="[http] Puerto (default 8091)")
+    parser.add_argument("--token", default=os.environ.get("MCP_HTTP_TOKEN"),
+                        help="[http] Exigir 'Authorization: Bearer <token>' (o variable MCP_HTTP_TOKEN)")
+    parser.add_argument("--exclude-tools", default=os.environ.get("LABS_MCP_EXCLUDE_TOOLS", ""),
+                        help="Herramientas a ocultar, separadas por coma (ej: check_lab_environment "
+                             "cuando el servidor es compartido: esa herramienta inspecciona ESTA máquina)")
+    args = parser.parse_args(argv)
 
-        elif method == "ping":
-            send_response({"jsonrpc": "2.0", "id": req_id, "result": {}})
+    excluded = frozenset(t.strip() for t in args.exclude_tools.split(",") if t.strip())
+    unknown = excluded - {t["name"] for t in TOOLS}
+    if unknown:
+        parser.error(f"--exclude-tools: herramientas inexistentes: {', '.join(sorted(unknown))}")
 
-        elif method == "tools/list":
-            send_response({
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "result": {
-                    "tools": TOOLS
-                }
-            })
+    if args.transport == "stdio":
+        run_stdio(excluded)
+        return
 
-        elif method == "tools/call":
-            tool_name = params.get("name")
-            tool_args = params.get("arguments", {})
-            try:
-                res = execute_tool(tool_name, tool_args)
-                send_response({
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": json.dumps(res, indent=2, ensure_ascii=False)
-                            }
-                        ]
-                    }
-                })
-            except Exception as e:
-                send_response({
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "isError": True,
-                    "result": {
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"Error ejecutando herramienta {tool_name}: {str(e)}"
-                            }
-                        ]
-                    }
-                })
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import mcp_http
 
-        else:
-            if req_id is not None:
-                send_response({
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "error": {
-                        "code": -32601,
-                        "message": f"Método no implementado: {method}"
-                    }
-                })
+    mcp_http.serve(lambda req: handle_message(req, excluded), host=args.host, port=args.port,
+                   name=SERVER_INFO["name"], token=args.token)
 
 
 if __name__ == "__main__":
