@@ -100,7 +100,7 @@ flowchart LR
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `labs` | este repo | Los 52 laboratorios: ruta de aprendizaje, guía de cada lab, pistas socráticas | `get_student_roadmap`, `search_curriculum`, `get_lab_details`, `read_lab_guide`, `verify_student_readiness`, `get_progressive_hint`, `check_lab_environment` | 8091 | Sí |
 | `study` | [study-cybercirujas](https://github.com/villadalmine/study-cybercirujas) | Temarios y teoría por objetivo de certificaciones (LPIC, CKA, CKAD, CKS, LF, NVIDIA) | `list_certs`, `get_syllabus`, `get_topic`, `search_topics` | 8092 | Sí |
-| `rag-tutor` | [rag-tutor](https://github.com/villadalmine/rag-tutor) | Los libros y cursos que **vos** indexaste, con cita por sección | `listar_libros_y_secciones`, `buscar_fragmentos_secciones`, `consultar_grafo_kuzu`, `consultar_libros_manning`, `buscar_codigo_yaml` | 8093 | Sí, pero viene sin libros |
+| `rag-tutor` | [rag-tutor](https://github.com/villadalmine/rag-tutor) | Los libros y cursos que **vos** indexaste, con cita por sección | `listar_libros_y_secciones`, `buscar_fragmentos_secciones`, `leer_fragmentos` (versiones nuevas), `consultar_grafo_kuzu`, `consultar_libros_manning`, `buscar_codigo_yaml` | 8093 | Sí, pero viene sin libros |
 | `oss-docs` | oss-docs-mcp | Documentación oficial por versión de KServe, llm-d, vLLM, SGLang, agentgateway, Kubeflow, KEDA, Istio y otros | `list_projects`, `list_versions`, `search_docs`, `read_chunks`, `get_page_outline`, `whats_new` | 8094 | Todavía no es público |
 
 Dos consecuencias prácticas de la última columna:
@@ -184,7 +184,7 @@ $ python3 ai/tutor/hub/hub.py up
 $ python3 ai/tutor/hub/hub.py verify
   labs       OK   linux-labs-tutor | 7 herramientas | search_curriculum -> 5778 caracteres
   study      OK   teach-plat | 4 herramientas | list_certs -> 7377 caracteres
-  rag-tutor  OK   Universal Technical RAG Tutor | 5 herramientas | listar_libros_y_secciones -> 22382 caracteres
+  rag-tutor  OK   Universal Technical RAG Tutor | 5 herramientas (6 desde que rag-tutor sumó leer_fragmentos) | listar_libros_y_secciones -> 22382 caracteres
   oss-docs   OK   oss-docs-mcp | 6 herramientas | list_projects -> 1222 caracteres
 ```
 
