@@ -193,6 +193,33 @@ class BridgeTest(unittest.TestCase):
             self.assertEqual(answers[query], solo["content"][0]["text"], f"respuesta cruzada para '{query}'")
 
 
+class BridgeExcludeTest(unittest.TestCase):
+    """El puente puede ocultar herramientas de un servidor stdio que no se puede modificar."""
+
+    @classmethod
+    def setUpClass(cls):
+        port = free_port()
+        cls.server = ServerProcess([sys.executable, str(BRIDGE), "bridge", "--port", str(port),
+                                    "--exclude-tools", "read_lab_guide,check_lab_environment",
+                                    "--", sys.executable, str(LABS_SERVER)], port)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.stop()
+
+    def test_excluded_tools_are_hidden_and_blocked(self):
+        client = hub.McpClient(self.server.url)
+        client.initialize()
+        names = [t["name"] for t in client.request("tools/list")["tools"]]
+        self.assertEqual(len(names), 5)
+        self.assertNotIn("read_lab_guide", names)
+        blocked = client.request("tools/call", {"name": "read_lab_guide",
+                                                "arguments": {"lab_id": "lab-1.2-proceso-zombie"}})
+        self.assertTrue(blocked["isError"])
+        allowed = client.request("tools/call", {"name": "search_curriculum", "arguments": {"query": "raid"}})
+        self.assertFalse(allowed["isError"])
+
+
 class ManifestTest(unittest.TestCase):
     def test_manifest_is_consistent(self):
         manifest = json.loads((HUB_DIR / "hub.json").read_text(encoding="utf-8"))

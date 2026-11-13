@@ -208,7 +208,8 @@ class StdioBridge:
     - Si el hijo muere, se lo vuelve a levantar en el próximo request.
     """
 
-    def __init__(self, cmd, cwd=None, env=None, timeout=120.0, start_timeout=300.0):
+    def __init__(self, cmd, cwd=None, env=None, timeout=120.0, start_timeout=300.0, excluded_tools=()):
+        self.excluded_tools = frozenset(excluded_tools)
         self.cmd = cmd
         self.cwd = cwd
         self.env = env
@@ -342,8 +343,17 @@ class StdioBridge:
         if method == "initialize":
             return {"jsonrpc": "2.0", "id": req_id, "result": self._init_result}
 
-        resp = dict(self._call(self._proc, method, message.get("params"), self.timeout))
+        params = message.get("params")
+        if method == "tools/call" and (params or {}).get("name") in self.excluded_tools:
+            return {"jsonrpc": "2.0", "id": req_id, "result": {"isError": True, "content": [
+                {"type": "text", "text": "Herramienta deshabilitada en este servidor."}]}}
+
+        resp = dict(self._call(self._proc, method, params, self.timeout))
         resp["id"] = req_id
+        if method == "tools/list" and self.excluded_tools and isinstance(resp.get("result"), dict):
+            result = dict(resp["result"])
+            result["tools"] = [t for t in result.get("tools", []) if t.get("name") not in self.excluded_tools]
+            resp["result"] = result
         return resp
 
 
@@ -370,6 +380,8 @@ def main(argv=None):
     bridge.add_argument("--cwd", default=None, help="Directorio de trabajo del servidor stdio")
     bridge.add_argument("--timeout", type=float, default=120.0,
                         help="Segundos máximos por llamada a herramienta")
+    bridge.add_argument("--exclude-tools", default="",
+                        help="Herramientas del servidor stdio a ocultar, separadas por coma")
     bridge.add_argument("cmd", nargs=argparse.REMAINDER,
                         help="Comando del servidor stdio, después de '--'")
     args = parser.parse_args(argv)
@@ -378,7 +390,8 @@ def main(argv=None):
     if not cmd:
         parser.error("falta el comando del servidor stdio (después de '--')")
 
-    stdio = StdioBridge(cmd, cwd=args.cwd, timeout=args.timeout)
+    excluded = [t.strip() for t in args.exclude_tools.split(",") if t.strip()]
+    stdio = StdioBridge(cmd, cwd=args.cwd, timeout=args.timeout, excluded_tools=excluded)
     stdio.start_in_background()
     try:
         serve(stdio.handle_message, host=args.host, port=args.port, path=args.path,
