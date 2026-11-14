@@ -127,6 +127,7 @@ flowchart LR
 | [**Clase 6**](#-clase-6-soberanía-técnica-modelos-locales-en-tu-cpu-y-ram-ollama-vllm-sglang) | Inferencia Local en CPU y RAM | Intermedio / SysAdmin | Computadora con 8 GB RAM | Correr modelos de lenguaje 100% offline sin tarjeta gráfica dedicada. |
 | [**Clase 7**](#-clase-7-proyecto-final-monta-tu-propio-ai-tutor-local-específico-y-socrático) | Proyecto Final: Tutor Soberano | Proyecto Integrador | Docker o Python + Ollama | Poner en marcha Open WebUI, RAG sobre los 24 labs y el servidor MCP del curso. |
 | [**Clase 8**](GUIA_HUB_MCP.md) | Hub Multi-MCP: varias fuentes, un agente | Avanzado | Lo de la Clase 7 + `git` | Levantar cuatro MCP (labs, certificaciones, libros y docs versionadas), conectarlos a Open WebUI y VS Code, y compartirlos en el aula. |
+| [**Práctica 15 min**](PRACTICA_15_MIN_MCP.md) | Tu primer servidor MCP, con tus manos | Intermedio | Python 3, `git` y `curl` | Levantar el MCP del curso, hablarle con `curl` como lo hace un agente, conectarle tu agente y controlar qué herramientas ve y quién entra. |
 
 ---
 
@@ -533,6 +534,7 @@ python ai/tutor/mcp/labs_mcp_server.py
 | 📖 [**`GUIA_PASO_A_PASO.md`**](GUIA_PASO_A_PASO.md) | **Tutorial Maestro:** Instalación detallada de Ollama, Open WebUI, Goose CLI, VS Code y módulo de voz (Voice-to-Voice en CPU). |
 | ⚙️ [**`GUIA_OLLAMA_HARDWARE.md`**](GUIA_OLLAMA_HARDWARE.md) | **Hardware de Ollama:** Instalación multiplataforma, cómo decide Ollama usar CPU vs GPU/VRAM, comando `ollama ps` y forzar 100% CPU. |
 | 🧠 [**`INTEGRACION_STUDY_CYBERCIRUJAS.md`**](INTEGRACION_STUDY_CYBERCIRUJAS.md) | **Teoría Oficial de Certificaciones:** Conexión con 28 certificaciones internacionales (LPIC-1, CKA, etc.) vía MCP y RAG. |
+| ⏱️ [**`PRACTICA_15_MIN_MCP.md`**](PRACTICA_15_MIN_MCP.md) | **Práctica de 15 minutos:** levantar el MCP de los labs, hablarle a mano con `curl`, conectarle un agente y dos retos (herramientas ocultas y token). |
 | 🕸️ [**`GUIA_HUB_MCP.md`**](GUIA_HUB_MCP.md) | **Hub Multi-MCP:** levantar labs, study.cybercirujas, rag-tutor y oss-docs por HTTP, conectarlos a Open WebUI, VS Code, Cline, Goose y Claude Code, y compartirlos con los alumnos. |
 | 🎛️ [**`hub/hub.py`**](hub/hub.py) | **Comando del hub:** `doctor`, `setup`, `up`, `verify`, `config`, `webui`. El manifiesto es [`hub/hub.json`](hub/hub.json). |
 | 🌉 [**`mcp/mcp_http.py`**](mcp/mcp_http.py) | **Transporte Streamable HTTP y puente stdio a HTTP**, solo con la biblioteca estándar. |
