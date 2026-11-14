@@ -29,12 +29,18 @@ Se arregló además un fallo real que apareció al probar Claude Code sin token:
 ## Falta
 
 1. **Probar VS Code y Cline** a mano en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá si conectan.
-2. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente. Revisado el 2026-11-14, sin gastar hay tres caminos:
-   - el 27B en CPU de `llama-server :8080`: es intocable y lo comparte el Workspace Docente, así que no se usa sin su OK;
-   - un 14B Q3 en la P4 de 8 GB: hay que bajar el modelo y cambiar `stacks/goose-servicio`. Es la opción recomendada;
-   - GPU alquilada o nube: cuestan plata.
+2. **Modelo más grande para el tutor: probado, sin cambio.** Con el OK de Rino (2026-11-14):
+   - Un 14B no entra en la P4 de 7,5 GB con el contexto que necesita el tutor.
+   - Se comparó el 7B actual con Qwen3-8B con 5 preguntas reales del tutor:
 
-   Queda en el pendiente `tutor-modelo-mas-grande` del homelab.
+     | | qwen2.5-7b (actual) | Qwen3-8B |
+     | :--- | :--- | :--- |
+     | Correctas | 5/5 | 4/5 |
+     | Tiempo total | 348 s | 516 s |
+     | Problemas | inventó un `lab_id` en la pregunta de dos fuentes | no consultó los labs en esa pregunta |
+     | A favor | más rápido | leyó la doc antes de responder |
+
+   - No es claramente mejor, así que la P4 sigue con el 7B. El detalle está en el pendiente `tutor-modelo-mas-grande` del homelab.
 
 ## Cómo retomar
 
