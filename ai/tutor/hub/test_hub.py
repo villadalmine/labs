@@ -233,6 +233,18 @@ class BridgeExcludeTest(unittest.TestCase):
         self.assertFalse(allowed["isError"])
 
 
+class CorpusCommandTest(unittest.TestCase):
+    def test_corpus_needs_rag_tutor_first(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as empty:
+            env = dict(os.environ, HUB_REPOS_DIR=empty)
+            env.pop("HUB_SERVERS", None)
+            proc = subprocess.run([sys.executable, str(HUB_DIR / "hub.py"), "corpus"],
+                                  capture_output=True, text=True, env=env, timeout=60)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("hub.py setup rag-tutor", proc.stdout + proc.stderr)
+
+
 class ManifestTest(unittest.TestCase):
     def test_manifest_is_consistent(self):
         manifest = json.loads((HUB_DIR / "hub.json").read_text(encoding="utf-8"))

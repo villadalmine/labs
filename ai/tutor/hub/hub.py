@@ -646,6 +646,27 @@ def cmd_config(settings, args):
     return 0
 
 
+def cmd_corpus(settings, args):
+    """Indexa los laboratorios y el código de este repo como un "libro" de rag-tutor (corpus de ejemplo)."""
+    srv = load_servers(settings, ["rag-tutor"])[0]
+    if not srv.repo_present() or not srv.env_ready():
+        die("Falta rag-tutor: corré primero 'hub.py setup rag-tutor'.")
+    if srv.data_ready() and not args.force:
+        say("rag-tutor ya tiene un índice: no lo toco (usá --force para sumar el corpus de los labs).")
+        return 0
+    out = srv.repo_dir / "books" / ".corpus-labs"
+    if not run([sys.executable, str(MCP_DIR / "prepare_rag_corpus.py"), "--output-dir", str(out)]):
+        die("No se pudo generar el corpus de los labs.")
+    dest = srv.repo_dir / "books" / "labs-practicos"
+    shutil.copytree(out / "labs_practicos", dest, dirs_exist_ok=True)
+    shutil.rmtree(out, ignore_errors=True)
+    say("Indexando los laboratorios como libro 'labs-practicos' (tarda 1 a 2 minutos)...")
+    if not run([str(srv.repo_dir / ".venv" / "bin" / "python"), "src/ingest.py"], cwd=srv.repo_dir) or not srv.data_ready():
+        die("Falló la indexación.")
+    say("Listo: 'hub.py up rag-tutor' ya contesta sobre los laboratorios.")
+    return 0
+
+
 def cmd_token(settings, args):
     say(secrets.token_urlsafe(24))
     return 0
@@ -857,6 +878,9 @@ def main(argv=None):
     config.add_argument("--compact", action="store_true", help="[openwebui] JSON en una sola línea")
     config.set_defaults(fn=cmd_config)
 
+    corpus = sub.add_parser("corpus", help="indexar los labs de este repo como libro de ejemplo de rag-tutor")
+    corpus.add_argument("--force", action="store_true", help="sumarlo aunque rag-tutor ya tenga un índice")
+    corpus.set_defaults(fn=cmd_corpus)
     sub.add_parser("token", help="generar un token aleatorio para HUB_TOKEN").set_defaults(fn=cmd_token)
 
     webui = sub.add_parser("webui", help="Open WebUI en contenedor con los MCP ya conectados")

@@ -40,7 +40,7 @@
       "check": [".venv/bin/python", "-c", "import mcp, chromadb, kuzu"],
       "data": {
         "check": "chroma_db/chroma.sqlite3",
-        "hint": "rag-tutor no trae libros: copiá tus PDF/Markdown a books/ y corré '.venv/bin/python src/ingest.py' dentro del repo (o usá el del docente con HUB_URL_RAG_TUTOR)."
+        "hint": "rag-tutor no trae libros: corré 'python3 ai/tutor/hub/hub.py corpus' para indexar los laboratorios de este repo como libro de ejemplo, o copiá tus PDF/Markdown a books/ y corré '.venv/bin/python src/ingest.py' dentro del repo (o usá el del docente con HUB_URL_RAG_TUTOR)."
       },
       "start_timeout": 300,
       "cmd": [".venv/bin/python", "-m", "src.mcp_server"],
