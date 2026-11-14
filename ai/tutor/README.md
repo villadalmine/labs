@@ -536,6 +536,7 @@ python ai/tutor/mcp/labs_mcp_server.py
 | 🧠 [**`INTEGRACION_STUDY_CYBERCIRUJAS.md`**](INTEGRACION_STUDY_CYBERCIRUJAS.md) | **Teoría Oficial de Certificaciones:** Conexión con 28 certificaciones internacionales (LPIC-1, CKA, etc.) vía MCP y RAG. |
 | ⏱️ [**`PRACTICA_15_MIN_MCP.md`**](PRACTICA_15_MIN_MCP.md) | **Práctica de 15 minutos:** levantar el MCP de los labs, hablarle a mano con `curl`, conectarle un agente y dos retos (herramientas ocultas y token). |
 | 🕸️ [**`GUIA_HUB_MCP.md`**](GUIA_HUB_MCP.md) | **Hub Multi-MCP:** levantar labs, study.cybercirujas, rag-tutor y oss-docs por HTTP, conectarlos a Open WebUI, VS Code, Cline, Goose y Claude Code, y compartirlos con los alumnos. |
+| 🗺️ [**`hub/PLAN_DE_ACCION.md`**](hub/PLAN_DE_ACCION.md) | **Estado del hub para el docente:** qué está probado, qué cliente funciona, decisiones tomadas (modelo del tutor, oss-docs público), qué falta y quién lo hace. Punto de entrada para retomar el trabajo. |
 | 🎛️ [**`hub/hub.py`**](hub/hub.py) | **Comando del hub:** `doctor`, `setup`, `up`, `verify`, `config`, `webui`. El manifiesto es [`hub/hub.json`](hub/hub.json). |
 | 🌉 [**`mcp/mcp_http.py`**](mcp/mcp_http.py) | **Transporte Streamable HTTP y puente stdio a HTTP**, solo con la biblioteca estándar. |
 | 🤖 [**`system_prompt_tutor.md`**](system_prompt_tutor.md) | **Prompt Socrático del Tutor:** La directiva pedagógica para guiar con pistas reflexivas en lugar de regalar soluciones. |
