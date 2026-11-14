@@ -32,6 +32,7 @@ tools:
   - "podman"
   - "ollama"
   - "code"
+  - "cline"
 requirements:
   root_required: false
   cloud_required: false
@@ -45,6 +46,13 @@ tested_environments:
     status: "PASSED"
     test_date: "2026-11-13"
     notes: "Python 3.13, uv 0.13, podman 5.8, Open WebUI v0.13.3. Los 4 MCP levantados y verificados; Open WebUI los registró y listó sus 22 herramientas. No se probó una conversación con un LLM real."
+  - environment: "Bare-Metal"
+    type: "local"
+    instance_type: "physical"
+    os: "Fedora 44"
+    status: "PASSED"
+    test_date: "2026-11-14"
+    notes: "Cline CLI 3.0.74 (mismo núcleo que la extensión) con la config de 'hub.py config cline' y el LiteLLM del Dell (chat-ia, qwen2.5 7B): llamó labs__search_curriculum y oss-docs__search_docs + read_chunks. 'hub.py setup oss-docs' desde cero (repo público) OK. VS Code sin probar: no hay VS Code en la máquina de prueba."
 environments:
   - "Bare-Metal"
   - "WSL2"
@@ -261,6 +269,16 @@ python3 ai/tutor/hub/hub.py config claude-code   # comandos 'claude mcp add' lis
 ```
 
 Con token, la salida muestra `<HUB_TOKEN>` en su lugar. Agregá `--show-token` para que escriba el valor real.
+
+**Cline sin VS Code.** La CLI oficial de Cline (`npm install -g cline`) usa el mismo núcleo y el mismo archivo de configuración MCP que la extensión. Sirve si no tenés VS Code o para probar desde una terminal:
+
+```bash
+cline auth openai -k <tu clave> -m <modelo> -b <url de tu LiteLLM u Ollama>/v1   # cualquier API compatible con OpenAI
+python3 ai/tutor/hub/hub.py config cline > ~/.cline/data/settings/cline_mcp_settings.json
+cline "Usá search_curriculum del servidor MCP labs para buscar RAID y nombrá dos labs con su id"
+```
+
+Cline nombra las herramientas `<servidor>__<herramienta>` (por ejemplo `labs__search_curriculum`). Probado con Cline 3.0.74 contra `labs` y `oss-docs`.
 
 ### 5.4 Cuándo conviene el MCP de labs por stdio
 
