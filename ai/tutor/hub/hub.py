@@ -736,6 +736,9 @@ def cmd_webui(settings, args):
     env.update(settings.prefixed("OWUI_"))  # escape: OWUI_FOO=bar -> FOO=bar en el contenedor
 
     subprocess.run([engine, "rm", "-f", w["container"]], capture_output=True)
+    if port_in_use(w["port"]):
+        # Con --network host el contenedor no puede escuchar y queda reiniciándose: mejor avisar.
+        die(f"El puerto {w['port']} ya está en uso por otro programa. Elegí otro con WEBUI_PORT en hub.env.")
     cmd = [engine, "run", "-d", "--name", w["container"], "--network", "host",
            "--restart", "unless-stopped", "-v", f"{w['volume']}:/app/backend/data"]
     for key in env:
