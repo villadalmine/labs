@@ -13,7 +13,7 @@ Para iterar: qué quedó hecho, qué falta y en qué orden. La guía de uso es `
 | # | Punto | Estado | Evidencia |
 |---|---|---|---|
 | 1 | PR de `update` a `main` | Hecho | PR #15 mergeado (`9179fd0`) con el CI en verde |
-| 2 | Configs de los clientes | Hecho (salvo VS Code y Cline) | **Claude Code**: con token conecta, sin token da un error limpio, y una conversación real llamó a `search_curriculum`. **Goose**: la config generada, en el Goose del Dell, llamó a `search_curriculum` y contestó en 37 s. **VS Code y Cline**: son apps gráficas no instaladas acá; el JSON generado es válido y sigue su formato documentado. Falta probarlos a mano en la máquina de un alumno |
+| 2 | Configs de los clientes | Hecho (salvo VS Code) | **Claude Code**: con token conecta, sin token da un error limpio, y una conversación real llamó a `search_curriculum`. **Goose**: la config generada, en el Goose del Dell, llamó a `search_curriculum` y contestó en 37 s. **VS Code y Cline**: son apps gráficas no instaladas acá; el JSON generado es válido y sigue su formato documentado. Falta probarlos a mano en la máquina de un alumno |
 | 3 | Conversación real con un modelo | Hecho | Dell: Open WebUI + modelo + los 4 MCP (3 de 3 fuentes). Local: `hub.py webui up` con el LiteLLM del Dell (`OPENAI_API_BASE_URL`) y `labs`: el modelo llamó a `search_curriculum` y contestó en 12 s. Claude Code con `labs` y con `rag-tutor` local también |
 | 4 | Subir los commits de `rag-tutor` | Hecho | `4bb5d45` está en GitHub y es el que corre en el Dell |
 | 5 | `oss-docs-mcp` público | Hecho (2026-11-14) | Con el OK de Rino: [villadalmine/oss-docs-mcp](https://github.com/villadalmine/oss-docs-mcp), con el historial revisado sin secretos. `hub.py setup oss-docs` desde cero clona, instala e indexa 12 proyectos (1,2 GB) y `verify` da OK. Se arregló de paso un fallo real: GitHub rechazaba por HTTP/2 la bajada de kubeflow, llm-d, sglang y vllm (ahora git usa HTTP/1.1) |
@@ -28,7 +28,7 @@ Se arregló además un fallo real que apareció al probar Claude Code sin token:
 
 ## Falta
 
-1. **Probar VS Code y Cline** a mano en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá si conectan.
+1. **Probar VS Code** a mano en una máquina que lo tenga (por ejemplo la de un alumno) y anotar acá si conecta. **Cline ya está probado** (2026-11-14): la CLI oficial 3.0.74, que usa el mismo núcleo y la misma config que la extensión, llamó a `labs` y `oss-docs` con la salida de `hub.py config cline`.
 2. **Modelo más grande para el tutor: probado, sin cambio.** Con el OK de Rino (2026-11-14):
    - Un 14B no entra en la P4 de 7,5 GB con el contexto que necesita el tutor.
    - Se comparó el 7B actual con Qwen3-8B con 5 preguntas reales del tutor:
