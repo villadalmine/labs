@@ -469,3 +469,6 @@ linux/administrator/procesos/zombie_maker
 
 # Hub MCP: estado local (pids, logs) y configuración personal
 ai/tutor/hub/.run/
+
+# Notas privadas (no se suben): por ejemplo NOTAS_CLASE.local.md
+*.local.md
