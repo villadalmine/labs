@@ -36,9 +36,17 @@ tested_environments:
     os: "Fedora 44"
     status: "PASSED"
     test_date: "2026-11-14"
-    notes: "Clon limpio desde GitHub: clonar, levantar y verificar tardó 4 s. Probados las tres llamadas con curl, los dos retos (herramientas ocultas y token) y la conexión desde Claude Code. Gemini CLI y VS Code no se probaron."
+    notes: "Clon limpio desde GitHub: clonar, levantar y verificar tardó 4 s. demo_practica_15_min_mcp.sh --auto 0: TODO OK. Gemini CLI y VS Code no se probaron."
+  - environment: "Container"
+    type: "local"
+    instance_type: "podman"
+    os: "Ubuntu 24.04 LTS"
+    status: "PASSED"
+    test_date: "2026-11-14"
+    notes: "Imagen ubuntu:24.04 limpia, solo apt install python3 git curl; usuario sin root clona la rama desde GitHub y corre demo_practica_15_min_mcp.sh --auto 0: TODO OK en 9 s (40 s con la instalación). Python 3.12.3."
 environments:
   - "Bare-Metal"
+  - "Container"
   - "WSL2"
 operating_systems:
   - "Fedora 44"
@@ -47,7 +55,7 @@ status: "PASSED"
 rag_summary: "Práctica corta para clase: el alumno levanta el servidor MCP de los laboratorios del curso con un comando, le habla a mano con curl (initialize, tools/list, tools/call) para ver lo que hace un agente por debajo, le conecta un agente que ya tenga (Claude Code, Gemini CLI o VS Code) y hace dos retos: esconder herramientas y protegerlo con un token."
 files:
   guide: "ai/tutor/PRACTICA_15_MIN_MCP.md"
-  script: "ai/tutor/hub/hub.py"
+  script: "ai/tutor/demo_practica_15_min_mcp.sh"
   terraform: null
 ---
 
@@ -170,6 +178,18 @@ curl -s -o /dev/null -w "%{http_code}\n" $H -H "Authorization: Bearer clase123" 
 ```
 
 (Sin token, 401; con token, 200.)
+
+## Probar todo de una vez (docente)
+
+El script [`demo_practica_15_min_mcp.sh`](demo_practica_15_min_mcp.sh) hace los mismos pasos que esta guía y comprueba cada resultado. Sirve para mostrarla en clase o para revisar que una máquina está lista antes de empezar:
+
+```bash
+./ai/tutor/demo_practica_15_min_mcp.sh            # interactivo: pausa con [ENTER] entre pasos
+./ai/tutor/demo_practica_15_min_mcp.sh --auto 0   # sin pausas: termina con "TODO OK" o con los pasos que fallaron
+./ai/tutor/demo_practica_15_min_mcp.sh --clean    # baja los servidores si quedó alguno
+```
+
+Sale con código 0 si todo funcionó y 1 si algo falló.
 
 ## Al terminar
 
