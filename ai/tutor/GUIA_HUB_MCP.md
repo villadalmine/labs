@@ -101,12 +101,12 @@ flowchart LR
 | `labs` | este repo | Los 52 laboratorios: ruta de aprendizaje, guía de cada lab, pistas socráticas | `get_student_roadmap`, `search_curriculum`, `get_lab_details`, `read_lab_guide`, `verify_student_readiness`, `get_progressive_hint`, `check_lab_environment` | 8091 | Sí |
 | `study` | [study-cybercirujas](https://github.com/villadalmine/study-cybercirujas) | Temarios y teoría por objetivo de certificaciones (LPIC, CKA, CKAD, CKS, LF, NVIDIA) | `list_certs`, `get_syllabus`, `get_topic`, `search_topics` | 8092 | Sí |
 | `rag-tutor` | [rag-tutor](https://github.com/villadalmine/rag-tutor) | Los libros y cursos que **vos** indexaste, con cita por sección | `listar_libros_y_secciones`, `buscar_fragmentos_secciones`, `leer_fragmentos` (versiones nuevas; con un modelo chico conviene `buscar_fragmentos_secciones` con `formato="completo"`, que trae el texto en una llamada), `consultar_grafo_kuzu`, `consultar_libros_manning`, `buscar_codigo_yaml` | 8093 | Sí, pero viene sin libros |
-| `oss-docs` | oss-docs-mcp | Documentación oficial por versión de KServe, llm-d, vLLM, SGLang, agentgateway, Kubeflow, KEDA, Istio y otros | `list_projects`, `list_versions`, `search_docs`, `read_chunks`, `get_page_outline`, `whats_new` | 8094 | Todavía no es público |
+| `oss-docs` | [oss-docs-mcp](https://github.com/villadalmine/oss-docs-mcp) | Documentación oficial por versión de KServe, llm-d, vLLM, SGLang, agentgateway, Kubeflow, KEDA, Istio y otros | `list_projects`, `list_versions`, `search_docs`, `read_chunks`, `get_page_outline`, `whats_new` | 8094 | Sí; el índice se arma en tu máquina |
 
 Dos consecuencias prácticas de la última columna:
 
 - **rag-tutor** no distribuye libros. Cada persona indexa los suyos, o usa el del docente por la red (sección 6).
-- **oss-docs** hoy solo existe en la máquina del docente. Los alumnos lo usan por la red (sección 6).
+- **oss-docs** es público desde el 2026-11-14, pero su índice ocupa cerca de 1,2 GB de disco y tarda en armarse. Si la máquina no da, usá el del docente por la red (sección 6).
 
 ## 2. Requisitos
 
@@ -152,7 +152,7 @@ Servidores MCP:
   rag-tutor  NO LISTO       :8093  /home/alumno/repos/rag-tutor
              -> falta clonar el repo (hub.py setup)
   oss-docs   NO LISTO       :8094  /home/alumno/repos/oss-docs-mcp
-             -> no está ... y el repo no es público: usá el del docente con HUB_URL_OSS_DOCS
+             -> falta clonar el repo (hub.py setup)
 ```
 
 Los repos se buscan como **hermanos** de este (la carpeta padre de `labs`). Para usar otra carpeta, definí `HUB_REPOS_DIR`.
@@ -173,7 +173,7 @@ Lo que queda a mano:
   cd ../rag-tutor && .venv/bin/python src/ingest.py
   ```
   Hasta que no exista `chroma_db/`, el hub lo deja omitido.
-- **oss-docs: armar el índice.** `setup` corre `oss-docs sync`, que baja la documentación desde los repos git de cada proyecto. Tarda unos minutos la primera vez.
+- **oss-docs: armar el índice.** `setup` corre `oss-docs sync`, que baja la documentación desde los repos git de cada proyecto. La primera vez tarda varios minutos y necesita cerca de 1,2 GB libres en el disco donde está el repo (no en `/tmp`).
 
 ### 4.3 `up` y `verify`
 
