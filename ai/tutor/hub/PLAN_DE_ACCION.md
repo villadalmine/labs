@@ -30,7 +30,12 @@ Se arregló además un fallo real que apareció al probar Claude Code sin token:
 
 1. **Probar VS Code y Cline** a mano en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá si conectan.
 2. **Decisión de Rino:** darle remoto a `oss-docs-mcp` si quiere que los alumnos lo usen (hoy tiene cambios sin commitear de otra sesión).
-3. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente (puede costar plata o hardware).
+3. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente. Revisado el 2026-11-14, sin gastar hay tres caminos:
+   - el 27B en CPU de `llama-server :8080`: es intocable y lo comparte el Workspace Docente, así que no se usa sin su OK;
+   - un 14B Q3 en la P4 de 8 GB: hay que bajar el modelo y cambiar `stacks/goose-servicio`. Es la opción recomendada;
+   - GPU alquilada o nube: cuestan plata.
+
+   Queda en el pendiente `tutor-modelo-mas-grande` del homelab.
 
 ## Cómo retomar
 
