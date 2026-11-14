@@ -137,6 +137,19 @@ class TokenAndExcludeTest(unittest.TestCase):
         self.assertEqual(post(self.server.url, ping, {"Authorization": "Bearer otro"})[0], 401)
         self.assertEqual(post(self.server.url, ping, {"Authorization": "Bearer secreto-de-prueba"})[0], 200)
 
+    def test_rejected_post_does_not_poison_the_connection(self):
+        """Un 401 con el cuerpo sin leer cierra la conexión: los bytes sobrantes no son otra petición."""
+        import http.client
+        host, port = self.server.url.split("//")[1].split("/")[0].split(":")
+        conn = http.client.HTTPConnection(host, int(port), timeout=10)
+        body = json.dumps({"client_name": "x" * 300, "redirect_uris": ["http://localhost:3118/callback"]})
+        conn.request("POST", "/mcp", body, {"Content-Type": "application/json"})
+        resp = conn.getresponse()
+        resp.read()
+        self.assertEqual(resp.status, 401)
+        self.assertEqual((resp.getheader("Connection") or "").lower(), "close")
+        conn.close()
+
     def test_excluded_tool_is_hidden_and_blocked(self):
         client = hub.McpClient(self.server.url, "secreto-de-prueba")
         client.initialize()
@@ -218,6 +231,18 @@ class BridgeExcludeTest(unittest.TestCase):
         self.assertTrue(blocked["isError"])
         allowed = client.request("tools/call", {"name": "search_curriculum", "arguments": {"query": "raid"}})
         self.assertFalse(allowed["isError"])
+
+
+class CorpusCommandTest(unittest.TestCase):
+    def test_corpus_needs_rag_tutor_first(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as empty:
+            env = dict(os.environ, HUB_REPOS_DIR=empty)
+            env.pop("HUB_SERVERS", None)
+            proc = subprocess.run([sys.executable, str(HUB_DIR / "hub.py"), "corpus"],
+                                  capture_output=True, text=True, env=env, timeout=60)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("hub.py setup rag-tutor", proc.stdout + proc.stderr)
 
 
 class ManifestTest(unittest.TestCase):

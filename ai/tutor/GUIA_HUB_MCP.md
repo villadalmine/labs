@@ -128,12 +128,15 @@ Desde la raíz de este repo:
 python3 ai/tutor/hub/hub.py doctor      # qué hay y qué falta
 python3 ai/tutor/hub/hub.py setup       # clona repos, crea entornos, arma índices
 python3 ai/tutor/hub/hub.py up          # levanta los MCP que estén listos
+python3 ai/tutor/hub/hub.py corpus      # rag-tutor sin libros: indexa los labs de este repo como libro de ejemplo (1 a 2 min)
 python3 ai/tutor/hub/hub.py verify      # prueba cada uno de punta a punta
 python3 ai/tutor/hub/hub.py webui up    # Open WebUI con los MCP ya conectados
 python3 ai/tutor/hub/hub.py webui agent # crea el modelo "Tutor del Hub"
 ```
 
 Para bajar todo: `hub.py webui down` y `hub.py down`.
+
+`hub.py corpus` le da libros a `rag-tutor` sin que tengas PDF propios: indexa las guías y el código de los laboratorios como un libro llamado `labs-practicos`. Si `rag-tutor` ya tiene un índice no lo toca (con `--force` lo suma).
 
 `hub.py` nunca falla por un MCP que no podés tener: lo marca como omitido, te dice por qué y sigue con el resto. Con solo este repo clonado ya funciona `labs`.
 
