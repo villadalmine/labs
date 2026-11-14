@@ -37,8 +37,16 @@ tested_environments:
     status: "PASSED"
     test_date: "2026-11-14"
     notes: "Clon limpio desde GitHub: clonar, levantar y verificar tardó 4 s. demo_practica_15_min_mcp.sh --auto 0: TODO OK. Gemini CLI y VS Code no se probaron."
+  - environment: "Container"
+    type: "local"
+    instance_type: "podman"
+    os: "Ubuntu 24.04 LTS"
+    status: "PASSED"
+    test_date: "2026-11-14"
+    notes: "Imagen ubuntu:24.04 limpia, solo apt install python3 git curl; usuario sin root clona la rama desde GitHub y corre demo_practica_15_min_mcp.sh --auto 0: TODO OK en 9 s (40 s con la instalación). Python 3.12.3."
 environments:
   - "Bare-Metal"
+  - "Container"
   - "WSL2"
 operating_systems:
   - "Fedora 44"
