@@ -95,6 +95,11 @@ def serve(handle_message, host="127.0.0.1", port=8091, path="/mcp", name="mcp",
             if body is not None:
                 self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(payload)))
+            if status >= 400:
+                # El cuerpo del POST puede quedar sin leer (401, 403, 404): se cierra la conexión
+                # para que esos bytes no se interpreten como una petición nueva ("Bad request syntax").
+                self.send_header("Connection", "close")
+                self.close_connection = True
             for k, v in (headers or {}).items():
                 self.send_header(k, v)
             self.end_headers()

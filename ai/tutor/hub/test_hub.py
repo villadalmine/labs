@@ -137,6 +137,19 @@ class TokenAndExcludeTest(unittest.TestCase):
         self.assertEqual(post(self.server.url, ping, {"Authorization": "Bearer otro"})[0], 401)
         self.assertEqual(post(self.server.url, ping, {"Authorization": "Bearer secreto-de-prueba"})[0], 200)
 
+    def test_rejected_post_does_not_poison_the_connection(self):
+        """Un 401 con el cuerpo sin leer cierra la conexión: los bytes sobrantes no son otra petición."""
+        import http.client
+        host, port = self.server.url.split("//")[1].split("/")[0].split(":")
+        conn = http.client.HTTPConnection(host, int(port), timeout=10)
+        body = json.dumps({"client_name": "x" * 300, "redirect_uris": ["http://localhost:3118/callback"]})
+        conn.request("POST", "/mcp", body, {"Content-Type": "application/json"})
+        resp = conn.getresponse()
+        resp.read()
+        self.assertEqual(resp.status, 401)
+        self.assertEqual((resp.getheader("Connection") or "").lower(), "close")
+        conn.close()
+
     def test_excluded_tool_is_hidden_and_blocked(self):
         client = hub.McpClient(self.server.url, "secreto-de-prueba")
         client.initialize()
