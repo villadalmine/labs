@@ -23,7 +23,7 @@ Este es el punto de entrada para retomar el trabajo: qué quedó hecho, qué se 
 | MCP de `labs` por HTTP | Funciona | Práctica de 15 min en Fedora y en Ubuntu 24.04 limpio (TODO OK) |
 | `study-cybercirujas` | Funciona | En el Dell (certificaciones :8571) |
 | `rag-tutor` | Funciona | `4bb5d45` en GitHub y en el Dell (libros :8572) |
-| `oss-docs-mcp` | **Público** desde el 2026-11-14 | [villadalmine/oss-docs-mcp](https://github.com/villadalmine/oss-docs-mcp), CI verde; el Dell corre `f30df02` (falta desplegar el arreglo, ver "Falta") |
+| `oss-docs-mcp` | **Público** desde el 2026-11-14 | [villadalmine/oss-docs-mcp](https://github.com/villadalmine/oss-docs-mcp), CI verde. El Dell corre `e807f38` (con el arreglo HTTP/1.1) y ahora indexa 12 proyectos |
 | Open WebUI del Dell, modelo "Tutor de cursos" (`casa-tutor`) | Funciona | 3 de 3 fuentes con el modelo real |
 | Clientes | Claude Code, Goose, Open WebUI y **Cline** probados; VS Code no | Ver tabla de clientes |
 
@@ -51,6 +51,8 @@ Este es el punto de entrada para retomar el trabajo: qué quedó hecho, qué se 
 | 2026-11-14 | `oss-docs-mcp` se publica en GitHub | OK de Rino; así los alumnos lo instalan con `hub.py setup oss-docs` |
 | 2026-11-14 | La P4 **sigue con qwen2.5 7B** para el tutor | Un 14B no entra en la P4 (7,5 GB) con el contexto del tutor. Qwen3-8B no fue claramente mejor (tabla abajo) |
 | 2026-11-14 | El token del hub de `goose-rino` se rotó | Se había impreso en una conversación. El viejo da 401 |
+| 2026-11-14 | El prompt del tutor **no se cambia** | Un prompt que obliga a buscar primero en los labs no mejoró la pregunta que cruza temario y lab (4/5 igual, y más lento) |
+| 2026-11-14 | Las pruebas del chat usan la cuenta **`prueba`** | Ningún agente prueba con la cuenta de una persona. `chat-ia.sh probar` ya no entra como Rino ni como ealbano |
 
 Comparación del modelo del tutor (5 preguntas reales, mismo prompt y mismos MCP; runbook `chat-ia-comparar-modelo-tutor`):
 
@@ -61,21 +63,25 @@ Comparación del modelo del tutor (5 preguntas reales, mismo prompt y mismos MCP
 | Problema | inventó un `lab_id` en la pregunta que cruza temario y lab | en esa pregunta no consultó los labs |
 | A favor | más rápido | leyó la doc antes de responder |
 
+Esas dos corridas fueron en la M4000. En la P4 real el 7B tarda 98 s en total, unas 3,5 veces menos.
+
+Otra señal de que el 7B no alcanza: con la cuenta de prueba, el modelo de docs (`casa-oss-docs`) contestó **3 de 3 veces sin llamar a `search_docs`** e inventó una URL (el 2026-11-11 había fallado 1 de 3). `casa-tutor` sí usa sus herramientas (3 de 3).
+
 ## Falta
 
 | # | Qué | Quién | Pendiente del homelab |
 | :--- | :--- | :--- | :--- |
 | 1 | Probar VS Code: `python3 ai/tutor/hub/hub.py config vscode > .vscode/mcp.json` en una máquina con VS Code y Copilot, y anotar acá si conecta | Rino o un alumno, a mano | — |
-| 2 | Que las pruebas no usen la cuenta ni la clave de una persona: `chat-ia.sh probar` entra como ealbano; hace falta una cuenta y una clave de prueba | Rino decide; después el agente chat-ia | `chat-ia-probar-sin-persona` |
-| 3 | Desplegar `oss-docs-mcp` `4ed4d4b` en el Dell (fuera del domingo 04:50 UTC, que es el sync) | Agente chat-ia | `oss-docs-desplegar-http11` |
-| 4 | Si se quiere seguir con el modelo: Qwen3-8B con razonamiento, o un prompt que obligue a buscar en los labs cuando la pregunta mezcla temario y lab | Rino decide | `tutor-modelo-mas-grande` |
-| 5 | Abrir una sesión SSH al Dell tarda 1 a 3 minutos cuando hay carga | Agente servidor-t7910 | `dell-ssh-lento-en-picos` |
-| 6 | Probar la práctica de 15 minutos con alumnos reales | Rino en clase | — |
+| 2 | Goose en `chat-ia.sh probar`: hace falta una cuenta Unix de pruebas en el Dell con su clave LiteLLM (`goose-prueba`) y su token del hub. Hoy ese paso se saltea | Rino decide; toca `chat-bots`, `mcp-hub` y `chat-ia` | `chat-ia-probar-sin-persona` |
+| 3 | Si se quiere seguir con el modelo: Qwen3-8B con razonamiento (la P4 se calienta: el comparador corta a 80 °C) | Rino decide | `tutor-modelo-mas-grande` |
+| 4 | Abrir una sesión SSH al Dell tarda 1 a 3 minutos cuando hay carga | Agente servidor-t7910 | `dell-ssh-lento-en-picos` |
+| 5 | Probar la práctica de 15 minutos con alumnos reales | Rino en clase | — |
 
 ## Reglas para quien retome
 
 - **No probar como una persona.** Las claves de `~/.super6c/chat-bots/clientes/*.key` y los `.pass` son identidades de Rino, ealbano o soldan, y quedan en los logs con su nombre. Para pruebas: una clave o cuenta de prueba propia, con alta aprobada por Rino.
-- **Para probar el tutor sin LiteLLM:** el runbook `chat-ia-comparar-modelo-tutor` usa un `llama-server` temporal en la P4, sin identidad.
+- **Para probar el chat:** `chat-ia.sh probar` entra con la cuenta de Open WebUI `prueba`. Para comparar modelos sin LiteLLM, el runbook `chat-ia-comparar-modelo-tutor` usa un `llama-server` temporal en la P4, sin identidad.
+- **La P4 se calienta:** en una prueba larga llegó a 89 °C. Todo lo que la use tiene que cortar a 80 °C, como `llm@p4` y el comparador (1.1.1).
 - **Desde la laptop Linux:** los scripts del homelab pensados para la PC Windows pueden apuntar a `/c/Users/rino/...`. Mirar la ruta antes de subir secretos.
 - **`/tmp` es un tmpfs chico:** el índice de oss-docs (1,2 GB) no entra. Usar un directorio en disco.
 - **Placas del Dell:** CUDA numera la P4 como 0 y `nvidia-smi` como 1. Para elegir placa en CUDA usar `CUDA_DEVICE_ORDER=PCI_BUS_ID`.
