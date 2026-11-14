@@ -16,7 +16,7 @@ Para iterar: qué quedó hecho, qué falta y en qué orden. La guía de uso es `
 | 2 | Configs de los clientes | Hecho (salvo VS Code y Cline) | **Claude Code**: con token conecta, sin token da un error limpio, y una conversación real llamó a `search_curriculum`. **Goose**: la config generada, en el Goose del Dell, llamó a `search_curriculum` y contestó en 37 s. **VS Code y Cline**: son apps gráficas no instaladas acá; el JSON generado es válido y sigue su formato documentado. Falta probarlos a mano en la máquina de un alumno |
 | 3 | Conversación real con un modelo | Hecho | Dell: Open WebUI + modelo + los 4 MCP (3 de 3 fuentes). Local: `hub.py webui up` con el LiteLLM del Dell (`OPENAI_API_BASE_URL`) y `labs`: el modelo llamó a `search_curriculum` y contestó en 12 s. Claude Code con `labs` y con `rag-tutor` local también |
 | 4 | Subir los commits de `rag-tutor` | Hecho | `4bb5d45` está en GitHub y es el que corre en el Dell |
-| 5 | `oss-docs-mcp` público | No se puede | El repo no tiene remoto y tiene 14 archivos sin commitear de otra sesión. Queda como servidor del docente (`HUB_URL_OSS_DOCS`); la guía ya lo dice |
+| 5 | `oss-docs-mcp` público | Hecho (2026-11-14) | Con el OK de Rino: [villadalmine/oss-docs-mcp](https://github.com/villadalmine/oss-docs-mcp), con el historial revisado sin secretos. `hub.py setup oss-docs` desde cero clona, instala e indexa 12 proyectos (1,2 GB) y `verify` da OK. Se arregló de paso un fallo real: GitHub rechazaba por HTTP/2 la bajada de kubeflow, llm-d, sglang y vllm (ahora git usa HTTP/1.1) |
 | 6 | Libros para alumnos | Hecho | `hub.py corpus` indexa los labs de este repo como libro `labs-practicos` (88 s; 13 tests) |
 | 7 | 7B con libros muy lento | Resuelto | Con la P4 fría (51 °C) la pregunta de libros tarda 37 s; con la P4 caliente cae a CPU y tarda 3 a 5 minutos |
 | 8 | `ext-memoria` se reaplica | No es un defecto | Los archivos de `stacks/memoria` los edita otra sesión y el instalador reinicia el servicio cuando cambian sus datos. Hoy el Dell y el repo son idénticos |
@@ -29,8 +29,7 @@ Se arregló además un fallo real que apareció al probar Claude Code sin token:
 ## Falta
 
 1. **Probar VS Code y Cline** a mano en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá si conectan.
-2. **Decisión de Rino:** darle remoto a `oss-docs-mcp` si quiere que los alumnos lo usen (hoy tiene cambios sin commitear de otra sesión).
-3. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente. Revisado el 2026-11-14, sin gastar hay tres caminos:
+2. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente. Revisado el 2026-11-14, sin gastar hay tres caminos:
    - el 27B en CPU de `llama-server :8080`: es intocable y lo comparte el Workspace Docente, así que no se usa sin su OK;
    - un 14B Q3 en la P4 de 8 GB: hay que bajar el modelo y cambiar `stacks/goose-servicio`. Es la opción recomendada;
    - GPU alquilada o nube: cuestan plata.

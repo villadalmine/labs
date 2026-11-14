@@ -52,7 +52,7 @@
       "description": "Documentación oficial versionada de proyectos open source de infraestructura de IA y Kubernetes (KServe, llm-d, vLLM, SGLang, agentgateway, Kubeflow, KEDA, Istio, Envoy Gateway): buscar, leer secciones con cita y comparar versiones.",
       "port": 8094,
       "mode": "bridge",
-      "repo": {"dir": "oss-docs-mcp", "url": null},
+      "repo": {"dir": "oss-docs-mcp", "url": "https://github.com/villadalmine/oss-docs-mcp.git"},
       "venv": {"python": "3.12", "install": ["-e", "."]},
       "check": [".venv/bin/python", "-c", "import oss_docs_mcp"],
       "data": {
