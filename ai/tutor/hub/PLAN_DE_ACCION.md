@@ -13,8 +13,8 @@ Para iterar: qué quedó hecho, qué falta y en qué orden. La guía de uso es `
 | # | Punto | Estado | Evidencia |
 |---|---|---|---|
 | 1 | PR de `update` a `main` | Hecho | PR #15 mergeado (`9179fd0`) con el CI en verde |
-| 2 | Configs de los clientes | Hecho en parte | **Claude Code**: probado con el comando que genera `hub.py config` (con token conecta; sin token da un error limpio) y con una conversación real que llamó a `search_curriculum`. **VS Code, Cline y Goose**: no están instalados en esta máquina; solo se comprobó que el JSON y el YAML generados son válidos y siguen el formato documentado de cada uno |
-| 3 | Conversación real con un modelo | Hecho en parte | Open WebUI + modelo + los 4 MCP: probado en el Dell (3 de 3 fuentes). Claude Code con `labs` y con `rag-tutor` local: respuesta correcta citando libro y sección. **Falta** un Open WebUI local con un modelo local (no hay Ollama en esta máquina) |
+| 2 | Configs de los clientes | Hecho (salvo VS Code y Cline) | **Claude Code**: con token conecta, sin token da un error limpio, y una conversación real llamó a `search_curriculum`. **Goose**: la config generada, en el Goose del Dell, llamó a `search_curriculum` y contestó en 37 s. **VS Code y Cline**: son apps gráficas no instaladas acá; el JSON generado es válido y sigue su formato documentado. Falta probarlos a mano en la máquina de un alumno |
+| 3 | Conversación real con un modelo | Hecho | Dell: Open WebUI + modelo + los 4 MCP (3 de 3 fuentes). Local: `hub.py webui up` con el LiteLLM del Dell (`OPENAI_API_BASE_URL`) y `labs`: el modelo llamó a `search_curriculum` y contestó en 12 s. Claude Code con `labs` y con `rag-tutor` local también |
 | 4 | Subir los commits de `rag-tutor` | Hecho | `4bb5d45` está en GitHub y es el que corre en el Dell |
 | 5 | `oss-docs-mcp` público | No se puede | El repo no tiene remoto y tiene 14 archivos sin commitear de otra sesión. Queda como servidor del docente (`HUB_URL_OSS_DOCS`); la guía ya lo dice |
 | 6 | Libros para alumnos | Hecho | `hub.py corpus` indexa los labs de este repo como libro `labs-practicos` (88 s; 13 tests) |
@@ -22,14 +22,15 @@ Para iterar: qué quedó hecho, qué falta y en qué orden. La guía de uso es `
 | 8 | `ext-memoria` se reaplica | No es un defecto | Los archivos de `stacks/memoria` los edita otra sesión y el instalador reinicia el servicio cuando cambian sus datos. Hoy el Dell y el repo son idénticos |
 | 9 | Reindexar libros | Documentado | `stacks/mcp-cursos/scripts/subir-libros.sh` |
 
+`hub.py webui up` ahora avisa si el puerto está ocupado (antes el contenedor quedaba reiniciándose; en esta laptop el 3000 lo usa un `kubectl port-forward`).
+
 Se arregló además un fallo real que apareció al probar Claude Code sin token: el servidor HTTP dejaba sin leer el cuerpo de un POST rechazado y la conexión quedaba corrupta (`Bad request syntax`). Ahora las respuestas 4xx cierran la conexión (con test). El Dell corre ya ese commit.
 
 ## Falta
 
-1. **Probar VS Code, Cline y Goose** en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá cuál falla.
-2. **Open WebUI local con un modelo local**: levantar `hub.py webui up` con un Ollama y repetir la pregunta de libros.
-3. **Que el repo `oss-docs-mcp` tenga remoto**, si Rino quiere que los alumnos lo usen.
-4. **Modelo más grande para el tutor**, si se quiere contestar rápido aunque la P4 esté caliente.
+1. **Probar VS Code y Cline** a mano en una máquina que los tenga (por ejemplo la de un alumno) y anotar acá si conectan.
+2. **Decisión de Rino:** darle remoto a `oss-docs-mcp` si quiere que los alumnos lo usen (hoy tiene cambios sin commitear de otra sesión).
+3. **Decisión de Rino:** un modelo más grande para el tutor si quiere respuestas rápidas aunque la P4 esté caliente (puede costar plata o hardware).
 
 ## Cómo retomar
 
