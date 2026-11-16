@@ -104,11 +104,10 @@ Este glosario define los conceptos, arquitecturas y siglas fundamentales del eco
 ## 📚 Definiciones Técnicas y Documentación Oficial
 
 ### A2A (Agent-to-Agent)
-Patrón arquitectónico donde múltiples agentes autónomos de IA colaboran dividiéndose responsabilidades: un agente tutor planifica la estrategia pedagógica, delega la ejecución de scripts a un agente ejecutor en terminal, y solicita la verificación a un agente evaluador.
-* **Impacto en Sistemas:** Requiere protocolos de comunicación inter-proceso (IPC, HTTP REST o JSON-RPC) y mecanismos de control de acceso para evitar que un agente ejecute comandos destructivos sin supervisión.
+Protocolo abierto para comunicar agentes de distintos sistemas mediante mensajes, tareas y resultados. Por ejemplo, un tutor puede encargar una evaluación a otro agente. Colaborar con subagentes dentro de una aplicación no demuestra que se esté usando A2A.
+* **Impacto en Sistemas:** Define una integración entre agentes, mientras MCP integra al host con capacidades externas. Nuestra práctica implementa MCP, sin servidor A2A. Ver [comparación y recorrido](AGENTES_Y_PROTOCOLOS_MCP.md#2-qué-es-un-protocolo-y-qué-aporta-cada-uno).
 * 🔗 **Documentación Oficial:**
-  * [Multi-Agent Orchestration en Microsoft AutoGen](https://microsoft.github.io/autogen/)
-  * [LangGraph Multi-Agent Architecture](https://langchain-ai.github.io/langgraph/concepts/multi_agent/)
+  * [A2A: qué es y cómo se relaciona con MCP](https://a2a-protocol.org/latest/topics/what-is-a2a/)
 
 ---
 
@@ -265,11 +264,11 @@ Arquitectura de optimización donde una capa de decisión ligera (un clasificado
 ---
 
 ### MCP (Model Context Protocol)
-Estándar abierto y universal desarrollado por Anthropic para conectar modelos de inteligencia artificial con fuentes de datos externas, herramientas locales y entornos operativos mediante JSON-RPC sobre entrada/salida estándar (`stdio`) o HTTP con Server-Sent Events (SSE).
-* **Impacto en Sistemas:** Permite que un modelo consulte el estado de un servidor Linux, inspeccione discos o lea guías locales de forma segura y tipada sin necesidad de plugins propietarios.
+Protocolo abierto entre clientes de una aplicación anfitriona (host) y servidores que publican capacidades externas. Usa mensajes JSON-RPC; entre sus transportes están `stdio` y Streamable HTTP. Este último no exige que toda respuesta sea un stream SSE: nuestro servidor devuelve JSON para las solicitudes y HTTP 202 para las notificaciones.
+* **Impacto en Sistemas:** El modelo puede proponer una herramienta a partir de su nombre, descripción y esquema; el host controla y envía la llamada y el servidor ejecuta su código. MCP no garantiza aislamiento ni sustituye la autorización. Ver [guía didáctica y ejemplo del curso](AGENTES_Y_PROTOCOLOS_MCP.md).
 * 🔗 **Documentación Oficial:**
-  * [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-  * [Anthropic MCP Client and Server Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
+  * [Arquitectura de la revisión usada en la práctica](https://modelcontextprotocol.io/specification/2025-03-26/architecture)
+  * [Transportes de esa revisión](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
 
 ---
 

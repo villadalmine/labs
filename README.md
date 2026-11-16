@@ -71,6 +71,10 @@ El repositorio implementa un catálogo formal de metadatos ([`catalog.json`](lin
 
 👉 **Seguí la [Guía Paso a Paso para configurar tu Tutor Local de IA](ai/tutor/GUIA_PASO_A_PASO.md)**.
 
+Para entender cómo te ayuda un agente con los labs, seguí esta secuencia: [agentes, herramientas y protocolos](ai/tutor/AGENTES_Y_PROTOCOLOS_MCP.md) → [práctica MCP de 15 minutos con Claude Code, Codex o Antigravity](ai/tutor/PRACTICA_15_MIN_MCP.md) → [hub con varias fuentes](ai/tutor/GUIA_HUB_MCP.md).
+
+Docente: el estado de hitos y las instrucciones para retomar están en [el plan del Hub MCP](ai/tutor/hub/PLAN_DE_ACCION.md) y su [handover](ai/tutor/hub/TRASPASO.md).
+
 ---
 
 ## 🛠️ Cómo Ejecutar los Laboratorios Didácticos

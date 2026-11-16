@@ -109,6 +109,11 @@ paso "2.1 Presentarse: initialize"
 R=$(rpc "$URL" '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"yo","version":"1"}}}')
 NOMBRE=$(echo "$R" | jq_py 'd["result"]["serverInfo"]["name"]' 2>/dev/null)
 [ "$NOMBRE" = "linux-labs-tutor" ] && ok "el servidor se presenta como: $NOMBRE" || falla "initialize no devolvió serverInfo"
+echo '     MCP acuerda los mensajes; JSON-RPC nombra el método; HTTP los transporta.'
+echo '     El cliente confirma que terminó de inicializar (notificación sin id):'
+echo "     \$ curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' '$URL' -d '{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}'"
+CODIGO=$(codigo_http "$URL" '{"jsonrpc":"2.0","method":"notifications/initialized"}')
+[ "$CODIGO" = 202 ] && ok "notifications/initialized: HTTP 202 sin respuesta JSON-RPC" || falla "notificación devolvió HTTP $CODIGO"
 pausa
 
 paso "2.2 Pedir la lista de herramientas: tools/list"
@@ -116,6 +121,10 @@ R=$(rpc "$URL" '{"jsonrpc":"2.0","id":2,"method":"tools/list"}')
 echo "$R" | jq_py '"\n".join("     - " + t["name"] for t in d["result"]["tools"])' 2>/dev/null
 N=$(echo "$R" | jq_py 'len(d["result"]["tools"])' 2>/dev/null)
 [ "${N:-0}" -ge 6 ] && ok "$N herramientas disponibles" || falla "tools/list devolvió ${N:-0} herramientas"
+echo '     Una tool tiene nombre, descripción y esquema de argumentos. Ejemplo real:'
+echo '     De la respuesta tools/list anterior, seleccionamos get_lab_details:'
+echo "$R" | jq_py 'json.dumps(next(t for t in d["result"]["tools"] if t["name"] == "get_lab_details"), indent=2, ensure_ascii=False)' 2>/dev/null
+echo '     lab_id es obligatorio: el agente lo toma del resultado de una búsqueda.'
 pausa
 
 paso "2.3 Llamar a una herramienta: tools/call search_curriculum(query=RAID)"
@@ -131,6 +140,8 @@ CMD=$(python3 "$HUB" config claude-code | grep -m1 'claude mcp add')
 echo "     $CMD"
 [[ "$CMD" == *"$URL"* ]] && ok "hub.py config claude-code da el comando para conectar el agente" || falla "hub.py config claude-code no dio el comando esperado"
 echo "     (con un agente instalado: pegá ese comando y preguntale por los labs de RAID)"
+echo '     Para Codex y Antigravity: ver el paso 3 de PRACTICA_15_MIN_MCP.md.'
+echo '     Esta demo automática prueba MCP; la llamada desde el agente se observa a mano.'
 pausa
 python3 "$HUB" down labs >/dev/null
 
