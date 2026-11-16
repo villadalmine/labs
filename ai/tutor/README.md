@@ -123,6 +123,7 @@ flowchart LR
 | [**Clase 2**](#-clase-2-de-la-web-a-la-terminal-agentes-de-línea-de-comandos-clis-oficiales) | CLIs Oficiales de Consola | Principiante | Terminal de comandos + Git | Conectar la IA a tu repositorio para auditar scripts y aplicar cambios. |
 | [**Clase 3**](#-clase-3-la-ia-en-tu-editor-de-código-vs-code-jetbrains-y-frameworks) | Plugins de IDE y Frameworks | Intermedio | VS Code o JetBrains | Asistente integrado con autocompletado y agentes como Goose y Aider. |
 | [**Clase 4**](#-clase-4-anatomía-de-un-agente-y-protocolos-modernos-harness-mcp-gateways-y-hitl) | Agentes, Harness y Protocolos | Intermedio | Conceptos de sistemas | Entender el ciclo ReAct, sandboxes de contención, MCP, A2A y control humano. |
+| [**Clase 4 — ampliación**](AGENTES_Y_PROTOCOLOS_MCP.md) | Del pedido a la herramienta: agentes y protocolos | Intermedio | Leer JSON sencillo; sin cuenta de IA para la teoría | Distinguir modelo, host, cliente y servidor; leer una tool y seguir una llamada MCP sobre HTTP o stdio; diferenciar MCP, A2A y ACP. |
 | [**Clase 5**](#-clase-5-el-modelo-económico-tiers-gratuitos-vs-suscripciones-y-tokens) | Economía de Modelos (Free vs Paid) | Todos los niveles | Curiosidad sobre costes | Comprender tokens, ventanas de contexto, rate limits y facturación API. |
 | [**Clase 6**](#-clase-6-soberanía-técnica-modelos-locales-en-tu-cpu-y-ram-ollama-vllm-sglang) | Inferencia Local en CPU y RAM | Intermedio / SysAdmin | Computadora con 8 GB RAM | Correr modelos de lenguaje 100% offline sin tarjeta gráfica dedicada. |
 | [**Clase 7**](#-clase-7-proyecto-final-monta-tu-propio-ai-tutor-local-específico-y-socrático) | Proyecto Final: Tutor Soberano | Proyecto Integrador | Docker o Python + Ollama | Poner en marcha Open WebUI, RAG sobre los 24 labs y el servidor MCP del curso. |
@@ -260,6 +261,9 @@ La mayoría de los administradores y desarrolladores escriben sus scripts en un 
 ## 🤖 Clase 4: Anatomía de un Agente y Protocolos Modernos (Harness, MCP, Gateways y HITL)
 
 ### 🤔 ¿Qué es esto en palabras sencillas?
+
+Para trabajar este tema desde cero, seguí la unidad [**Agentes y protocolos: del pedido del alumno a una herramienta MCP**](AGENTES_Y_PROTOCOLOS_MCP.md). Tiene diagramas, un recorrido con los labs reales, ejercicios con respuestas y enlace a la práctica con Claude Code, Codex o Antigravity. Orden sugerido: **esa unidad → práctica de 15 minutos → hub Multi-MCP**.
+
 Aquí ocurre el salto conceptual más importante del curso: **comprender qué hace que un modelo de IA pase de ser un "loro que habla" a convertirse en un "Agente que actúa"**, y qué medidas de seguridad se requieren para que un agente no destruya un servidor de producción.
 
 <p align="center">
@@ -268,7 +272,7 @@ Aquí ocurre el salto conceptual más importante del curso: **comprender qué ha
 
 > [!NOTE] 🧠 Metáfora Biológica de la Arquitectura de un Agente
 > * **LLM = El Cerebro (*The Brain*):** Lee, escribe y razona. Es el motor fundacional, pero por sí solo no conoce los servidores ni los datos de tu empresa.
-> * **RAG = Cerebro + Biblioteca (*Brain + Library*):** Consulta la documentación y el código antes de responder. Basa sus conclusiones en datos reales verificados, eliminando las alucinaciones.
+> * **RAG = Cerebro + Biblioteca (*Brain + Library*):** Recupera documentación y código para aportar evidencia antes de responder. Reduce invenciones; todavía hay que comprobar las citas y la interpretación del modelo.
 > * **MCP = El Sistema Nervioso (*The Nervous System*):** El enchufe estándar de la industria que transporta señales entre el cerebro y tus herramientas o servicios locales.
 > * **Skills = Memoria Muscular (*Muscle Memory*):** Procedimientos, directivas y guías guardadas una sola vez y ejecutadas siempre de forma consistente sin tener que re-explicar la tarea.
 > * **AI Agent = Cerebro + Manos (*Brain + Hands*):** Planifica los pasos necesarios y luego los ejecuta activamente a través de tus herramientas de terminal y APIs.
@@ -323,8 +327,8 @@ flowchart TD
 2. **El [Harness (Arnés de Ejecución y Pruebas)](GLOSARIO.md#harness-entorno-de-ejecucion-evaluacion-y-sandbox):**  
    Es el andamiaje y entorno seguro donde se ejecuta el agente. El arnés aísla la ejecución en un contenedor o disco virtual temporal (*sandbox*) y ejecuta suites de pruebas automáticas (como los scripts `demo_*.sh` de cada laboratorio) para certificar matemáticamente si la tarea se cumplió con éxito.
 3. **Protocolos Abiertos ([MCP](GLOSARIO.md#mcp-model-context-protocol) y [A2A](GLOSARIO.md#a2a-agent-to-agent)):**  
-   * **MCP (Model Context Protocol):** Estándar de la industria para que el agente use herramientas locales (`tools`), lea documentación (`resources`) y cargue prompts de sistema sin atarse a ninguna empresa proveedora. En este curso, [`labs_mcp_server.py`](mcp/labs_mcp_server.py) es el servidor MCP oficial de los 24 laboratorios.
-   * **A2A (Agent-to-Agent):** Permite que un Agente Tutor planifique la clase y delegue la ejecución a un Agente Especialista en consola.
+   * **MCP (Model Context Protocol):** Contrato entre un cliente del host y un servidor para descubrir y usar capacidades externas. Puede exponer herramientas (`tools`), contenido por URI (`resources`) y plantillas (`prompts`); estas últimas no son automáticamente prompts de sistema. Nuestro [`labs_mcp_server.py`](mcp/labs_mcp_server.py) expone herramientas del catálogo, sin implementar resources ni prompts. Puede funcionar por stdio o HTTP, en local o con acceso remoto configurado.
+   * **A2A (Agent-to-Agent):** Protocolo de interoperabilidad entre agentes para intercambiar mensajes, tareas y resultados. La práctica del curso usa MCP; no implementa A2A, y no toda delegación entre agentes utiliza ese protocolo.
 4. **[LLM Routing](GLOSARIO.md#llm-routing-enrutamiento-dinamico-de-modelos) y [AI Gateways](GLOSARIO.md#ai-gateway-pasarela-de-modelos-y-proxies):**  
    * **Routing:** Un clasificador inteligente envía las preguntas sencillas a modelos pequeños y económicos (como `llama3.2:3b`), y reserva los modelos gigantes de razonamiento (como DeepSeek R1) para fallos complejos, ahorrando hasta un 80% de recursos.
    * **Gateways:** Proxies de red (como LiteLLM) que aportan caché (si dos alumnos preguntan lo mismo, responde al instante sin gastar cómputo) y conmutación por error (*failover* si un proveedor se cae).
@@ -534,7 +538,8 @@ python ai/tutor/mcp/labs_mcp_server.py
 | 📖 [**`GUIA_PASO_A_PASO.md`**](GUIA_PASO_A_PASO.md) | **Tutorial Maestro:** Instalación detallada de Ollama, Open WebUI, Goose CLI, VS Code y módulo de voz (Voice-to-Voice en CPU). |
 | ⚙️ [**`GUIA_OLLAMA_HARDWARE.md`**](GUIA_OLLAMA_HARDWARE.md) | **Hardware de Ollama:** Instalación multiplataforma, cómo decide Ollama usar CPU vs GPU/VRAM, comando `ollama ps` y forzar 100% CPU. |
 | 🧠 [**`INTEGRACION_STUDY_CYBERCIRUJAS.md`**](INTEGRACION_STUDY_CYBERCIRUJAS.md) | **Teoría Oficial de Certificaciones:** Conexión con 28 certificaciones internacionales (LPIC-1, CKA, etc.) vía MCP y RAG. |
-| ⏱️ [**`PRACTICA_15_MIN_MCP.md`**](PRACTICA_15_MIN_MCP.md) | **Práctica de 15 minutos:** levantar el MCP de los labs, hablarle a mano con `curl`, conectarle un agente y dos retos (herramientas ocultas y token). |
+| 🧭 [**`AGENTES_Y_PROTOCOLOS_MCP.md`**](AGENTES_Y_PROTOCOLOS_MCP.md) | **Antes de la práctica:** modelo, agente, host, cliente, servidor y tool; JSON-RPC, HTTP, stdio, MCP, A2A y ACP; diagramas, traza completa y ejercicios con respuestas. |
+| ⏱️ [**`PRACTICA_15_MIN_MCP.md`**](PRACTICA_15_MIN_MCP.md) | **Práctica de 15 minutos:** levantar el MCP, inspeccionar mensajes y esquemas con `curl`, conectar un cliente (incluye Claude Code, Codex y Antigravity) y probar herramientas ocultas y token. |
 | 🕸️ [**`GUIA_HUB_MCP.md`**](GUIA_HUB_MCP.md) | **Hub Multi-MCP:** levantar labs, study.cybercirujas, rag-tutor y oss-docs por HTTP, conectarlos a Open WebUI, VS Code, Cline, Goose y Claude Code, y compartirlos con los alumnos. |
 | 🗺️ [**`hub/PLAN_DE_ACCION.md`**](hub/PLAN_DE_ACCION.md) | **Estado del hub para el docente:** qué está probado, qué cliente funciona, decisiones tomadas (modelo del tutor, oss-docs público), qué falta y quién lo hace. Punto de entrada para retomar el trabajo. |
 | 🎛️ [**`hub/hub.py`**](hub/hub.py) | **Comando del hub:** `doctor`, `setup`, `up`, `verify`, `config`, `webui`. El manifiesto es [`hub/hub.json`](hub/hub.json). |
