@@ -16,7 +16,7 @@ tags: [traspaso, hitos, mcp, goose, clases]
 ## Para retomar en la próxima sesión
 
 1. Abrir `/var/home/dalmine/Nextcloud/Repos/labs`, rama `main`; leer primero este archivo y luego `ai/tutor/hub/PLAN_DE_ACCION.md`.
-2. Ejecutar `git status --short` y conservar los cambios locales. No hacer commit ni push como parte del traspaso. El PDF `linux/materials/Arquitecturas_de_Respaldo_en_Linux.pdf` aparece sin seguimiento, es anterior a este trabajo y debe quedar fuera.
+2. Ejecutar `git status --short`. Esta entrega está mergeada en `main` (PR #27, 2026-11-16); los cambios futuros van por rama y PR. El PDF `linux/materials/Arquitecturas_de_Respaldo_en_Linux.pdf` aparece sin seguimiento, es anterior a este trabajo y debe quedar fuera.
 3. No repetir H01–H04 ni el alta de cuentas/credenciales. H04 está cerrado y su evidencia está abajo.
 4. Continuar solo cuando llegue el evento requerido para cada pendiente:
    - **H05:** sesión interactiva real de VS Code con Copilot disponible.
@@ -28,7 +28,7 @@ No dejar sondeos o repeticiones en loop. Si no aparece el evento, conservar el h
 
 ## Qué leer y dónde trabajar
 
-- Repo de clases: `/var/home/dalmine/Nextcloud/Repos/labs`, rama main, sin commit ni push de estos cambios.
+- Repo de clases: `/var/home/dalmine/Nextcloud/Repos/labs`, rama main; entrega mergeada en PR #27.
 - Homelab: `/var/home/dalmine/Nextcloud/Cursos/AI-LEARNING`, sin Git. Leer su AGENTS.md y handover global antes de operar; esta sesión es la dueña de chat-ia, otras sesiones trabajan otros stacks.
 - Skills operativas: chat-ia, servidor-t7910, infra-como-codigo. Runbook: homelab `docs/runbooks/chat-ia-pruebas-identidad.md`.
 - El usuario autorizó continuar lo pendiente y pidió hitos finitos y traspaso. La sesión actual está con acceso completo y aprobaciones never; otra sesión puede tener otro perfil. Última revisión de H06 el 2026-11-16; la evidencia no reproduce el pico.
@@ -112,7 +112,7 @@ No se programaron reintentos ni chequeos perpetuos. El experimento de modelos si
 
 ## Repo y archivos de esta entrega
 
-Repo `/var/home/dalmine/Nextcloud/Repos/labs`, rama `main`. Todo sigue como cambios locales sin commit ni push.
+Repo `/var/home/dalmine/Nextcloud/Repos/labs`, rama `main`. Entrega mergeada en `main` por el PR #27 (2026-11-16).
 
 Archivos modificados por el trabajo del Hub MCP:
 
@@ -129,4 +129,4 @@ Archivos modificados por el trabajo del Hub MCP:
 
 La evidencia H04/H06 fuera del repo está en `/home/dalmine/.local/state/chat-ia-h04-20261115/`. La captura más reciente de H06 es `resultados/h06-ssh-20261116.json`, permisos 600. Los logs remotos de Goose están en `/var/lib/chat-ia/pruebas/` en el Dell, permisos root 600.
 
-Texto para transferir a otro chat: «Leé `/var/home/dalmine/Nextcloud/Repos/labs/ai/tutor/hub/TRASPASO.md` y después `PLAN_DE_ACCION.md`. Conservá los cambios locales de `main`; no agregues el PDF sin seguimiento, no hagas commit/push. Estado 4/7: H04 Goose está cerrado; quedan H05 sesión VS Code/Copilot, H06 reproducir y explicar retraso SSH pam_systemd/logind bajo carga comparable, H07 clase real con alumno. No repitas hitos cerrados ni dejes reintentos en loop».
+Texto para transferir a otro chat: «Leé `/var/home/dalmine/Nextcloud/Repos/labs/ai/tutor/hub/TRASPASO.md` y después `PLAN_DE_ACCION.md`. La entrega está en `main` (PR #27); no agregues el PDF sin seguimiento. Estado 4/7: H04 Goose está cerrado; quedan H05 sesión VS Code/Copilot, H06 reproducir y explicar retraso SSH pam_systemd/logind bajo carga comparable, H07 clase real con alumno. No repitas hitos cerrados ni dejes reintentos en loop».
