@@ -253,7 +253,7 @@ python3 ai/tutor/hub/hub.py config openwebui --compact --show-token
 
 ```bash
 mkdir -p .vscode
-python3 ai/tutor/hub/hub.py config vscode > .vscode/mcp.json
+python3 ai/tutor/hub/hub.py config vscode --write   # suma los MCP a .vscode/mcp.json, conserva el resto y deja .bak
 ```
 
 VS Code detecta el archivo y ofrece iniciar los servidores; las herramientas aparecen en el modo agente del chat. Si el hub tiene token, el archivo **no lo contiene**: VS Code lo pide una vez y lo guarda en su almacén de secretos.

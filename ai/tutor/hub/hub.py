@@ -15,6 +15,7 @@ Uso rápido:
     python3 ai/tutor/hub/hub.py webui up        # Open WebUI con todos los MCP conectados
     python3 ai/tutor/hub/hub.py webui agent     # modelo 'Tutor del Hub' con los MCP + prompt
     python3 ai/tutor/hub/hub.py config vscode   # config lista para pegar
+    python3 ai/tutor/hub/hub.py config vscode --write   # o escribirla en .vscode/mcp.json
     python3 ai/tutor/hub/hub.py down            # bajar todo
 
 Configuración: variables de entorno o el archivo ai/tutor/hub/hub.env (ver hub.env.example).
@@ -593,6 +594,33 @@ def token_inputs(servers):
     return mapping, list(by_token.values())
 
 
+def merge_vscode_config(existing, generated):
+    """Suma los servidores e inputs del hub a un mcp.json de VS Code sin tocar el resto."""
+    merged = dict(existing)
+    merged["servers"] = {**existing.get("servers", {}), **generated["servers"]}
+    if generated.get("inputs"):
+        ids = {i["id"] for i in generated["inputs"]}
+        merged["inputs"] = [i for i in existing.get("inputs", []) if i.get("id") not in ids] + generated["inputs"]
+    return merged
+
+
+def write_vscode_config(path, generated):
+    path = Path(path)
+    existing = {}
+    if path.exists():
+        try:
+            existing = json.loads(path.read_text(encoding="utf-8") or "{}")
+        except json.JSONDecodeError as exc:
+            die(f"{path} no es JSON válido ({exc}); no lo toco. Si tiene comentarios, sacalos o pegá la salida a mano.")
+        backup = path.with_name(path.name + ".bak")
+        backup.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+        say(f"copia previa: {backup}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(merge_vscode_config(existing, generated), ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8")
+    say(f"listo: {path} con {', '.join(generated['servers'])}. En VS Code: Chat en modo Agent -> herramientas -> ver los MCP.")
+
+
 def cmd_config(settings, args):
     servers = load_servers(settings, args.ids)
     host = args.host
@@ -618,7 +646,10 @@ def cmd_config(settings, args):
         if inputs:
             doc["inputs"] = [{"type": "promptString", "id": i, "description": "Token del hub MCP",
                               "password": True} for i in inputs]
-        say(json.dumps(doc, ensure_ascii=False, indent=2))
+        if args.write:
+            write_vscode_config(args.write, doc)
+        else:
+            say(json.dumps(doc, ensure_ascii=False, indent=2))
     elif args.client == "cline":
         doc = {"mcpServers": {}}
         for srv in servers:
@@ -879,6 +910,8 @@ def main(argv=None):
     config.add_argument("--host", help="host con el que el cliente llega al hub (default: HUB_PUBLIC_HOST)")
     config.add_argument("--show-token", action="store_true", help="escribir el token real en la salida")
     config.add_argument("--compact", action="store_true", help="[openwebui] JSON en una sola línea")
+    config.add_argument("--write", nargs="?", const=".vscode/mcp.json", metavar="ARCHIVO",
+                        help="[vscode] sumar los MCP a ARCHIVO (default .vscode/mcp.json) conservando lo que ya tiene")
     config.set_defaults(fn=cmd_config)
 
     corpus = sub.add_parser("corpus", help="indexar los labs de este repo como libro de ejemplo de rag-tutor")
