@@ -183,7 +183,7 @@ python3 ai/tutor/hub/hub.py config claude-code   # también: vscode, cline, goos
   ```bash
   gemini mcp add --transport http labs http://127.0.0.1:8091/mcp
   ```
-- **VS Code con Copilot** (no probado en clase todavía): guardá lo que imprime `hub.py config vscode` en `.vscode/mcp.json`.
+- **VS Code con Copilot** (no probado en clase todavía): `python3 ai/tutor/hub/hub.py config vscode --write` suma los MCP a `.vscode/mcp.json` (conserva lo que ya tenía y deja copia `.bak`).
 
 El comando o la configuración solo registran la conexión. Abrí el chat o sesión del cliente y preguntale:
 

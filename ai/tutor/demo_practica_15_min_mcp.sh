@@ -27,10 +27,11 @@ CLEAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --auto) AUTO_MODE=true; AUTO_WAIT="${2:-2}"; shift 2 ;;
+        --auto) AUTO_MODE=true; AUTO_WAIT=2; shift
+                if [[ "${1:-}" =~ ^[0-9]+$ ]]; then AUTO_WAIT="$1"; shift; fi ;;
         --clean|--limpiar) CLEAN_ONLY=true; shift ;;
         --help|-h)
-            echo "Uso: ./ai/tutor/demo_practica_15_min_mcp.sh [--auto <segundos>] [--clean|--limpiar]"
+            echo "Uso: ./ai/tutor/demo_practica_15_min_mcp.sh [--auto [segundos]] [--clean|--limpiar]"
             exit 0 ;;
         *) echo "Opción desconocida: $1 (ver --help)"; exit 2 ;;
     esac

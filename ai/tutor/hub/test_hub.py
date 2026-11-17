@@ -245,6 +245,25 @@ class CorpusCommandTest(unittest.TestCase):
         self.assertIn("hub.py setup rag-tutor", proc.stdout + proc.stderr)
 
 
+class VscodeMergeTest(unittest.TestCase):
+    def test_merge_keeps_existing_servers_and_inputs(self):
+        existing = {"servers": {"github": {"type": "http", "url": "https://x"}, "labs": {"url": "viejo"}},
+                    "inputs": [{"id": "gh-token"}, {"id": "hub-token", "description": "viejo"}],
+                    "otra": 1}
+        generated = {"servers": {"labs": {"type": "http", "url": "http://h:8000/mcp"}},
+                     "inputs": [{"id": "hub-token", "description": "nuevo"}]}
+        merged = hub.merge_vscode_config(existing, generated)
+        self.assertEqual(merged["servers"]["github"], existing["servers"]["github"])
+        self.assertEqual(merged["servers"]["labs"]["url"], "http://h:8000/mcp")
+        self.assertEqual([i["id"] for i in merged["inputs"]], ["gh-token", "hub-token"])
+        self.assertEqual(merged["inputs"][1]["description"], "nuevo")
+        self.assertEqual(merged["otra"], 1)
+
+    def test_merge_into_empty_file(self):
+        merged = hub.merge_vscode_config({}, {"servers": {"labs": {"url": "u"}}})
+        self.assertEqual(merged, {"servers": {"labs": {"url": "u"}}})
+
+
 class ManifestTest(unittest.TestCase):
     def test_manifest_is_consistent(self):
         manifest = json.loads((HUB_DIR / "hub.json").read_text(encoding="utf-8"))
