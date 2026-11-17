@@ -11,7 +11,7 @@ tags: [traspaso, hitos, mcp, goose, clases]
 
 # Traspaso — MCP Hub y práctica de clase (actualizado 2026-11-16)
 
-**Estado: 4/7 hitos cerrados. La ampliación didáctica D01–D03 está terminada (3/3).** H04 está cerrado por identidad técnica y llamadas Goose reales. El verificador completo conserva un fallo de Open WebUI sin tools. No declarar la entrega total hasta cerrar H05–H07 y registrar la fecha. Plan y aceptación: [PLAN_DE_ACCION.md](PLAN_DE_ACCION.md).
+**Estado: 5/7 hitos cerrados (H06 el 2026-11-17). La ampliación didáctica D01–D03 está terminada (3/3).** H04 está cerrado por identidad técnica y llamadas Goose reales. El verificador completo conserva un fallo de Open WebUI sin tools. No declarar la entrega total hasta cerrar H05 y H07 y registrar la fecha. Plan y aceptación: [PLAN_DE_ACCION.md](PLAN_DE_ACCION.md).
 
 ## Para retomar en la próxima sesión
 
@@ -20,7 +20,6 @@ tags: [traspaso, hitos, mcp, goose, clases]
 3. No repetir H01–H04 ni el alta de cuentas/credenciales. H04 está cerrado y su evidencia está abajo.
 4. Continuar solo cuando llegue el evento requerido para cada pendiente:
    - **H05:** sesión interactiva real de VS Code con Copilot disponible.
-   - **H06:** pico natural comparable al incidente, para tomar tiempos/PSI/journal juntos.
    - **H07:** clase con un alumno disponible.
 5. Cuando H05–H07 cumplan su aceptación, actualizar las filas de `PLAN_DE_ACCION.md`, escribir fecha de cierre total y actualizar este handover. No añadir hitos nuevos a esta entrega.
 
@@ -31,7 +30,7 @@ No dejar sondeos o repeticiones en loop. Si no aparece el evento, conservar el h
 - Repo de clases: `/var/home/dalmine/Nextcloud/Repos/labs`, rama main; entrega mergeada en PR #27.
 - Homelab: `/var/home/dalmine/Nextcloud/Cursos/AI-LEARNING`, sin Git. Leer su AGENTS.md y handover global antes de operar; esta sesión es la dueña de chat-ia, otras sesiones trabajan otros stacks.
 - Skills operativas: chat-ia, servidor-t7910, infra-como-codigo. Runbook: homelab `docs/runbooks/chat-ia-pruebas-identidad.md`.
-- El usuario autorizó continuar lo pendiente y pidió hitos finitos y traspaso. La sesión actual está con acceso completo y aprobaciones never; otra sesión puede tener otro perfil. Última revisión de H06 el 2026-11-16; la evidencia no reproduce el pico.
+- El usuario autorizó continuar lo pendiente y pidió hitos finitos y traspaso. La sesión actual está con acceso completo y aprobaciones never; otra sesión puede tener otro perfil. H06 cerrado el 2026-11-17 (causa: ráfagas de daemon-reload; arreglo en dell-base 1.2.0).
 
 ## Hitos cerrados
 
@@ -105,7 +104,7 @@ No reejecutar auxiliares históricos de /tmp/labs-h04-stage ni finalizar.py: que
 | Hito | Próxima acción y dependencia |
 | :--- | :--- |
 | H05 | En una máquina con VS Code y Copilot, correr `python3 ai/tutor/hub/hub.py config vscode --write` (suma los MCP a `.vscode/mcp.json`, conserva lo existente y deja `.bak`). En la sesión interactiva, confirmar que aparece el MCP, llamar `search_curriculum` y guardar versión/fecha/resultado. No hay code/codium ni sesión Copilot en este entorno; generar JSON solo no cierra el hito. |
-| H06 | **Pendiente.** El journal del 14/11 sitúa un retraso en apertura/registro de sesión: clave aceptada 11:18:07, `pam_unix` abre 11:18:53, logind registra 11:19:46; el stack contiene `pam_systemd.so`. La pista apunta a pam_systemd/logind, pero no explica qué lo demoró. No había PSI histórico ni alertas de kernel/OOM. El 16/11, con carga menor, tres SSH nuevas abrieron en 0,204/0,232/0,254 s. Antecedente: load 36 y PSI I/O full avg10=10; no reproducido. En un pico natural comparable, medir fase de autenticación/apertura con `ssh -vvv -o ControlMaster=no -o ControlPath=none`, tomar PSI de `/proc/pressure/{cpu,io,memory}` y journal de sshd/logind/systemd en la misma ventana. Sin pesos, reinicios ni VMs hasta tener causa. Evidencia: `/home/dalmine/.local/state/chat-ia-h04-20261115/resultados/h06-ssh-20261116.json`. |
+| H06 | **Cerrado 2026-11-17.** Causa: ráfagas de `daemon-reload` desde instaladores por SSH bloqueaban PID1 y logind. Arreglo en homelab `stacks/dell-base` 1.2.0 (envoltorio `/usr/local/sbin/systemctl` que omite recargas sin cambios; runbook `docs/runbooks/dell-recarga-systemd.md`). Verificado: 10 recargas → 0 reales, SSH nuevo 0,18-0,27 s. Si una unit editada no toma: `journalctl -t recarga-systemd`; forzar con `sudo /usr/bin/systemctl daemon-reload`. |
 | H07 | Plantilla lista: [REGISTRO_CLASE.md](REGISTRO_CLASE.md). En una clase real, un alumno sigue `../PRACTICA_15_MIN_MCP.md` con un cliente compatible, observa una llamada real y completa los dos retos. Registrar fecha, cliente/versión, duración, resultado de cada reto y bloqueos. La demo automatizada no sustituye a esta sesión. |
 
 No se programaron reintentos ni chequeos perpetuos. El experimento de modelos sigue siendo opcional posterior; si el problema impide completar la práctica real, registrarlo en H07. Conservar el fallo completo de Open WebUI como limitación conocida.
@@ -129,4 +128,4 @@ Archivos modificados por el trabajo del Hub MCP:
 
 La evidencia H04/H06 fuera del repo está en `/home/dalmine/.local/state/chat-ia-h04-20261115/`. La captura más reciente de H06 es `resultados/h06-ssh-20261116.json`, permisos 600. Los logs remotos de Goose están en `/var/lib/chat-ia/pruebas/` en el Dell, permisos root 600.
 
-Texto para transferir a otro chat: «Leé `/var/home/dalmine/Nextcloud/Repos/labs/ai/tutor/hub/TRASPASO.md` y después `PLAN_DE_ACCION.md`. La entrega está en `main` (PR #27); no agregues el PDF sin seguimiento. Estado 4/7: H04 Goose está cerrado; quedan H05 sesión VS Code/Copilot, H06 reproducir y explicar retraso SSH pam_systemd/logind bajo carga comparable, H07 clase real con alumno. No repitas hitos cerrados ni dejes reintentos en loop».
+Texto para transferir a otro chat: «Leé `/var/home/dalmine/Nextcloud/Repos/labs/ai/tutor/hub/TRASPASO.md` y después `PLAN_DE_ACCION.md`. La entrega está en `main` (PR #27); no agregues el PDF sin seguimiento. Estado 5/7: H04 y H06 cerrados; quedan H05 sesión VS Code/Copilot (`hub.py config vscode --write`) y H07 clase real con alumno (`REGISTRO_CLASE.md`). No repitas hitos cerrados ni dejes reintentos en loop».
