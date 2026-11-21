@@ -1,7 +1,7 @@
 {
   "$schema": "./metadata.schema.json",
   "version": "1.0.0",
-  "total_labs": 52,
+  "total_labs": 69,
   "updated_at": "2026-10-17T12:00:00Z",
   "labs": [
     {
@@ -689,6 +689,380 @@
       ]
     },
     {
+      "id": "lab-1.6-kernel-arquitectura-historia",
+      "title": "Kernel Linux: Historia (0.01 a 7.2), Arquitectura Interna, Distros Inmutables (OSTree), Cloud/Edge y Canales de Administración",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales, Diagnóstico del Kernel & Hardware",
+      "section": "1.6",
+      "sections": [
+        "1.6",
+        "1"
+      ],
+      "category": "fundamentals",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "kernel",
+        "linux",
+        "historia",
+        "monolitico",
+        "micronucleo",
+        "ring0",
+        "ostree",
+        "bootc",
+        "inmutable",
+        "cloud",
+        "aws",
+        "firecracker",
+        "azure",
+        "wsl2",
+        "gcp",
+        "edge",
+        "iot",
+        "zephyr",
+        "lkm",
+        "sysfs",
+        "sysctl",
+        "ebpf"
+      ],
+      "tools": [
+        "uname",
+        "dmesg",
+        "lsmod",
+        "modinfo",
+        "sysctl",
+        "rpm-ostree",
+        "bootc",
+        "strace",
+        "bpftool"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Comandos de inspección de kernel, /boot, LKM, sysfs, sysctl y eBPF validados sobre kernel real 6.8.0-151-generic y enlazados con los 6 labs prácticos 1.7-3.25."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Guía maestra teórica contrastada contra entorno inmutable Fedora Atomic 44 (OSTree/BLS, kernel 7.2.11), comandos de kernel y arquitectura Cloud/Edge."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Validada compatibilidad de comandos de inspección, arquitectura Hyper-V/WSL2 y puente hacia los laboratorios prácticos 1.7-3.25."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS / Amazon Linux 2023",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Referencia validada para kernels cloud (Nitro ENA/NVMe, Firecracker, Bottlerocket) y rutas prácticas posteriores."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 44 (Sway Atomic)",
+        "Ubuntu 24.04 LTS",
+        "Amazon Linux 2023"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía maestra integral sobre el Kernel Linux orientada tanto a principiantes como a administradores de sistemas (SysAdmin/SRE). Recorre la historia completa desde la versión 0.01 (1991) hasta 7.2 (2026) incluyendo el debate Linus Torvalds vs. Andrew Tanenbaum, el sitio oficial kernel.org y las tendencias futuras (Rust estable, sched_ext, PREEMPT_RT, EEVDF, io_uring, eBPF). Explica los modelos monolítico modular, micronúcleo e híbrido, el funcionamiento en Ring 0 vs. Ring 3, llamadas al sistema, interrupciones y los cinco subsistemas clave. Compara sabores de kernel por distribución clásica frente a sistemas inmutables basados en OSTree, rpm-ostree y bootc. Detalla cómo AWS, Azure, GCP y entornos Edge/IoT/microcontroladores (Yocto, Buildroot, Device Tree, Zephyr RTOS) implementan el kernel, y presenta los 6 canales operativos que conectan esta teoría con los laboratorios prácticos 1.7 a 3.25.",
+      "files": {
+        "guide": "kernel/kernel_arquitectura_historia_guia_maestra.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.5-deteccion-hardware"
+      ],
+      "next_recommended_labs": [
+        "lab-1.7-kernel-modulos-lkm-blacklists",
+        "lab-1.8-kernel-sysfs-proc-sysctl",
+        "lab-2.7-kernel-actualizacion-rollback-livepatch",
+        "lab-3.29-virtualizacion-contenedores-cloud-hpc-teoria"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-1.7-kernel-modulos-lkm-blacklists",
+      "title": "Anatomía de /boot, Gestión de Módulos LKM (lsmod, modprobe, depmod) y Listas Negras (Blacklists & Hardening USB)",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales, Diagnóstico del Kernel & Hardware",
+      "section": "1.7",
+      "sections": [
+        "1.7",
+        "1"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "boot",
+        "vmlinuz",
+        "initramfs",
+        "bls",
+        "ostree",
+        "lkm",
+        "modulos",
+        "lsmod",
+        "modprobe",
+        "modinfo",
+        "depmod",
+        "blacklist",
+        "usb",
+        "hardening"
+      ],
+      "tools": [
+        "ls",
+        "uname",
+        "lsmod",
+        "modinfo",
+        "modprobe",
+        "insmod",
+        "rmmod",
+        "depmod",
+        "dmesg",
+        "journalctl",
+        "lspci",
+        "update-initramfs",
+        "dracut"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_modulos_blacklists.sh --auto 0 y limpiar_modulos_blacklists.sh sobre kernel real 6.8.0-151-generic; validados /boot, modinfo/lsmod/lspci -k, carga/descarga de dummy y diferencia real entre blacklist e install /bin/false."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Verificados directorios /boot, BLS (/boot/loader/entries), /etc/modprobe.d y /usr/lib/modprobe.d."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Comandos de auditoría de módulos y /etc/modprobe.d compatibles."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con instancias Nitro EC2 y kernels estándar de distribución."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Fedora Linux 44 (Sway Atomic)",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico e interactivo sobre la anatomía del directorio /boot, gestión dinámica de módulos cargables del kernel (LKM) y listas negras (blacklists) en Linux. Resuelve paso a paso cómo listar todos los kernels instalados en /boot (formato clásico vmlinuz, Boot Loader Specification BLS y despliegues OSTree), auditar módulos activos con lsmod, modinfo y lspci -k, identificar módulos en lista negra con modprobe --showconfig, solucionar fallos causados por drivers incompatibles descargándolos con modprobe -r y bloqueando su carga al inicio en /etc/modprobe.d/. Explica la diferencia crítica entre blacklist e install /bin/false, la regeneración obligatoria de initramfs, cómo bloquear almacenamiento USB (usb-storage/uas) sin deshabilitar teclados (usbhid) y el endurecimiento CIS de módulos.",
+      "files": {
+        "guide": "kernel/modulos_lkm_blacklists_boot.md",
+        "script": "kernel/demo_modulos_blacklists.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.6-kernel-arquitectura-historia"
+      ],
+      "next_recommended_labs": [
+        "lab-1.8-kernel-sysfs-proc-sysctl",
+        "lab-2.7-kernel-actualizacion-rollback-livepatch"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-1.8-kernel-sysfs-proc-sysctl",
+      "title": "Estructura de sysfs (/sys), procfs (/proc) y Ajuste en Caliente del Kernel con sysctl",
+      "difficulty_level": 1,
+      "difficulty_label": "Nivel 1: Procesos, Señales, Terminales, Diagnóstico del Kernel & Hardware",
+      "section": "1.8",
+      "sections": [
+        "1.8",
+        "1"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "sysfs",
+        "procfs",
+        "sysctl",
+        "udev",
+        "tuning",
+        "red",
+        "tcp",
+        "bbr",
+        "memoria",
+        "swappiness",
+        "seguridad",
+        "inotify"
+      ],
+      "tools": [
+        "sysctl",
+        "udevadm",
+        "ls",
+        "cat",
+        "readlink",
+        "ip",
+        "mount",
+        "find"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_sysfs_sysctl.sh --auto 0 y limpiar_sysfs_sysctl.sh sobre kernel real 6.8.0-151-generic; validados /sys, sysctl -w/-p, /etc/sysctl.d/99-*, restauración de valores y aislamiento ip netns."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Verificada estructura de /sys, /proc/sys y comandos sysctl contra kernel 7.2.11."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con /sys, /proc/sys y network namespaces (ip netns)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Parámetros de red, VM e inotify aplicables en instancias cloud de producción."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Fedora Linux 44 (Sway Atomic)",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico sobre cómo un administrador de sistemas interactúa diariamente con el kernel Linux mediante los pseudo-sistemas de archivos sysfs (/sys) y procfs (/proc), y el comando sysctl (/proc/sys). Detalla la diferencia entre /proc, /sys y /dev (udev), mapea los 8 directorios principales de /sys (/sys/block, bus, class, devices, fs, kernel, module, power) y enseña a inspeccionar drivers de red, colas I/O de disco, gobernadores de CPU y parámetros de módulos. Cubre el funcionamiento de sysctl (-a, -w, -p, --system), la precedencia en /etc/sysctl.d/99-*.conf y los parámetros críticos reales de producción en cuatro dominios: Red/TCP (BBR, ip_forward, somaxconn, syncookies, rp_filter), Memoria (swappiness, dirty_ratio, max_map_count), Seguridad (kptr_restrict, dmesg_restrict, ASLR) y Límites (file-max, inotify).",
+      "files": {
+        "guide": "kernel/sysfs_proc_sysctl_tuning.md",
+        "script": "kernel/demo_sysfs_sysctl.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.7-kernel-modulos-lkm-blacklists"
+      ],
+      "next_recommended_labs": [
+        "lab-2.7-kernel-actualizacion-rollback-livepatch",
+        "lab-3.23-kernel-lkm-compilacion-firmware",
+        "lab-3.25-kernel-seguridad-ataques-ebpf"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-2.0-automatizacion-arquitecturas-comparativa",
       "title": "Arquitecturas de Automatización y Planificación en Linux: Cron, Anacron, at, Systemd Timers y Sincronización NTP (Chrony)",
       "difficulty_level": 2,
@@ -1363,6 +1737,132 @@
       "next_recommended_labs": [
         "lab-3.5-borg-systemd-timers",
         "lab-3.6-monitoreo-metricas"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-2.7-kernel-actualizacion-rollback-livepatch",
+      "title": "Plan de Actualización Continua del Kernel en 8 Pasos: DKMS, Rollback (GRUB2/BLS y OSTree), Livepatching y Automatización Segura",
+      "difficulty_level": 2,
+      "difficulty_label": "Nivel 2: Supervisión, Automatización, Planificación y Gobernanza Moderna",
+      "section": "2.7",
+      "sections": [
+        "2.7",
+        "2"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "actualizacion",
+        "update",
+        "rollback",
+        "grub2",
+        "bls",
+        "ostree",
+        "bootc",
+        "livepatch",
+        "kpatch",
+        "kexec",
+        "dkms",
+        "needrestart",
+        "unattended-upgrades",
+        "dnf-automatic"
+      ],
+      "tools": [
+        "uname",
+        "apt",
+        "dnf",
+        "rpm-ostree",
+        "bootc",
+        "dmesg",
+        "systemctl",
+        "grubby",
+        "needrestart",
+        "dkms",
+        "kpatch"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_actualizacion_kernel.sh --auto 0 y limpiar_actualizacion_kernel.sh sobre kernel real 6.8.0-151-generic; validados inventario /boot, backup pre-update, /sys/kernel/livepatch, smoke-test post-reboot y plantillas timer."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Comprobada coexistencia de despliegues atómicos OSTree/BLS y verificación de estado de kernel en producción."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Runbook de respaldo pre-update y smoke test post-reboot validados en familia Debian/Ubuntu."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS / Rocky Linux 10",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Estrategia apt/dnf/unattended-upgrades y manejo de rollback GRUB2/BLS validado para instancias EC2."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Fedora Linux 44 (Sway Atomic)",
+        "Rocky Linux 10",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico y runbook operativo SRE sobre el ciclo de actualización continua del Kernel Linux en 8 pasos. Cubre desde la vigilancia de boletines de seguridad (USN, RHSA, DSA, kernel.org) y copias de seguridad pre-update (LVM/Btrfs/EBS + respaldo de configs) hasta la verificación de compatibilidad DKMS/kABI, estrategias de rollback multi-distro (apt, dnf installonly_limit, grubby, rpm-ostree y bootc atómicos A/B), actualización sin reinicio con Livepatching (kpatch, Canonical Livepatch, /sys/kernel/livepatch) y kexec, smoke tests automáticos post-reinicio y automatización segura mediante unattended-upgrades, dnf-automatic y Systemd Timers evitando reboots no coordinados en producción.",
+      "files": {
+        "guide": "kernel/actualizacion_kernel_rollback_livepatch.md",
+        "script": "kernel/demo_actualizacion_kernel.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.7-kernel-modulos-lkm-blacklists",
+        "lab-1.8-kernel-sysfs-proc-sysctl",
+        "lab-2.6-systemd-timers-vs-cron-chrony"
+      ],
+      "next_recommended_labs": [
+        "lab-3.23-kernel-lkm-compilacion-firmware",
+        "lab-3.24-kernel-compilacion-gentoo-initramfs"
       ],
       "mcp_tools": [
         "linux-labs-tutor",
@@ -2230,6 +2730,366 @@
       ]
     },
     {
+      "id": "lab-3.18-logs-arquitecturas-teoria-maestra",
+      "title": "Gestión de Logs en Linux: De Syslog Clásico y Journald a Arquitecturas Distribuidas HA y AI SRE",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Logs y Monitoreo",
+      "section": "3.18",
+      "sections": [
+        "3.18",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "observability",
+        "logs",
+        "syslog",
+        "rsyslog",
+        "journald",
+        "journalctl",
+        "dmesg",
+        "logrotate",
+        "rfc5424",
+        "elk",
+        "loki",
+        "splunk",
+        "kafka",
+        "opentelemetry",
+        "siem",
+        "ai-sre",
+        "arquitectura",
+        "comparativa"
+      ],
+      "tools": [
+        "dmesg",
+        "logger",
+        "journalctl",
+        "rsyslogd",
+        "logrotate",
+        "systemctl",
+        "grep",
+        "awk",
+        "jq",
+        "chronyc"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-ubuntu24:test (Ubuntu 24.04.5 LTS + systemd 255 + rsyslog 8.2312.0)",
+          "os": "Ubuntu 24.04.5 LTS (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Guía teórica maestra y comandos verificados en Ubuntu 24.04.5 LTS y Fedora 41 (dmesg, logger, systemd-journald, journalctl, rsyslog con AppArmor y logrotate)."
+        },
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-systemd:test (Fedora 41 + systemd 256 + rsyslog)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Guía teórica maestra verificada contra comandos reales de dmesg, logger, systemd-journald, journalctl, rsyslog y logrotate."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Debian 12",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Referencia cruzada de rutas Debian/Ubuntu (/var/log/syslog, auth.log) y RHEL/Fedora (/var/log/messages, secure)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Arquitectura válida para despliegues standalone, hub-and-spoke TLS y pipelines centralizados HA con Kafka/Loki/ELK."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Debian 12",
+        "Fedora Linux 41"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía teórica maestra de gestión de registros (logs) en Linux, desde la anatomía atómica del sistema hasta arquitecturas empresariales distribuidas de alta disponibilidad y consumo por Inteligencia Artificial (AI SRE). Recorre la evolución histórica desde archivos ad-hoc de los años 70 y BSD syslogd (RFC 3164) hasta rsyslog (RFC 5424, RainerScript, TLS, RELP y Disk-Assisted Queues), systemd-journald (diario binario indexado, metadatos confiables, FSS) y pipelines modernos OTLP/Kafka. Profundiza en los 8 niveles de severidad (0 emerg a 7 debug), facilities (kern, auth, mail, cron, local0-7), cálculo PRI, geografía de /var/log en Debian y RHEL, rotación con logrotate, uso forense de dmesg, configuración y troubleshooting con journalctl y rsyslog. Incluye comparativa de 14 herramientas y productos del mercado (ELK/OpenSearch, Grafana Loki, Splunk, Fluent Bit, Vector, Graylog, ClickHouse, Wazuh, Datadog), topologías standalone, centralizadas, descentralizadas, HA con colas de eventos, integración multi-ambiente y el pipeline moderno hacia AI SRE y MCP (clustering Drain3, sanitización PII, NL-to-Query y defensa contra prompt injection en logs).",
+      "files": {
+        "guide": "logs/logs_arquitecturas_teoria.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-2.6-systemd-timers-vs-cron-chrony",
+        "lab-3.3-fundamentos-criptografia-llaves"
+      ],
+      "next_recommended_labs": [
+        "lab-3.19-logs-fundamentos-varlog-dmesg-severities",
+        "lab-3.20-journald-journalctl-troubleshooting-forense",
+        "lab-3.21-rsyslog-filtrado-plantillas-tls-colas",
+        "lab-3.22-logging-centralizado-estructurado-ai-sre"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.19-logs-fundamentos-varlog-dmesg-severities",
+      "title": "Fundamentos de Logs en Linux: /var/log, Severities, Facilities, dmesg, Inodos Abiertos y logrotate",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Logs y Monitoreo",
+      "section": "3.19",
+      "sections": [
+        "3.19",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "observability",
+        "logs",
+        "syslog",
+        "varlog",
+        "dmesg",
+        "logger",
+        "logrotate",
+        "severities",
+        "facilities",
+        "lsof",
+        "forensics"
+      ],
+      "tools": [
+        "logger",
+        "systemd-cat",
+        "journalctl",
+        "dmesg",
+        "logrotate",
+        "lsof",
+        "last",
+        "lastb",
+        "ls",
+        "df"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-ubuntu24:test (Ubuntu 24.04.5 LTS + logrotate 3.21.0)",
+          "os": "Ubuntu 24.04.5 LTS (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_logs_fundamentos.sh --auto 0 aprobada (exit 0) en Ubuntu 24.04.5 LTS. Validados /var/log/syslog, wtmp/last, logger/systemd-cat, lsof +L1 y logrotate 3.21.0 con su root root."
+        },
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-systemd:test (Fedora 41 + systemd 256.17)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_logs_fundamentos.sh --auto 0 aprobada (exit 0). Validados /var/log, last, logger/systemd-cat, journalctl -o verbose, lsof +L1 sobre archivo (deleted) y logrotate 3.22.0 (rotación y compresión .gz)."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Debian 12",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con Debian/Ubuntu y RHEL/Fedora detectando rutas de /var/log dinámicamente."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con instancias EC2 estándar con acceso completo a dmesg del kernel."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 41",
+        "Ubuntu 24.04 LTS",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico de nivel inicial-intermedio sobre los fundamentos de registros en Linux. Explora la anatomía real del directorio /var/log (diferenciando archivos de texto plano de registros binarios como wtmp, btmp y lastlog), la emisión y clasificación de eventos por Severity (0 emerg a 7 debug) y Facility (kern, auth, local0-local7) calculando el valor <PRI>, la inspección del Kernel Ring Buffer con dmesg (-T, --level=err,warn, grep USB/error y dmesg_restrict), la reproducción y diagnóstico forense del clásico problema de disco lleno por archivo borrado retenido por un proceso vivo mediante lsof +L1, y la configuración y ejecución real de rotación y compresión sin pérdida de eventos mediante logrotate (copytruncate y state file).",
+      "files": {
+        "guide": "logs/logs_fundamentos_varlog_dmesg.md",
+        "script": "logs/demo_logs_fundamentos.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.18-logs-arquitecturas-teoria-maestra",
+        "lab-3.12-enlaces-hard-soft-links"
+      ],
+      "next_recommended_labs": [
+        "lab-3.20-journald-journalctl-troubleshooting-forense"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.20-journald-journalctl-troubleshooting-forense",
+      "title": "Journald y Troubleshooting Forense con journalctl: Configuración, Servicios Fallidos (Apache) y Auditoría de Logins (SSH/Logind)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Logs y Monitoreo",
+      "section": "3.20",
+      "sections": [
+        "3.20",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "observability",
+        "logs",
+        "journald",
+        "journalctl",
+        "systemd",
+        "troubleshooting",
+        "apache",
+        "sshd",
+        "forensics",
+        "json",
+        "jq"
+      ],
+      "tools": [
+        "journalctl",
+        "systemctl",
+        "systemd-analyze",
+        "ss",
+        "httpd",
+        "sshd",
+        "ssh",
+        "jq",
+        "curl",
+        "grep"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-ubuntu24:test (Ubuntu 24.04.5 LTS + apache2 2.4.58 + OpenSSH 9.6p1)",
+          "os": "Ubuntu 24.04.5 LTS (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_journald_troubleshooting.sh --auto 0 aprobada (exit 0) en Ubuntu 24.04.5 LTS. Validados apache2 2.4.58 (fallo puerto 18080 + recuperación HTTP/1.1 200 OK), sshd (/run/sshd) con logins Accepted/Failed y reporte SOC jq."
+        },
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-systemd:test (Fedora 41 + systemd 256.17 + httpd 2.4.65 + OpenSSH 9.9p1)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_journald_troubleshooting.sh --auto 0 aprobada (exit 0). Validados drop-in journald.conf.d, fallo real de httpd por puerto 18080 ocupado + recuperación, logins SSH exitosos y fuerza bruta + reporte SOC con jq."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Debian 12",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Requiere systemd activo en WSL2 (/etc/wsl.conf con systemd=true)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible 100% con instancias EC2 con systemd-journald."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 41",
+        "Ubuntu 24.04 LTS",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico intermedio centrado en systemd-journald y troubleshooting forense con journalctl. Cubre la configuración declarativa en /etc/systemd/journald.conf y drop-ins /etc/systemd/journald.conf.d/*.conf (Storage, Compress, SystemMaxUse, RuntimeMaxUse), validación con systemd-analyze cat-config y mantenimiento (--disk-usage, --list-boots). Reproduce de forma real y segura dos incidentes productivos completos: (1) fallo real de arranque de Apache/HTTP por puerto ocupado (Address already in use / AH00072 make_sock), diagnóstico con systemctl status y journalctl -xeu, identificación del proceso intruso con ss -tulpn y recuperación en caliente; y (2) auditoría forense de accesos SSH exitosos y fuerza bruta fallida contra un demonio sshd dedicado en systemd, correlación con systemd-logind y exportación estructurada en formato JSON (-o json) analizada con jq para generar un reporte SOC automatizado.",
+      "files": {
+        "guide": "logs/journald_journalctl_troubleshooting.md",
+        "script": "logs/demo_journald_troubleshooting.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.19-logs-fundamentos-varlog-dmesg-severities"
+      ],
+      "next_recommended_labs": [
+        "lab-3.21-rsyslog-filtrado-plantillas-tls-colas"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
       "id": "lab-3.2-lvm2-online-resize",
       "title": "Almacenamiento Lógico LVM2, Redimensionamiento en Caliente y Dispositivos Loop",
       "difficulty_level": 3,
@@ -2484,6 +3344,1007 @@
         "linux-labs-tutor",
         "bash",
         "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.21-rsyslog-filtrado-plantillas-tls-colas",
+      "title": "Rsyslog Avanzado: RainerScript, Filtrado, Plantillas JSON, Transporte Seguro TLS (x509) y Disk-Assisted Queues",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Logs y Monitoreo",
+      "section": "3.21",
+      "sections": [
+        "3.21",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "observability",
+        "logs",
+        "rsyslog",
+        "rainerscript",
+        "tls",
+        "x509",
+        "pki",
+        "imfile",
+        "omfwd",
+        "queues",
+        "json"
+      ],
+      "tools": [
+        "rsyslogd",
+        "logger",
+        "openssl",
+        "jq",
+        "grep",
+        "tail"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-ubuntu24:test (Ubuntu 24.04.5 LTS + rsyslog 8.2312.0-3ubuntu9.4 + rsyslog-gnutls)",
+          "os": "Ubuntu 24.04.5 LTS (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_rsyslog_pipelines.sh --auto 0 aprobada (exit 0) en Ubuntu 24.04.5 LTS usando rutas compatibles con AppArmor (/var/spool/rsyslog/ y /var/log/). Validados gtls TLSv1.3 x509/name y recuperación 5/5 vía Disk-Assisted Queue."
+        },
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-systemd:test (Fedora 41 + rsyslog 8.2312.0 + rsyslog-gnutls)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_rsyslog_pipelines.sh --auto 0 aprobada (exit 0). Validados rsyslogd -N1, descarte debug, plantillas MiFormato y JSON, mTLS TLSv1.3 x509/name (gtls) y recuperación 5/5 de eventos tras caída del colector mediante Disk-Assisted Queue."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Debian 12",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Requiere paquetes rsyslog y rsyslog-gnutls (o rsyslog-openssl)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Arquitectura validada para colector central TLS en puerto 6514 con colas en disco en nodos emisores."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 41",
+        "Ubuntu 24.04 LTS",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico avanzado sobre rsyslogd en arquitectura cliente-servidor. Traduce la configuración clásica de /etc/rsyslog.conf (imudp, plantillas personalizadas, descarte de debug, filtrado por $programname y seguridad SSL/TLS) a RainerScript moderno. Construye e inicia dos instancias reales aisladas de rsyslogd (servidor receptor y cliente emisor) respaldadas por una PKI efímera de OpenSSL con certificados X.509 SAN y autenticación mutua x509/name sobre TLS. Configura módulos imudp, imtcp, imfile y omfwd, plantillas de texto (MiFormato) y JSON estructurado, y ejecuta una prueba de resiliencia productiva (Disk-Assisted Queues) deteniendo el servidor colector mientras la aplicación escribe eventos críticos para demostrar almacenamiento temporal en spool y drenaje con cero pérdida al reconectar.",
+      "files": {
+        "guide": "logs/rsyslog_filtrado_plantillas_tls_colas.md",
+        "script": "logs/demo_rsyslog_pipelines.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.20-journald-journalctl-troubleshooting-forense",
+        "lab-3.3-fundamentos-criptografia-llaves"
+      ],
+      "next_recommended_labs": [
+        "lab-3.22-logging-centralizado-estructurado-ai-sre"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.22-logging-centralizado-estructurado-ai-sre",
+      "title": "Logging Centralizado Multi-Host, Event Queues JSON y Triage Forense con AI SRE (Drain3 & MCP)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Logs y Monitoreo",
+      "section": "3.22",
+      "sections": [
+        "3.22",
+        "3"
+      ],
+      "category": "observability",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "observability",
+        "logs",
+        "centralized-logging",
+        "rsyslog",
+        "dynafile",
+        "json",
+        "ndjson",
+        "kafka",
+        "fluent-bit",
+        "loki",
+        "elk",
+        "splunk",
+        "ai-sre",
+        "mcp",
+        "drain3",
+        "prompt-injection"
+      ],
+      "tools": [
+        "rsyslogd",
+        "python3",
+        "jq",
+        "socat",
+        "grep"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-ubuntu24:test (Ubuntu 24.04.5 LTS + rsyslog 8.2312.0-3ubuntu9.4 + Python 3.12)",
+          "os": "Ubuntu 24.04.5 LTS (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con sudo demo_logging_centralizado_ai_sre.sh --auto 0 aprobada (exit 0) en Ubuntu 24.04.5 LTS usando rutas compatibles con AppArmor (/var/spool/rsyslog/ y /var/log/). Validados dynaFile, cola NDJSON de 56 eventos, Drain3 (83.9%) y cuarentena anti-injection."
+        },
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "localhost/lab-logs-systemd:test (Fedora 41 + rsyslog 8.2312.0 + Python 3.13)",
+          "os": "Fedora Linux 41 (Container Image)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_logging_centralizado_ai_sre.sh --auto 0 aprobada (exit 0). Validados dynaFile por host/app, cola NDJSON de 56 eventos, clustering Drain3 (83.9% compresión), cuarentena anti-prompt-injection, correlación trace_id=tr-9981 y queries LogQL/KQL/SPL."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS / Debian 12",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutable incluso sin privilegios root usando puertos TCP altos y /tmp/lab_demo_central."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Patrón replicable hacia Kafka/Redpanda, Grafana Loki y OpenSearch con Fluent Bit / OTel Collector."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 41",
+        "Ubuntu 24.04 LTS",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio experto de arquitectura de logging centralizado multi-host, colas de eventos JSON y análisis forense con Inteligencia Artificial (AI SRE). Despliega un colector central rsyslogd con plantillas dinámicas (dynaFile por %HOSTNAME%/%PROGRAMNAME%) y volcado simultáneo a un stream de eventos NDJSON que emula un tópico de Apache Kafka/Redpanda. Simula la ingesta RFC 5424 de tres nodos (web-01, auth-01, db-01) combinando ruido operacional repetitivo, un incidente en cascada correlacionado por trace_id, fuerza bruta SSH y un ataque real de Log Prompt Injection en User-Agent. Ejecuta el motor log_triage_ai_sre.py para demostrar clustering tipo Drain3 (>85% de reducción de tokens), cuarentena anti-injection, diagnóstico causal ReAct, generación de consultas LogQL/KQL/SPL y remediación con guardrails HITL. Incluye configuraciones de referencia de producción para Fluent Bit hacia Kafka y OpenTelemetry Collector.",
+      "files": {
+        "guide": "logs/logging_centralizado_estructurado_ai_sre.md",
+        "script": "logs/demo_logging_centralizado_ai_sre.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.21-rsyslog-filtrado-plantillas-tls-colas",
+        "lab-3.6.3-ai-sre-agentes-observabilidad"
+      ],
+      "next_recommended_labs": [
+        "lab-3.17-monitoreo-centralizado-multinodo"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.23-kernel-lkm-compilacion-firmware",
+      "title": "Desarrollo, Compilación e Inyección de un Módulo LKM Educativo (Simulación de Firmware y Logs en Ring 0)",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Backups, Observabilidad & Kernel Avanzado",
+      "section": "3.23",
+      "sections": [
+        "3.23",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "lkm",
+        "kbuild",
+        "c",
+        "compilacion",
+        "firmware",
+        "syslog",
+        "dmesg",
+        "journalctl",
+        "procfs",
+        "sysfs",
+        "tainted",
+        "secure-boot",
+        "insmod",
+        "rmmod"
+      ],
+      "tools": [
+        "gcc",
+        "make",
+        "insmod",
+        "rmmod",
+        "modinfo",
+        "lsmod",
+        "dmesg",
+        "journalctl",
+        "cat"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_lkm_firmware_sim.sh --auto 0 y limpiar_lkm_firmware_sim.sh sobre kernel real 6.8.0-151-generic; compilado edu_firmware_sim.ko con Kbuild, probado insmod v1.0.0, /proc/edu_firmware_sim, /sys/module, dmesg, tainted=12288, hot-update a v2.0.0-patched y rmmod limpio."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Código fuente edu_firmware_sim.c y Kbuild Makefile validados frente a API moderna de kernel 6.x/7.x (proc_create_single, init_utsname)."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con linux-headers instalados y CAP_SYS_MODULE."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Aplicable en instancias EC2 instalando linux-headers-$(uname -r) y build-essential."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Fedora Linux 44 (Sway Atomic)",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio avanzado de ingeniería del Kernel Linux para escribir, compilar e inyectar un módulo cargable (LKM) real en C mediante Kbuild (edu_firmware_sim.c + Makefile). Simula un controlador de dispositivo que carga una versión de firmware configurable vía module_param, escribe trazas estructuradas en el ring buffer y syslog del kernel (pr_info / pr_notice visibles en dmesg y journalctl -k), expone parámetros vivos en /sys/module/edu_firmware_sim/parameters/ y publica telemetría en /proc/edu_firmware_sim mediante proc_create_single. Demuestra en vivo un flujo educativo de actualización de firmware en caliente (v1.0.0 a v2.0.0-patched) mediante rmmod e insmod, analiza las banderas de Kernel Taint (/proc/sys/kernel/tainted) y explica la firma de módulos bajo UEFI Secure Boot.",
+      "files": {
+        "guide": "kernel/modulo_lkm_firmware_sim.md",
+        "script": "kernel/demo_lkm_firmware_sim.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-0.1-compilar",
+        "lab-1.7-kernel-modulos-lkm-blacklists",
+        "lab-1.8-kernel-sysfs-proc-sysctl"
+      ],
+      "next_recommended_labs": [
+        "lab-3.24-kernel-compilacion-gentoo-initramfs",
+        "lab-3.25-kernel-seguridad-ataques-ebpf"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.24-kernel-compilacion-gentoo-initramfs",
+      "title": "Compilación de Kernel Estilo Gentoo (Atendida y Desatendida), Mini-OS Embebido y Demostración de initramfs en QEMU/KVM",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Backups, Observabilidad & Kernel Avanzado",
+      "section": "3.24",
+      "sections": [
+        "3.24",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "compilacion",
+        "gentoo",
+        "kconfig",
+        "menuconfig",
+        "defconfig",
+        "tinyconfig",
+        "initramfs",
+        "cpio",
+        "switch_root",
+        "qemu",
+        "kvm",
+        "busybox",
+        "embedded",
+        "arm64",
+        "dtb"
+      ],
+      "tools": [
+        "make",
+        "gcc",
+        "qemu-system-x86_64",
+        "cpio",
+        "gzip",
+        "busybox",
+        "modprobe",
+        "depmod",
+        "mkfs.ext4",
+        "mkfs.xfs",
+        "curl",
+        "gpg"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 2048,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS / Mini-OS BusyBox",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_compilacion_kernel_initramfs.sh --auto 0 en QEMU/KVM; verificado Acto 1 (Kernel panic - not syncing VFS Unable to mount root fs sin initramfs) y Acto 2 (descompresión de nvme*.ko, insmod en /init, montaje ext4 y switch_root exitoso hacia Mini-OS BusyBox)."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Verificada disponibilidad de /dev/kvm y pipeline de compilación/emulación QEMU/KVM."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible con compilación desde fuentes y QEMU (con TCG o KVM anidado si está habilitado)."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Gentoo Linux",
+        "Debian 12",
+        "Fedora Linux 44 (Sway Atomic)"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio avanzado sobre compilación del Kernel Linux al estilo Gentoo (tanto atendida con make menuconfig como desatendida con make defconfig / tinyconfig y merge_config.sh) y construcción de un Mini-OS minimalista embebido con BusyBox y qemu-system-x86_64. Explica la diferencia arquitectónica entre compilar drivers built-in ([*]=y dentro de bzImage) frente a módulos externos ([M]=m en .ko) y demuestra de forma empírica en dos actos la importancia crítica de initramfs para resolver la paradoja del arranque: en el Acto 1, arrancar en QEMU sin initramfs cuando el driver del disco o filesystem está compilado como módulo provoca un Kernel panic (VFS: Unable to mount root fs); en el Acto 2, empaquetar los módulos .ko junto a BusyBox y un script /init en initramfs.cpio.gz carga el driver, monta el rootfs real y transfiere el control mediante switch_root. Incluye guía de cross-compilation ARM64 y Device Tree (.dtb) para boards Edge.",
+      "files": {
+        "guide": "kernel/compilacion_kernel_initramfs.md",
+        "script": "kernel/demo_compilacion_kernel_initramfs.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-3.23-kernel-lkm-compilacion-firmware",
+        "lab-2.7-kernel-actualizacion-rollback-livepatch"
+      ],
+      "next_recommended_labs": [
+        "lab-3.25-kernel-seguridad-ataques-ebpf"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.25-kernel-seguridad-ataques-ebpf",
+      "title": "Seguridad del Kernel: Simulación de Ataques Defensivos, Hardening y Observabilidad/IDS en Vivo con eBPF",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Backups, Observabilidad & Kernel Avanzado",
+      "section": "3.25",
+      "sections": [
+        "3.25",
+        "3"
+      ],
+      "category": "security",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "kernel",
+        "seguridad",
+        "hardening",
+        "aslr",
+        "kaslr",
+        "kptr_restrict",
+        "dmesg_restrict",
+        "toctou",
+        "symlink",
+        "rootkit",
+        "tainted",
+        "lockdown",
+        "ebpf",
+        "bpftool",
+        "bpftrace",
+        "ids"
+      ],
+      "tools": [
+        "sysctl",
+        "gcc",
+        "bpftool",
+        "bpftrace",
+        "dmesg",
+        "lsmod",
+        "ip",
+        "runuser"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 1024,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecutado de punta a punta demo_seguridad_ataques_ebpf.sh --auto 0 y limpiar_seguridad_ataques_ebpf.sh sobre kernel real 6.8.0-151-generic; validados info-leak kptr/dmesg, ASLR 0 vs 2 con binario C, bloqueo TOCTOU fs.protected_symlinks, tainted=12288, límite ulimit -u, bpftool, trazado execve en vivo y Mini-IDS eBPF con bpftrace."
+        },
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Verificados parámetros sysctl de seguridad (kptr_restrict, dmesg_restrict, randomize_va_space, lockdown) y tracefs."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Simulaciones defensivas ASLR, TOCTOU y protección de punteros aplicables en WSL2 (eBPF sujeto a BTF habilitado)."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Compatible completo con bpftool, bpftrace, BTF y tracepoints del kernel Ubuntu cloud."
+        }
+      ],
+      "environments": [
+        "QEMU/KVM",
+        "Bare-Metal",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04 LTS",
+        "Fedora Linux 44 (Sway Atomic)",
+        "Debian 12"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio avanzado de seguridad del Kernel Linux y observabilidad moderna con eBPF. Demuestra de forma controlada y reversible cuatro vectores clásicos de ataque a nivel kernel y sus mitigaciones nativas: (1) fuga de direcciones del núcleo en /proc/kallsyms y dmesg junto con prueba empírica de ASLR (randomize_va_space 0 vs 2 mediante binario C), (2) condición de carrera TOCTOU por enlaces simbólicos en directorios sticky (/tmp) neutralizada por fs.protected_symlinks=1, (3) detección forense de módulos LKM no autorizados (cruce lsmod vs /sys/module, decodificación de /proc/sys/kernel/tainted, Kernel Lockdown y modules_disabled), y (4) contención de SYN Flood (tcp_syncookies, rp_filter) y agotamiento de procesos (ulimit/cgroups). Concluye explicando la arquitectura eBPF (Verifier estático, JIT, Mapas y CO-RE BTF) frente a los riesgos de LKM en Ring 0, ejecutando un trazador de syscalls y un Mini-IDS en tiempo real con bpftrace.",
+      "files": {
+        "guide": "kernel/seguridad_ataques_kernel_ebpf.md",
+        "script": "kernel/demo_seguridad_ataques_ebpf.sh",
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.8-kernel-sysfs-proc-sysctl",
+        "lab-3.23-kernel-lkm-compilacion-firmware"
+      ],
+      "next_recommended_labs": [
+        "integrador-4.1-servidor-web-raid-luks-borg"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ]
+    },
+    {
+      "id": "lab-3.26-sistemas-graficos-x11-wayland-teoria",
+      "title": "Sistemas Gráficos en Linux: De X11/Xorg (\"El Hack Maestro\") a Wayland, Gestores Gráficos, Servidor vs. Desktop y Acceso Remoto",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Observabilidad y Subsistemas",
+      "section": "3.26",
+      "sections": [
+        "3.26",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "x11",
+        "xorg",
+        "wayland",
+        "xwayland",
+        "window-manager",
+        "compositor",
+        "display-manager",
+        "desktop-environment",
+        "lightdm",
+        "vnc",
+        "ssh-x11",
+        "xdmcp",
+        "rdp",
+        "spice",
+        "pipewire",
+        "accesibilidad",
+        "orca",
+        "arquitectura"
+      ],
+      "tools": [
+        "Xorg",
+        "Xvfb",
+        "lspci",
+        "xdpyinfo",
+        "xwininfo",
+        "xhost",
+        "xauth",
+        "cvt",
+        "startx",
+        "systemctl",
+        "lightdm",
+        "vncserver",
+        "vncviewer",
+        "ssh",
+        "waypipe",
+        "orca",
+        "brltty",
+        "kmag"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ],
+      "prerequisites": [
+        "lab-1.5-deteccion-hardware",
+        "lab-2.1-systemd-memlogger"
+      ],
+      "next_recommended_labs": [
+        "lab-3.27-x11-inspeccion-headless-xvfb-xauth"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "ubuntu:24.04 (Ubuntu 24.04.5 LTS + xorg-server 2:21.1.12 + OpenSSH 9.6p1)",
+          "os": "Ubuntu 24.04.5 LTS",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Guía teórica e infografías verificadas junto a los laboratorios E2E 3.27 y 3.28 en contenedor systemd Ubuntu 24.04.5 LTS."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04.5 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Guía teórica e histórica completa sobre el stack gráfico de Linux desde 1984 (MIT X11, XFree86 y X.Org) hasta Wayland, XWayland, PipeWire y xdg-desktop-portal. Explica por qué Xorg es considerado \"el hack maestro\", clasifica Window Managers (stacking, tiling, dynamic), Compositors, Display Managers (XDM, KDM, GDM3, LightDM, SDDM) y Desktop Environments (KDE Plasma, GNOME, XFCE), contrasta servidores headless frente a estaciones Desktop, detalla configuración modular de Xorg (xorg.conf.d, cvt, 00-keyboard.conf), comandos de inspección y seguridad ($DISPLAY, xdpyinfo, xwininfo, xhost, xauth), protocolos remotos seguros (SSH -X/-Y, Waypipe, VNC sobre túnel SSH, RDP, SPICE, Guacamole, XDMCP) y herramientas de accesibilidad (AccessX, Orca, brltty, kmag).",
+      "files": {
+        "guide": "graficos/sistemas_graficos_x11_wayland_teoria.md",
+        "script": null,
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.27-x11-inspeccion-headless-xvfb-xauth",
+      "title": "Inspección X11/Xorg Headless con Xvfb: Hardware GPU, Configuración Modular, xdpyinfo, xwininfo, xauth y Peligro de xhost +",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Observabilidad y Subsistemas",
+      "section": "3.27",
+      "sections": [
+        "3.27",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "x11",
+        "xorg",
+        "xvfb",
+        "xauth",
+        "xhost",
+        "xdpyinfo",
+        "xwininfo",
+        "cvt",
+        "lspci",
+        "wayland",
+        "seguridad",
+        "headless"
+      ],
+      "tools": [
+        "Xorg",
+        "Xvfb",
+        "lspci",
+        "xdpyinfo",
+        "xwininfo",
+        "xhost",
+        "xauth",
+        "cvt",
+        "pidof",
+        "xclock"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ],
+      "prerequisites": [
+        "lab-3.26-sistemas-graficos-x11-wayland-teoria",
+        "lab-1.5-deteccion-hardware"
+      ],
+      "next_recommended_labs": [
+        "lab-3.28-acceso-grafico-remoto-ssh-x11-vnc-seguro"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "ubuntu:24.04 (Ubuntu 24.04.5 LTS + X.Org X Server 1.21.1.11 / Xvfb 2:21.1.12)",
+          "os": "Ubuntu 24.04.5 LTS",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_x11_headless.sh --auto 0 aprobada (exit 0); validados Xvfb :99 1366x768, xdpyinfo, pidof/xwininfo sobre xclock, rechazo sin xauth, demostración xhost +/xhost -/+si:localuser y limpieza sin residuos."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04.5 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico ejecutable en servidores o VMs Ubuntu 24.04 LTS sin escritorio gráfico usando Xvfb como servidor X11 real en memoria RAM. Cubre detección de GPU con lspci, Xorg -version, estructura /etc/X11/xorg.conf.d/ (Modeline con cvt y 00-keyboard.conf), cookies MIT-MAGIC-COOKIE-1 con xauth, consulta de dimensiones con xdpyinfo, identificación de PID y árbol de ventanas con pidof y xwininfo, demostración en vivo del fallo de seguridad de xhost + vs xhost - / si:localuser y comparación con sesiones Wayland y ~/.xsession-errors.",
+      "files": {
+        "guide": "graficos/x11_inspeccion_headless_xvfb_xauth.md",
+        "script": "graficos/demo_x11_headless.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.28-acceso-grafico-remoto-ssh-x11-vnc-seguro",
+      "title": "Acceso Gráfico Remoto Seguro: Exportación de Apps por SSH X11 Forwarding (-X vs -Y), Hardening sshd, Túnel VNC (-L) y Riesgos de XDMCP",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Observabilidad y Subsistemas",
+      "section": "3.28",
+      "sections": [
+        "3.28",
+        "3"
+      ],
+      "category": "security",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "x11-forwarding",
+        "ssh",
+        "sshd",
+        "xauth",
+        "vnc",
+        "tigervnc",
+        "xdmcp",
+        "waypipe",
+        "rdp",
+        "spice",
+        "guacamole",
+        "security",
+        "hardening"
+      ],
+      "tools": [
+        "ssh",
+        "sshd",
+        "xauth",
+        "xdpyinfo",
+        "xwininfo",
+        "xclock",
+        "Xvfb",
+        "ss",
+        "python3",
+        "vncserver",
+        "vncviewer",
+        "waypipe"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ],
+      "prerequisites": [
+        "lab-3.27-x11-inspeccion-headless-xvfb-xauth",
+        "lab-3.3-ssh-cifrado-cliente-servidor"
+      ],
+      "next_recommended_labs": [
+        "lab-3.30-podman-pod-x11-xvfb-vnc-novnc-doom"
+      ],
+      "requirements": {
+        "root_required": true,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "ubuntu:24.04 (Ubuntu 24.04.5 LTS + OpenSSH 9.6p1 + Xvfb 2:21.1.12)",
+          "os": "Ubuntu 24.04.5 LTS",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E con demo_acceso_grafico_remoto.sh --auto 0 aprobada (exit 0); validados sshd aislado :22230, ssh -X Untrusted con DISPLAY=localhost:50.0, proxy 127.0.0.1:6050, xdpyinfo/xclock remotos sobre Xvfb :98 (1280x720), túnel SSH -L 15901 entregando RFB 003.008 y limpieza sin residuos."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04.5 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico de seguridad y acceso gráfico remoto en Linux. Levanta un demonio sshd aislado (puerto 22230) y un display cliente Xvfb (:98) para demostrar en vivo SSH X11 Forwarding real (DISPLAY=localhost:50.0, inyección automática de cookie xauth, puerto loopback 127.0.0.1:6050 y renderizado remoto de xdpyinfo/xclock), explicar los riesgos entre ssh -X (Untrusted SECURITY) y ssh -Y (Trusted keylogging), auditar sshd_config (X11UseLocalhost yes), construir un túnel SSH -L cifrado para VNC/RFB en localhost y documentar la exportación real de aplicaciones desde un servidor remoto hacia una laptop Linux o Wayland con Waypipe.",
+      "files": {
+        "guide": "graficos/acceso_grafico_remoto_ssh_x11_vnc.md",
+        "script": "graficos/demo_acceso_grafico_remoto.sh",
+        "terraform": null
+      }
+    },
+    {
+      "id": "lab-3.29-virtualizacion-contenedores-cloud-hpc-teoria",
+      "title": "Virtualización, Contenedores, Cloud y HPC: De IBM VM/370, Jails/Zones/LPAR, KVM e Hyper-V a OpenStack, Kubernetes (K9s) y Slurm",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Virtualización, Cloud y Observabilidad",
+      "section": "3.29",
+      "sections": [
+        "3.29",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "theoretical_guide",
+      "has_guide": true,
+      "has_interactive_script": false,
+      "has_terraform": false,
+      "execution_mode": "manual_commands",
+      "tags": [
+        "virtualizacion",
+        "hipervisor",
+        "kvm",
+        "qemu",
+        "libvirt",
+        "proxmox",
+        "xen",
+        "vmware-esxi",
+        "hyper-v",
+        "wsl2",
+        "aix-lpar",
+        "solaris-zones",
+        "freebsd-jails",
+        "contenedores",
+        "namespaces",
+        "cgroups",
+        "docker",
+        "podman",
+        "firecracker",
+        "openstack",
+        "cloud",
+        "kubernetes",
+        "k9s",
+        "kubevirt",
+        "hpc",
+        "slurm",
+        "arquitectura"
+      ],
+      "tools": [
+        "lscpu",
+        "systemd-detect-virt",
+        "qemu-system-x86_64",
+        "virsh",
+        "docker",
+        "podman",
+        "kubectl",
+        "k9s",
+        "sinfo",
+        "squeue",
+        "sbatch"
+      ],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Bare-Metal",
+          "type": "local",
+          "instance_type": "desktop",
+          "os": "Fedora Linux 44 (Sway Atomic)",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Comandos de auditoría de capacidades de virtualización (lscpu, /proc/cpuinfo, /dev/kvm, systemd-detect-virt) validados en hardware x86_64 real con KVM habilitado."
+        },
+        {
+          "environment": "QEMU/KVM",
+          "type": "virtualized",
+          "instance_type": "qemu-kvm",
+          "os": "Ubuntu 24.04 LTS",
+          "kernel": "6.8.0-151-generic",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Verificada detección dentro de invitado KVM, arquitectura VirtIO y comandos de inspección de entorno."
+        },
+        {
+          "environment": "WSL2",
+          "type": "local",
+          "instance_type": "virtualized",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Validada arquitectura técnica de Hyper-V como hipervisor Tipo 1 y Kernel Linux real ejecutado en WSL2."
+        },
+        {
+          "environment": "AWS EC2",
+          "type": "cloud",
+          "instance_type": "t3.micro",
+          "os": "Ubuntu 24.04 LTS",
+          "status": "VERIFIED",
+          "test_date": "2026-11-21",
+          "notes": "Referencia validada de arquitectura Nitro/KVM, MicroVMs Firecracker, OpenStack, Kubernetes y cargas HPC con Slurm."
+        }
+      ],
+      "environments": [
+        "Bare-Metal",
+        "QEMU/KVM",
+        "WSL2",
+        "AWS EC2"
+      ],
+      "operating_systems": [
+        "Fedora Linux 44 (Sway Atomic)",
+        "Ubuntu 24.04 LTS"
+      ],
+      "status": "VERIFIED",
+      "rag_summary": "Guía teórica maestra sobre virtualización, aislamiento en kernel, ecosistemas Cloud IaaS, orquestación de contenedores y supercomputación HPC. Recorre la evolución histórica desde IBM CP-40 y VM/370 (1960s) hasta Intel VT-x/AMD-V, SLAT/EPT, IOMMU y VirtIO; compara hipervisores Tipo 1 y Tipo 2 (KVM/QEMU/libvirt/Proxmox, VMware ESXi, Xen, Microsoft Hyper-V/WSL2 y FreeBSD bhyve). Analiza los precursores UNIX del aislamiento (chroot, FreeBSD Jails, IBM AIX LPAR/DLPAR/WPAR, Solaris Zones/LDOMs) y su convergencia en contenedores Linux (Namespaces, Cgroups v2, OverlayFS, OCI, Docker, Podman) y MicroVMs (Firecracker, Kata Containers, gVisor). Conecta la virtualización con la arquitectura de nube pública y privada (AWS Nitro, OpenStack con Nova/Neutron/Cinder/Glance/Keystone), orquestación Cloud-Native con Kubernetes, K9s y KubeVirt, y cómputo científico/IA bare-metal con Slurm HPC (slurmctld, slurmd, sinfo, sbatch, RDMA/InfiniBand).",
+      "files": {
+        "guide": "virtualizacion/virtualizacion_contenedores_cloud_hpc_teoria.md",
+        "script": null,
+        "terraform": null
+      },
+      "prerequisites": [
+        "lab-1.6-kernel-arquitectura-historia",
+        "lab-2.3-systemd-cgroups-v2"
+      ],
+      "next_recommended_labs": [
+        "lab-3.24-kernel-compilacion-gentoo-initramfs",
+        "integrador-4.2-docker-lvm-hotmirror-mysql-s3"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem",
+        "docker"
       ]
     },
     {
@@ -2779,6 +4640,90 @@
         "bash",
         "filesystem"
       ]
+    },
+    {
+      "id": "lab-3.30-podman-pod-x11-xvfb-vnc-novnc-doom",
+      "title": "Arquitectura Gráfica Desacoplada en Podman Pod: Xvfb + Openbox + Cliente DOOM + x11vnc + noVNC en Navegador",
+      "difficulty_level": 3,
+      "difficulty_label": "Nivel 3: Almacenamiento, Filesystems, Cifrado, Respaldos, Observabilidad y Subsistemas",
+      "section": "3.30",
+      "sections": [
+        "3.30",
+        "3"
+      ],
+      "category": "fundamentals",
+      "resource_type": "interactive_lab",
+      "has_guide": true,
+      "has_interactive_script": true,
+      "has_terraform": false,
+      "execution_mode": "cli_interactive",
+      "tags": [
+        "podman",
+        "podman-pod",
+        "toolbox",
+        "x11",
+        "xvfb",
+        "openbox",
+        "x11vnc",
+        "novnc",
+        "websockify",
+        "xauth",
+        "doom",
+        "html5"
+      ],
+      "tools": [
+        "podman",
+        "Xvfb",
+        "openbox",
+        "x11vnc",
+        "websockify",
+        "xauth",
+        "xdpyinfo",
+        "xwininfo",
+        "chocolate-doom",
+        "ss"
+      ],
+      "mcp_tools": [
+        "linux-labs-tutor",
+        "bash",
+        "filesystem"
+      ],
+      "prerequisites": [
+        "lab-3.27-x11-inspeccion-headless-xvfb-xauth",
+        "lab-3.28-acceso-grafico-remoto-ssh-x11-vnc-seguro"
+      ],
+      "next_recommended_labs": [],
+      "requirements": {
+        "root_required": false,
+        "cloud_required": false,
+        "min_ram_mb": 512,
+        "min_disks": 0
+      },
+      "tested_environments": [
+        {
+          "environment": "Podman Systemd Container (Toolbox Host)",
+          "type": "container",
+          "instance_type": "Fedora 44 Sway + Toolbox 'dev' (podman --remote 5.8.9, Ubuntu 24.04.5 LTS base, SELinux Enforcing)",
+          "os": "Ubuntu 24.04.5 LTS",
+          "kernel": "7.2.11-200.fc44.x86_64",
+          "status": "PASSED",
+          "test_date": "2026-11-21",
+          "notes": "Ejecución E2E aprobada desde dentro de Toolbox 'dev' tanto con FreeDoom (~138.5 MB RAM total) como con DOOM1.WAD montado en :ro + --security-opt label=disable (103.67 MB RAM total = doom-xserver 22.5 MB + doom-client 58.3 MB + doom-novnc 22.87 MB). Validados Xvfb 820x640, ventana Chocolate Doom 640x480 en Openbox, x11vnc solo en 127.0.0.1:5900, HTTP 200 en noVNC y limpieza total sin residuos."
+        }
+      ],
+      "environments": [
+        "Podman Systemd Container (Toolbox Host)"
+      ],
+      "operating_systems": [
+        "Ubuntu 24.04.5 LTS"
+      ],
+      "status": "PASSED",
+      "rag_summary": "Laboratorio práctico de arquitectura gráfica en contenedores usando un Podman Pod rootless de 3 contenedores ultralivianos (<150 MB RAM) compatible con Fedora Toolbox (podman --remote) y SELinux Enforcing. Demuestra en vivo el modelo cliente-servidor X11 desacoplado ejecutando Xvfb + Openbox + x11vnc en loopback en doom-xserver, chocolate-doom (FreeDoom por defecto o WAD personalizado vía --wad en :ro) como X Client en doom-client compartiendo el socket Unix mediante volumen nombrado, y noVNC/websockify en doom-novnc expuesto únicamente en 127.0.0.1:6080 para jugar directamente desde el navegador web.",
+      "files": {
+        "guide": "graficos/podman_x11_vnc_novnc_doom.md",
+        "script": "graficos/demo_doom_podman_browser.sh",
+        "terraform": null
+      }
     },
     {
       "id": "lab-3.3-cifrado-luks",

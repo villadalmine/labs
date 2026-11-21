@@ -1,0 +1,21 @@
+FROM docker.io/library/ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PATH="/usr/games:${PATH}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb openbox x11vnc xauth x11-utils \
+    novnc websockify chocolate-doom freedoom \
+    procps iproute2 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY default.cfg chocolate-doom.cfg /opt/doom-cfg/
+COPY entrypoint-xserver.sh /usr/local/bin/entrypoint-xserver.sh
+COPY entrypoint-doom.sh /usr/local/bin/entrypoint-doom.sh
+COPY entrypoint-novnc.sh /usr/local/bin/entrypoint-novnc.sh
+
+RUN chmod +x /usr/local/bin/entrypoint-xserver.sh \
+             /usr/local/bin/entrypoint-doom.sh \
+             /usr/local/bin/entrypoint-novnc.sh
+
+EXPOSE 6080
